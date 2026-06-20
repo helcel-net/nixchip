@@ -13,10 +13,17 @@ case "$package_set" in
       yosys-slang
       cacti6
       cacti7
+      hotspot
+      dramsim3
+      mcpat
       chipyard
       openroad-flow-scripts
       simulation-tools
+      formal-tools
       fpga-tools
+      analog-tools
+      memory-tools
+      thermal-tools
     )
     ;;
   full)

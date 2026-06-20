@@ -62,6 +62,100 @@ let
     verible0 = basePkgs.verible;
     verible = verible0;
 
+    systemc2 = callPackage ./systemc {
+      version = "2.3.4";
+      hash = "sha256-CzjrkgvMRmL82omffz+bTI9JR900sdRmhZIhcyflSGo=";
+    };
+
+    systemc3 = callPackage ./systemc {
+      version = "3.0.2";
+      hash = "sha256-v/PcQu0m/7zyx2TtpZrLFbHtknahgVCkzcRi3lgrRGw=";
+    };
+    systemc = systemc3;
+
+    ghdl6 = basePkgs.ghdl;
+    ghdl = ghdl6;
+    nvc1 = basePkgs.nvc;
+    nvc = nvc1;
+
+    surfer0 = basePkgs.surfer;
+    surfer = surfer0;
+
+    spike1 = basePkgs.spike;
+    spike = spike1;
+
+    vhdl-ls0 = basePkgs.vhdl-ls;
+    vhdl-ls = vhdl-ls0;
+
+    ngspice45 = basePkgs.ngspice;
+    ngspice = ngspice45;
+    xyce7 = basePkgs.xyce;
+    xyce = xyce7;
+    qucs-s25 = basePkgs.qucs-s;
+    qucs-s = qucs-s25;
+    xschem3 = basePkgs.xschem;
+    xschem = xschem3;
+
+    surelog1 = basePkgs.surelog;
+    surelog = surelog1;
+    uhdm1 = basePkgs.uhdm;
+    uhdm = uhdm1;
+
+    fusesoc2 = basePkgs.fusesoc;
+    fusesoc = fusesoc2;
+
+    # Python library packages — compose into a python3.withPackages env for actual use
+    cocotb2 = basePkgs.python3Packages.cocotb;
+    cocotb = cocotb2;
+    edalize0 = basePkgs.python3Packages.edalize;
+    edalize = edalize0;
+
+    abc0 = basePkgs.abc-verifier;
+    abc = abc0;
+
+    sv2v0 = basePkgs.haskellPackages.sv2v;
+    sv2v = sv2v0;
+
+    vtr9 = callPackage ./vtr { };
+    vtr = vtr9;
+
+    eqy0 = callPackage ./eqy { };
+    eqy = eqy0;
+
+    netgen-vlsi1 = basePkgs.netgen-vlsi;
+    netgen-vlsi = netgen-vlsi1;
+    klayout0 = basePkgs.klayout;
+    klayout = klayout0;
+    magic-vlsi8 = basePkgs.magic-vlsi;
+    magic-vlsi = magic-vlsi8;
+
+    sby0 = basePkgs.sby;
+    sby = sby0;
+    yices2 = basePkgs.yices;
+    yices = yices2;
+    boolector3 = basePkgs.boolector;
+    boolector = boolector3;
+    bitwuzla0 = basePkgs.bitwuzla;
+    bitwuzla = bitwuzla0;
+    cadical3 = basePkgs.cadical;
+    cadical = cadical3;
+    cryptominisat5 = basePkgs.cryptominisat;
+    cryptominisat = cryptominisat5;
+
+    aiger0 = basePkgs.aiger;
+    aiger = aiger0;
+    btor2tools0 = basePkgs.btor2tools;
+    btor2tools = btor2tools0;
+    mcy0 = basePkgs.mcy;
+    mcy = mcy0;
+
+    hotspot7 = callPackage ./hotspot { };
+    hotspot = hotspot7;
+    dramsim3-1 = callPackage ./dramsim3 { };
+    dramsim3 = dramsim3-1;
+    mcpat1 = callPackage ./mcpat { };
+    mcpat = mcpat1;
+
     openroad26 = basePkgs.openroad;
     openroad = openroad26;
 
@@ -94,9 +188,35 @@ let
         verilator
         sv-lang
         chisel
+        systemc
+        ghdl
+        nvc
         basePkgs.iverilog
         basePkgs.gtkwave
+        surfer
         verible
+        spike
+        vhdl-ls
+      ];
+    };
+
+    formal-tools = pkgs.symlinkJoin {
+      name = "nixchip-formal-tools";
+      paths = [
+        yosys-full
+        sby
+        eqy
+        yices
+        boolector
+        bitwuzla
+        cadical
+        cryptominisat
+        basePkgs.cvc5
+        basePkgs.z3
+        abc
+        aiger
+        btor2tools
+        mcy
       ];
     };
 
@@ -109,28 +229,66 @@ let
         basePkgs.icestorm
         basePkgs.trellis
         basePkgs.openfpgaloader
+        sv2v
+        vtr
+        fusesoc
       ]
       ++ optionalPackage "sby"
       ++ optionalPackage "symbiyosys";
     };
 
-    asic-tools = pkgs.symlinkJoin {
-      name = "nixchip-asic-tools";
+    physical-design-tools = pkgs.symlinkJoin {
+      name = "nixchip-physical-design-tools";
       paths = [
         openroad
         openroad-flow-scripts
         yosys-full
         circt
         firrtl
-        cacti
-        basePkgs.klayout
-        basePkgs.magic-vlsi
-        basePkgs.netgen
-        basePkgs.cvc5
-        basePkgs.z3
+        klayout
+        magic-vlsi
+        netgen-vlsi
       ]
       ++ optionalUnfreePackage "espresso"
       ++ optionalPackage "surelog";
+    };
+
+    analog-tools = pkgs.symlinkJoin {
+      name = "nixchip-analog-tools";
+      paths = [
+        ngspice
+        xyce
+        qucs-s
+        xschem
+      ];
+    };
+
+    memory-tools = pkgs.symlinkJoin {
+      name = "nixchip-memory-tools";
+      paths = [
+        cacti
+        dramsim3
+        mcpat
+      ];
+    };
+
+    thermal-tools = pkgs.symlinkJoin {
+      name = "nixchip-thermal-tools";
+      paths = [
+        hotspot
+        dramsim3
+      ];
+    };
+
+    asic-tools = pkgs.symlinkJoin {
+      name = "nixchip-asic-tools";
+      paths = [
+        physical-design-tools
+        analog-tools
+        memory-tools
+        thermal-tools
+        formal-tools
+      ];
     };
 
     hardware-tools = pkgs.symlinkJoin {
@@ -140,6 +298,8 @@ let
         fpga-tools
         asic-tools
         chipyard
+        surelog
+        uhdm
       ];
     };
   };

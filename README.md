@@ -89,6 +89,9 @@ Package layout:
 - `pkgs/cacti/default.nix` builds CACTI `6.5.0` and pinned CACTI 7.
 - `pkgs/chisel/default.nix` packages Chisel 7 source and development helpers.
 - `pkgs/chipyard/default.nix` packages Chipyard `1.13.0` and provides `chipyard-init`.
+- `pkgs/dramsim3/default.nix` builds DRAMsim3 for memory-system simulation.
+- `pkgs/hotspot/default.nix` builds HotSpot 7 for thermal modeling.
+- `pkgs/mcpat/default.nix` builds McPAT 1 for architectural power, area, and timing modeling.
 - `pkgs/openroad-flow-scripts/default.nix` packages OpenROAD Flow Scripts `26Q2` and provides `openroad-flow-scripts-init`.
 - `pkgs/verilator/default.nix` builds source-pinned historical Verilator majors.
 - `pkgs/yosys-slang/default.nix` builds the `povik/yosys-slang` Yosys plugin from source.
@@ -121,7 +124,52 @@ Important package attributes:
 - `chisel7`: Chisel `7.13.0`, with `chisel-init`, `chisel-path`, `chisel-scala-cli`, `chisel-mill`, and `chisel-sbt`.
 - `verible`: alias for `verible0`.
 - `verible0`: Verible from the pinned nixpkgs input.
-- `simulation-tools`, `fpga-tools`, `asic-tools`, `hardware-tools`.
+- `systemc`: alias for `systemc3`.
+- `systemc3`: SystemC from the pinned nixpkgs input.
+- `ghdl`: alias for `ghdl6`.
+- `ghdl6`: GHDL from the pinned nixpkgs input.
+- `nvc`: alias for `nvc1`.
+- `nvc1`: NVC from the pinned nixpkgs input.
+- `surfer`: alias for `surfer0`.
+- `surfer0`: Surfer waveform viewer from the pinned nixpkgs input.
+- `ngspice`: alias for `ngspice45`.
+- `ngspice45`: ngspice 45 from the pinned nixpkgs input.
+- `xyce`: alias for `xyce7`.
+- `xyce7`: Xyce 7 from the pinned nixpkgs input.
+- `qucs-s`: alias for `qucs-s25`.
+- `qucs-s25`: Qucs-S 25 from the pinned nixpkgs input.
+- `surelog`: alias for `surelog1`.
+- `surelog1`: Surelog from the pinned nixpkgs input.
+- `uhdm`: alias for `uhdm1`.
+- `uhdm1`: UHDM from the pinned nixpkgs input.
+- `netgen-vlsi`: alias for `netgen-vlsi1`.
+- `netgen-vlsi1`: Netgen LVS from the pinned nixpkgs input.
+- `klayout`: alias for `klayout0`.
+- `klayout0`: KLayout from the pinned nixpkgs input.
+- `magic-vlsi`: alias for `magic-vlsi8`.
+- `magic-vlsi8`: Magic VLSI from the pinned nixpkgs input.
+- `sby`: alias for `sby0`.
+- `sby0`: SBY from the pinned nixpkgs input.
+- `yices`: alias for `yices2`.
+- `yices2`: Yices 2 from the pinned nixpkgs input.
+- `boolector`: alias for `boolector3`.
+- `boolector3`: Boolector 3 from the pinned nixpkgs input.
+- `bitwuzla`: alias for `bitwuzla0`.
+- `bitwuzla0`: Bitwuzla from the pinned nixpkgs input.
+- `cadical`: alias for `cadical3`.
+- `cadical3`: CaDiCaL 3 from the pinned nixpkgs input.
+- `cryptominisat`: alias for `cryptominisat5`.
+- `cryptominisat5`: CryptoMiniSat 5 from the pinned nixpkgs input.
+- `hotspot`: alias for `hotspot7`.
+- `hotspot7`: HotSpot 7, built from `uvahotspot/HotSpot`.
+- `dramsim3`: alias for `dramsim3-1`.
+- `dramsim3-1`: DRAMsim3 1, built from `umd-memsys/DRAMsim3`.
+- `mcpat`: alias for `mcpat1`.
+- `mcpat1`: McPAT 1, built from `HewlettPackard/mcpat`.
+- `simulation-tools`, `formal-tools`, `fpga-tools`, `physical-design-tools`, `analog-tools`, `memory-tools`, `thermal-tools`, `asic-tools`, `hardware-tools`.
+
+`physical-design-tools` includes the unfree nixpkgs `espresso` package only
+when nixpkgs is imported with `allowUnfree = true`.
 
 Upstream Verilator's canonical GitHub tag history starts at `v3.600`, so this
 flake does not publish misleading `verilator1` or `verilator2` packages.
