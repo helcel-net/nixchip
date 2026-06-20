@@ -1,0 +1,8 @@
+/.direnv/
+/result
+/result-*
+/_site/
+/public/
+/.scala-build/
+__pycache__/
+*.pyc

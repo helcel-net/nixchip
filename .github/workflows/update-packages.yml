@@ -1,0 +1,51 @@
+name: Update package pins
+
+on:
+  schedule:
+    - cron: "37 4 * * 2"
+  workflow_dispatch:
+    inputs:
+      include-historical:
+        description: "Also try historical major-version packages"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: Update package versions and hashes
+    runs-on: ubuntu-latest
+    env:
+      NIX_SYSTEM: x86_64-linux
+      NIXCHIP_UPDATE_HISTORICAL: ${{ inputs.include-historical == 'true' && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+      - run: chmod +x scripts/*.sh
+      - run: scripts/update-packages.sh
+      - run: nix flake check path:. --no-build
+      - name: Create or update pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          scripts/open-update-pr.sh \
+            update/package-pins \
+            "Update package pins" \
+            "${{ github.event.repository.default_branch }}" <<'BODY'
+          Automated update of custom hardware package versions and source hashes.
+
+          The workflow uses `nix-update -F --build` for package attrs maintained in `pkgs/`, then evaluates `nix flake check --no-build`.
+          BODY

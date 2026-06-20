@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>nixchip packages</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f8f5;
+        --ink: #1b1f24;
+        --muted: #5b6570;
+        --line: #d8ded6;
+        --panel: #ffffff;
+        --accent: #126d68;
+        --accent-2: #8a4b17;
+        --code: #eef3f1;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.45;
+      }
+
+      header {
+        border-bottom: 1px solid var(--line);
+        background: #ffffff;
+      }
+
+      .wrap {
+        width: min(1160px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .top {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 24px;
+        align-items: end;
+        padding: 32px 0 24px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 4rem);
+        font-weight: 720;
+        letter-spacing: 0;
+      }
+
+      .summary {
+        margin: 8px 0 0;
+        color: var(--muted);
+        max-width: 760px;
+      }
+
+      .stats {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .stat {
+        border: 1px solid var(--line);
+        background: var(--bg);
+        padding: 8px 10px;
+        min-width: 132px;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 1.2rem;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      main {
+        padding: 22px 0 40px;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto auto;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        color: var(--ink);
+        font: inherit;
+        padding: 10px 12px;
+        border-radius: 6px;
+      }
+
+      .toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        background: #ffffff;
+        padding: 10px 12px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+
+      .toggle input {
+        width: auto;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        min-height: 208px;
+      }
+
+      .card h2 {
+        margin: 0;
+        font-size: 1.08rem;
+        letter-spacing: 0;
+      }
+
+      .version {
+        color: var(--accent-2);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.86rem;
+        overflow-wrap: anywhere;
+      }
+
+      .desc {
+        color: var(--muted);
+        margin: 10px 0 12px;
+        flex: 1;
+      }
+
+      .chips {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+      }
+
+      .chip {
+        border: 1px solid var(--line);
+        background: var(--code);
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      code {
+        display: block;
+        background: var(--code);
+        padding: 8px;
+        border-radius: 6px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.82rem;
+        overflow-wrap: anywhere;
+      }
+
+      .links {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .empty {
+        border: 1px dashed var(--line);
+        background: #ffffff;
+        padding: 24px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      @media (max-width: 760px) {
+        .top,
+        .controls {
+          grid-template-columns: 1fr;
+        }
+
+        .stats {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap top">
+        <div>
+          <h1>nixchip packages</h1>
+          <p class="summary">Browse the package attributes exported by the nixchip flake for open hardware development shells and flakes.</p>
+        </div>
+        <div class="stats" aria-live="polite">
+          <div class="stat"><strong id="count">0</strong><span>visible packages</span></div>
+          <div class="stat"><strong id="system">-</strong><span>indexed system</span></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <div class="controls">
+        <input id="search" type="search" placeholder="Search packages, descriptions, programs, licenses..." autocomplete="off">
+        <select id="kind">
+          <option value="all">All packages</option>
+          <option value="packages">Individual packages</option>
+          <option value="collections">Tool collections</option>
+        </select>
+        <label class="toggle">
+          <input id="aliases" type="checkbox" checked>
+          Show aliases
+        </label>
+      </div>
+      <section id="packages" class="grid" aria-live="polite"></section>
+    </main>
+
+    <script>
+      const state = {
+        packages: [],
+        query: "",
+        kind: "all",
+        aliases: true
+      };
+
+      const packageEl = document.querySelector("#packages");
+      const countEl = document.querySelector("#count");
+      const systemEl = document.querySelector("#system");
+      const searchEl = document.querySelector("#search");
+      const kindEl = document.querySelector("#kind");
+      const aliasesEl = document.querySelector("#aliases");
+
+      function isAlias(pkg) {
+        return pkg.name !== pkg.pname && !pkg.collection;
+      }
+
+      function haystack(pkg) {
+        return [
+          pkg.name,
+          pkg.pname,
+          pkg.version,
+          pkg.description,
+          pkg.homepage,
+          pkg.mainProgram,
+          pkg.license,
+          pkg.attr
+        ].join(" ").toLowerCase();
+      }
+
+      function visiblePackages() {
+        const query = state.query.trim().toLowerCase();
+        return state.packages.filter((pkg) => {
+          if (!state.aliases && isAlias(pkg)) return false;
+          if (state.kind === "collections" && !pkg.collection) return false;
+          if (state.kind === "packages" && pkg.collection) return false;
+          if (query && !haystack(pkg).includes(query)) return false;
+          return true;
+        });
+      }
+
+      function render() {
+        const items = visiblePackages();
+        countEl.textContent = items.length.toString();
+
+        if (!items.length) {
+          packageEl.className = "empty";
+          packageEl.textContent = "No packages match the current filters.";
+          return;
+        }
+
+        packageEl.className = "grid";
+        packageEl.replaceChildren(...items.map(renderCard));
+      }
+
+      function renderCard(pkg) {
+        const card = document.createElement("article");
+        card.className = "card";
+
+        const title = document.createElement("h2");
+        title.textContent = pkg.name;
+
+        const version = document.createElement("div");
+        version.className = "version";
+        version.textContent = pkg.version || "unversioned";
+
+        const desc = document.createElement("p");
+        desc.className = "desc";
+        desc.textContent = pkg.description || "No package description is set.";
+
+        const chips = document.createElement("div");
+        chips.className = "chips";
+        [
+          pkg.collection ? "collection" : "package",
+          isAlias(pkg) ? `alias for ${pkg.pname}` : "",
+          pkg.mainProgram ? `bin: ${pkg.mainProgram}` : "",
+          pkg.license ? pkg.license : ""
+        ].filter(Boolean).forEach((label) => {
+          const chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = label;
+          chips.append(chip);
+        });
+
+        const attr = document.createElement("code");
+        attr.textContent = pkg.attr;
+
+        const links = document.createElement("div");
+        links.className = "links";
+        const platforms = document.createElement("span");
+        platforms.className = "chip";
+        platforms.textContent = `${pkg.platforms.length || 0} platforms`;
+        links.append(platforms);
+
+        if (pkg.homepage) {
+          const link = document.createElement("a");
+          link.href = pkg.homepage;
+          link.textContent = "Homepage";
+          link.rel = "noreferrer";
+          links.append(link);
+        }
+
+        card.append(title, version, desc, chips, attr, links);
+        return card;
+      }
+
+      async function init() {
+        const response = await fetch("packages.json");
+        const data = await response.json();
+        state.packages = data.packages;
+        systemEl.textContent = data.system;
+        render();
+      }
+
+      searchEl.addEventListener("input", (event) => {
+        state.query = event.target.value;
+        render();
+      });
+
+      kindEl.addEventListener("change", (event) => {
+        state.kind = event.target.value;
+        render();
+      });
+
+      aliasesEl.addEventListener("change", (event) => {
+        state.aliases = event.target.checked;
+        render();
+      });
+
+      init().catch((error) => {
+        packageEl.className = "empty";
+        packageEl.textContent = `Could not load package index: ${error}`;
+      });
+    </script>
+  </body>
+</html>
