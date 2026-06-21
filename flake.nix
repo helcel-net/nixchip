@@ -33,25 +33,25 @@
           overlays = [ self.overlays.default ];
         };
 
-      # Generate a shellHook that exports PKGNAME_HOME / _BIN / _LIB / _INCLUDE
-      # for every individual nixchip package (tool-group bundles and Python-only
-      # libraries are excluded).  Paths are baked in at evaluation time so no
-      # runtime lookup is required; the variables are always set, even if the
-      # package was not requested in this shell's `packages` list (in which case
-      # the path simply won't be populated until it is built).
+      # Exports PKGNAME_{HOME,BIN,LIB,INCLUDE} for every individual nixchip
+      # package. Tool-group bundles and Python packages are excluded.
       mkNixchipVarsHook =
-        hardware:
+        hw:
         let
+          pythonPackages = [
+            "amaranth"
+            "amaranth0"
+            "cocotb"
+            "cocotb2"
+            "edalize"
+            "edalize0"
+          ];
           pkgsToExport = lib.filterAttrs (
-            name: _:
-            !lib.hasSuffix "-tools" name
-            && !builtins.elem name [
-              "cocotb"
-              "cocotb2"
-              "edalize"
-              "edalize0"
-            ]
-          ) hardware;
+            name: pkg:
+            lib.isDerivation pkg
+            && !lib.hasSuffix "-tools" name
+            && !builtins.elem name pythonPackages
+          ) hw;
         in
         lib.concatStringsSep "\n" (
           lib.mapAttrsToList (
@@ -79,13 +79,9 @@
         system:
         let
           pkgs = mkPkgs system;
-          hardware = pkgs.nixchip;
+          hw = pkgs.nixchip;
         in
-        # Guard against accidental non-derivation attributes leaking in.
-        lib.filterAttrs (_: lib.isDerivation) hardware
-        // {
-          default = hardware.hardware-tools;
-        }
+        lib.filterAttrs (_: lib.isDerivation) hw // { default = hw.hardware-tools; }
       );
 
       legacyPackages = forAllSystems mkPkgs;
@@ -94,7 +90,7 @@
         system:
         let
           pkgs = mkPkgs system;
-          hardware = pkgs.nixchip;
+          hw = pkgs.nixchip;
 
           nonHardwareTools = with pkgs; [
             bashInteractive
@@ -106,47 +102,40 @@
             shfmt
           ];
 
-          varsHook = mkNixchipVarsHook hardware;
+          varsHook = mkNixchipVarsHook hw;
         in
-        {
-          # Full hardware toolbox + env vars for every package.
-          default = pkgs.mkShellNoCC {
-            packages = [ hardware.hardware-tools ] ++ nonHardwareTools;
-            shellHook = varsHook;
-          };
-
+        rec {
           hardware = pkgs.mkShellNoCC {
-            packages = [ hardware.hardware-tools ] ++ nonHardwareTools;
+            packages = [ hw.hardware-tools ] ++ nonHardwareTools;
             shellHook = varsHook;
           };
+          default = hardware;
 
           simulation = pkgs.mkShellNoCC {
-            packages = [ hardware.simulation-tools ] ++ nonHardwareTools;
+            packages = [ hw.simulation-tools ] ++ nonHardwareTools;
             shellHook = varsHook;
           };
 
           fpga = pkgs.mkShellNoCC {
             packages = [
-              hardware.fpga-tools
-              hardware.simulation-tools
+              hw.fpga-tools
+              hw.simulation-tools
             ] ++ nonHardwareTools;
             shellHook = varsHook;
           };
 
           asic = pkgs.mkShellNoCC {
             packages = [
-              hardware.asic-tools
-              hardware.simulation-tools
+              hw.asic-tools
+              hw.simulation-tools
             ] ++ nonHardwareTools;
             shellHook = varsHook;
           };
 
           # Side-by-side versioned packages for comparing tool generations.
-          # Every *_HOME / *_BIN / *_LIB / *_INCLUDE variable is guaranteed
-          # to point to a built path when this shell is entered.
           versions = pkgs.mkShellNoCC {
             packages =
-              with hardware;
+              with hw;
               [
                 # Verilator majors
                 verilator3
