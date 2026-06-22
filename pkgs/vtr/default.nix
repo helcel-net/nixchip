@@ -58,8 +58,8 @@ stdenv.mkDerivation (finalAttrs: {
     fi
 
     # install the VTR flow scripts
-    install -Dm755 vtr_flow/scripts/run_vtr_flow.py "$out/bin/run_vtr_flow.py"
-    install -Dm755 vtr_flow/scripts/run_vtr_task.py "$out/bin/run_vtr_task.py"
+    install -Dm755 ../vtr_flow/scripts/run_vtr_flow.py "$out/bin/run_vtr_flow.py"
+    install -Dm755 ../vtr_flow/scripts/run_vtr_task.py "$out/bin/run_vtr_task.py"
 
     mkdir -p "$out/share/vtr"
     cp -r ../vtr_flow "$out/share/vtr/"
