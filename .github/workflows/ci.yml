@@ -27,6 +27,7 @@ jobs:
   build:
     name: Build package set
     runs-on: ubuntu-latest
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
