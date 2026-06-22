@@ -36,4 +36,6 @@ jobs:
             experimental-features = nix-command flakes
             accept-flake-config = true
       - run: chmod +x scripts/*.sh
-      - run: scripts/ci-build.sh x86_64-linux
+      - name: Build
+        timeout-minutes: 180
+        run: scripts/ci-build.sh x86_64-linux
