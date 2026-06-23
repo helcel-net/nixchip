@@ -4,6 +4,7 @@
   fetchFromGitHub,
   cmake,
   python3,
+  nix-update-script,
   yosys,
   rev ? "3e0db86b102953ee2a56a64eddfe02a50273e565",
   hash ? "sha256-mhAYkI0aYrttem6DE08bQ/bsITEaCzBd1MQBl0jQmCA=",
@@ -43,6 +44,11 @@ stdenv.mkDerivation (finalAttrs: {
 
     runHook postInstall
   '';
+
+  passthru.updateScript = nix-update-script {
+    attrPath = "yosys-slang0";
+    extraArgs = [ "--version=unstable" ];
+  };
 
   meta = {
     description = "SystemVerilog frontend plugin for Yosys based on the slang library";

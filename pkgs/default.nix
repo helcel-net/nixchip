@@ -130,7 +130,10 @@ let
       fetchSubmodules = false;
       hash = "sha256-BDZcfG38b9jwqWDv2iOSKDAl+kbKobGXnZkYA9AZsJM=";
     };
-    vtr9 = callPackage ./vtr { };
+    vtr9 = callPackage ./vtr {
+      version = "9.0.0";
+      hash = "sha256-g5pDGy6A0e1gHFU64G7NcTAGiUj8vfyhJkQ3++4Y2yw=";
+    };
     vtr = vtr9;
     fusesoc2 = basePkgs.fusesoc;
     fusesoc = fusesoc2;
