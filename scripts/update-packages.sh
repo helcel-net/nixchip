@@ -30,8 +30,9 @@ fi
 # Per-package extra flags for nix-update.
 # Most important use: --version-regex to keep a package on a major version series.
 declare -A package_extra_flags=(
-  ["systemc2"]="--version-regex=^2\\."
-  ["systemc3"]="--version-regex=^3\\."
+  ["systemc2"]="--version-regex=^(2\\.[0-9.]+[a-z]?)$"
+  ["systemc3"]="--version-regex=^(3\\.[0-9.]+)$"
+  ["vtr9"]="--version-regex=^(9\\.[0-9.]+)$"
 )
 
 failed=()
