@@ -76,13 +76,13 @@ stdenv.mkDerivation (finalAttrs: {
     python3 - <<'PYEOF'
 with open('src/Makefile_obj.in', 'r') as f:
     c = f.read()
+# bisonpre rewrites the #include inside V3ParseBison.c to "verilog.h" (via
+# filename substitution) but saves the header as V3ParseBison.h.  Copy it so
+# the compiler finds it.  V3ParseGrammar.o already depends on V3ParseBison.c,
+# so the copy runs before that compilation step — no extra make rule needed.
 old = '$(PERL) $(BISONPRE) --yacc ''${YACC} -d -v -o V3ParseBison.c $<'
 new = old + '\n\tcp V3ParseBison.h verilog.h'
 c = c.replace(old, new)
-c = c.replace(
-    'V3ParseGrammar.o:\tV3ParseGrammar.cpp V3ParseBison.c\n',
-    'V3ParseGrammar.o:\tV3ParseGrammar.cpp V3ParseBison.c verilog.h\n'
-)
 with open('src/Makefile_obj.in', 'w') as f:
     f.write(c)
 PYEOF

@@ -22,7 +22,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   postPatch = lib.optionalString (lib.versionOlder version "3") ''
-    find . -name CMakeLists.txt -exec sed -i \
+    find . \( -name CMakeLists.txt -o -name '*.cmake' \) -exec sed -i \
       's/cmake_minimum_required\s*(VERSION [0-2]\.[0-9][^)]*)/cmake_minimum_required (VERSION 3.5)/g;
        s/cmake_minimum_required\s*(VERSION 3\.[0-4][^)]*)/cmake_minimum_required (VERSION 3.5)/g' \
       {} +

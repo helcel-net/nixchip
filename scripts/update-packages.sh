@@ -32,7 +32,8 @@ fi
 declare -A package_extra_flags=(
   ["systemc2"]="--version-regex=^(2\\.[0-9.]+[a-z]?)$"
   ["systemc3"]="--version-regex=^(3\\.[0-9.]+)$"
-  ["vtr9"]="--version-regex=^(9\\.[0-9.]+)$"
+  ["vtr9"]="--version-regex=^v?(9\\.[0-9.]+)$"
+  ["yosys-slang0"]="--version=unstable"
 )
 
 failed=()
