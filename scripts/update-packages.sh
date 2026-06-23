@@ -11,7 +11,7 @@ packages=(
   hotspot7
   mcpat1
   openroad-flow-scripts26
-  yosys-slang0
+ # yosys-slang0
   systemc2
   systemc3
   vtr9
@@ -36,13 +36,18 @@ declare -A package_extra_flags=(
   ["yosys-slang0"]="--version=unstable"
 )
 
+build_flag=()
+if [ "${NIXCHIP_UPDATE_BUILD:-0}" = "1" ]; then
+  build_flag=(--build --system "${NIX_SYSTEM:-x86_64-linux}")
+fi
+
 failed=()
 
 for package in "${packages[@]}"; do
   echo "::group::nix-update $package"
   extra_flags="${package_extra_flags[$package]:-}"
   # shellcheck disable=SC2086
-  if nix run nixpkgs#nix-update -- -F "$package" $extra_flags --build --system "${NIX_SYSTEM:-x86_64-linux}"; then
+  if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then
     echo "updated $package"
   else
     failed+=("$package")
