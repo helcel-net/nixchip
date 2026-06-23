@@ -5,13 +5,13 @@
   cmake,
   python3,
   yosys,
-  rev ? "009058e4c2615f282db27cb484c4296b28f4ac5b",
-  hash ? "sha256-ODpiPcv6/Nbt+v6or9jc1GCiZYVMf4JRQSR32pf2I8M=",
+  rev ? "3e0db86b102953ee2a56a64eddfe02a50273e565",
+  hash ? "sha256-mhAYkI0aYrttem6DE08bQ/bsITEaCzBd1MQBl0jQmCA=",
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "yosys-slang";
-  version = "0-unstable-2026-06-20";
+  version = "0-unstable-2026-06-23";
 
   src = fetchFromGitHub {
     owner = "povik";

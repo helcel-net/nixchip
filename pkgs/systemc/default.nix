@@ -21,6 +21,12 @@ stdenv.mkDerivation (finalAttrs: {
     inherit hash;
   };
 
+  postPatch = lib.optionalString (lib.versionOlder version "3") ''
+    substituteInPlace CMakeLists.txt \
+      --replace-fail 'cmake_minimum_required (VERSION 3.1)' \
+                     'cmake_minimum_required (VERSION 3.5)'
+  '';
+
   nativeBuildInputs = [ cmake ];
 
   cmakeFlags = [ "-DCMAKE_CXX_STANDARD=${cxxStandard}" ];

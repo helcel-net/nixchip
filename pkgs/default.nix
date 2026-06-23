@@ -124,6 +124,12 @@ let
     trellis = trellis0;
     openfpgaloader0 = basePkgs.openfpgaloader;
     openfpgaloader = openfpgaloader0;
+    vtr7 = callPackage ./vtr7 { };
+    vtr8 = callPackage ./vtr {
+      version = "8.0.0";
+      fetchSubmodules = false;
+      hash = "sha256-BDZcfG38b9jwqWDv2iOSKDAl+kbKobGXnZkYA9AZsJM=";
+    };
     vtr9 = callPackage ./vtr { };
     vtr = vtr9;
     fusesoc2 = basePkgs.fusesoc;

@@ -70,6 +70,23 @@ stdenv.mkDerivation (finalAttrs: {
   preConfigure = "autoconf";
 
   postPatch = ''
+    # bisonpre rewrites the include inside V3ParseBison.c to "verilog.h"
+    # (via filename substitution) but saves the header as V3ParseBison.h;
+    # add a make rule to copy V3ParseBison.h → verilog.h after the bison step.
+    python3 - <<'PYEOF'
+with open('src/Makefile_obj.in', 'r') as f:
+    c = f.read()
+old = '$(PERL) $(BISONPRE) --yacc ''${YACC} -d -v -o V3ParseBison.c $<'
+new = old + '\n\tcp V3ParseBison.h verilog.h'
+c = c.replace(old, new)
+c = c.replace(
+    'V3ParseGrammar.o:\tV3ParseGrammar.cpp V3ParseBison.c\n',
+    'V3ParseGrammar.o:\tV3ParseGrammar.cpp V3ParseBison.c verilog.h\n'
+)
+with open('src/Makefile_obj.in', 'w') as f:
+    f.write(c)
+PYEOF
+
     for path in bin src nodist docs/bin examples/xml_py test_regress ci; do
       if [ -e "$path" ]; then
         patchShebangs "$path"

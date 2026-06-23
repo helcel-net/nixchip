@@ -10,6 +10,8 @@
   zlib,
   readline,
   version ? "9.0.0",
+  tag ? "v${version}",
+  fetchSubmodules ? true,
   hash ? "sha256-g5pDGy6A0e1gHFU64G7NcTAGiUj8vfyhJkQ3++4Y2yw=",
 }:
 
@@ -20,9 +22,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "verilog-to-routing";
     repo = "vtr-verilog-to-routing";
-    tag = "v${finalAttrs.version}";
-    fetchSubmodules = true;
-    inherit hash;
+    inherit tag fetchSubmodules hash;
   };
 
   nativeBuildInputs = [
