@@ -33,7 +33,7 @@ declare -A package_extra_flags=(
   ["systemc2"]="--version-regex=^(2\\.[0-9.]+[a-z]?)$"
   ["systemc3"]="--version-regex=^(3\\.[0-9.]+)$"
   ["vtr9"]="--version-regex=^v?(9\\.[0-9.]+)$"
-  ["yosys-slang0"]="--version=unstable"
+  ["openroad-flow-scripts26"]="--version-regex=^(26Q[0-9]+)$"
 )
 
 build_flag=()
