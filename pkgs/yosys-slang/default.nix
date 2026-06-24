@@ -47,7 +47,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   passthru.updateScript = nix-update-script {
     attrPath = "yosys-slang0";
-    extraArgs = [ "--version=unstable" ];
+    extraArgs = [ "--version=branch" ];
   };
 
   meta = {

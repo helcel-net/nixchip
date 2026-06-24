@@ -37,9 +37,9 @@ fi
 # Most important use: --version-regex to keep a package on a major version series.
 declare -A package_extra_flags=(
   ["ghdl6"]="--version-regex=^v?(6\\.[0-9.]+)$"
-  ["iverilog11"]="--version-regex=^v?(11\\.[0-9.]+)$"
-  ["iverilog12"]="--version-regex=^v?(12\\.[0-9.]+)$"
-  ["iverilog13"]="--version-regex=^v?(13\\.[0-9.]+)$"
+  ["iverilog11"]="--version-regex=^v?(11[\\._][0-9.]+)$"
+  ["iverilog12"]="--version-regex=^v?(12[\\._][0-9.]+)$"
+  ["iverilog13"]="--version-regex=^v?(13[\\._][0-9.]+)$"
   ["klayout0"]="--version-regex=^v?(0\\.[0-9.]+)$"
   ["magic-vlsi8"]="--version-regex=^(8\\.[0-9.]+)$"
   ["openroad26"]="--version-regex=^(26Q[0-9]+)$"
@@ -50,7 +50,7 @@ declare -A package_extra_flags=(
   ["vtr8"]="--version-regex=^v?(8\\.[0-9.]+)$"
   ["vtr9"]="--version-regex=^v?(9\\.[0-9.]+)$"
   ["yosys0"]="--version-regex=^v?(0\\.[0-9.]+)$"
-  ["yosys-slang0"]="--version=unstable"
+  ["yosys-slang0"]="--version=branch"
 )
 
 build_flag=()
