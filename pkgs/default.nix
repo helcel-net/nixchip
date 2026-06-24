@@ -60,17 +60,18 @@ let
     };
     systemc = systemc3;
 
-    ghdl6 = basePkgs.ghdl;
+    ghdl6 = callPackage ./ghdl { ghdl = basePkgs.ghdl; };
     ghdl = ghdl6;
     nvc1 = basePkgs.nvc;
     nvc = nvc1;
     iverilog12 = basePkgs.iverilog;
-    iverilog = iverilog12;
+    iverilog13 = callPackage ./iverilog { iverilog = basePkgs.iverilog; };
+    iverilog = iverilog13;
     spike1 = basePkgs.spike;
     spike = spike1;
 
     # ── Synthesis ──────────────────────────────────────────────────────────────
-    yosys0 = basePkgs.yosys;
+    yosys0 = callPackage ./yosys { yosys = basePkgs.yosys; };
     yosys = yosys0;
     yosys-full0 = yosysWithPlugins;
     yosys-full = yosys-full0;
@@ -139,13 +140,13 @@ let
     fusesoc = fusesoc2;
 
     # ── Physical design ────────────────────────────────────────────────────────
-    openroad26 = basePkgs.openroad;
+    openroad26 = callPackage ./openroad { openroad = basePkgs.openroad; };
     openroad = openroad26;
     openroad-flow-scripts26 = callPackage ./openroad-flow-scripts { };
     openroad-flow-scripts = openroad-flow-scripts26;
-    klayout0 = basePkgs.klayout;
+    klayout0 = callPackage ./klayout { klayout = basePkgs.klayout; };
     klayout = klayout0;
-    magic-vlsi8 = basePkgs.magic-vlsi;
+    magic-vlsi8 = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
     magic-vlsi = magic-vlsi8;
     netgen-vlsi1 = basePkgs.netgen-vlsi;
     netgen-vlsi = netgen-vlsi1;
