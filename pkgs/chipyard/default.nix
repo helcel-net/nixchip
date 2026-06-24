@@ -6,13 +6,13 @@
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "chipyard";
-  version = "1.13.0";
+  version = "1.14.0";
 
   src = fetchFromGitHub {
     owner = "ucb-bar";
     repo = "chipyard";
     tag = finalAttrs.version;
-    hash = "sha256-9bDE32C31/3J/ij/FWaDqEEmGW9gXtR33mvCgYWroQo=";
+    hash = "sha256-vi0KRoioTPDdgZFITIOkAtMyWxuyAyMzwyqShGtVGZA=";
   };
 
   dontConfigure = true;
