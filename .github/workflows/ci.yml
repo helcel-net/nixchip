@@ -35,6 +35,7 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             accept-flake-config = true
+      - uses: DeterminateSystems/magic-nix-cache-action@v9
       - run: chmod +x scripts/*.sh
       - name: Build
         timeout-minutes: 180
