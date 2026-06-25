@@ -4,17 +4,18 @@
   fetchFromGitHub,
   gnumake,
   nix-update-script,
+  version ? "2021_03_09_stable-unstable-2026-06-20",
+  rev ? "c9c22caf9bf9cfe46c5a4236c6ec7e7ae9863cc3",
+  hash ? "sha256-bo6u+8R+lDfKAzsMbjVBprscjiTKkwQ5gnp1MSwv5m4=",
 }:
-
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "openroad-flow-scripts";
-  version = "26Q2";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "The-OpenROAD-Project";
     repo = "OpenROAD-flow-scripts";
-    tag = finalAttrs.version;
-    hash = "sha256-TJf/LGhRTCnfGq/7JGAX13ftvvdGX7UKs/qKRK5LLug=";
+    inherit rev hash;
   };
 
   dontConfigure = true;
@@ -58,7 +59,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
-  passthru.updateScript = nix-update-script { };
+  passthru.updateScript = nix-update-script {
+    attrPath = "openroad-flow-scripts";
+    extraArgs = [ "--version=branch" ];
+  };
   passthru.nixchipUpdate = true;
   passthru.nixchipCI = true;
 

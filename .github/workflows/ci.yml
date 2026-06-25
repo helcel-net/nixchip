@@ -83,7 +83,7 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             accept-flake-config = true
-      - uses: DeterminateSystems/magic-nix-cache-action@v9
+      - uses: DeterminateSystems/flakehub-cache-action@v3
       - name: Build
         run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}
 
@@ -105,6 +105,6 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             accept-flake-config = true
-      - uses: DeterminateSystems/magic-nix-cache-action@v9
+      - uses: DeterminateSystems/flakehub-cache-action@v3
       - name: Build
         run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}

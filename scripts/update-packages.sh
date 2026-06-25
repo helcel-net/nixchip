@@ -24,14 +24,16 @@ readarray -t raw_lines < <(
       byPos  = builtins.groupBy (n: pkgs.${n}.meta.position or n) names;
       slotRev = n: builtins.match ".*-[0-9]+$"  n != null;
       hasVer  = n: builtins.match ".*[0-9]$"    n != null;
+      isUnstable = n: builtins.match ".*unstable.*" (pkgs.${n}.version or "") != null;
       pickBest = ns:
-        let slot = builtins.filter slotRev ns;
+        let branch = builtins.filter isUnstable ns;
+            slot = builtins.filter slotRev ns;
             vers = builtins.filter hasVer  ns;
-        in if slot != [] then builtins.head slot
+        in if branch != [] then builtins.head branch
+           else if slot != [] then builtins.head slot
            else if vers != [] then builtins.head vers
            else builtins.head ns;
       unique = builtins.map pickBest (builtins.attrValues byPos);
-      isUnstable = n: builtins.match ".*unstable.*" (pkgs.${n}.version or "") != null;
       versionHint = n: if isUnstable n then "branch" else "";
       nixchipFlags = n: builtins.concatStringsSep " " (pkgs.${n}.passthru.nixchipUpdateFlags or []);
       line = n: "${n}\t${versionHint n}\t${nixchipFlags n}";

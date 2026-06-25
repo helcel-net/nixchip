@@ -140,11 +140,19 @@ let
     fusesoc = fusesoc2;
 
     # ── Physical design ────────────────────────────────────────────────────────
-    openroad26 = callPackage ./openroad { openroad = basePkgs.openroad; };
-    openroad = openroad26;
-    openroad-flow-scripts26 = callPackage ./openroad-flow-scripts { };
-    # Tracks the main branch HEAD; nix-update edits rev/hash in branch.nix directly.
-    openroad-flow-scripts = callPackage ./openroad-flow-scripts/branch.nix { };
+    openroad26 = callPackage ./openroad {
+      openroad = basePkgs.openroad;
+      version = "26Q2";
+      rev = "26Q2";
+      hash = "sha256-dB9PfPlp6vZ9+Th8LJE65BW9YeuUL0G4JtjzQxg6UpQ=";
+    };
+    openroad = callPackage ./openroad { openroad = basePkgs.openroad; };
+    openroad-flow-scripts26 = callPackage ./openroad-flow-scripts {
+      version = "26Q2";
+      rev = "26Q2";
+      hash = "sha256-TJf/LGhRTCnfGq/7JGAX13ftvvdGX7UKs/qKRK5LLug=";
+    };
+    openroad-flow-scripts = callPackage ./openroad-flow-scripts { };
     klayout0 = callPackage ./klayout { klayout = basePkgs.klayout; };
     klayout = klayout0;
     magic-vlsi8 = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
