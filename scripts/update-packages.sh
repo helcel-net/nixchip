@@ -21,7 +21,7 @@ readarray -t raw_lines < <(
         let p = pkgs.${n}; in
         p ? passthru && p.passthru ? nixchipUpdate && p.passthru.nixchipUpdate
       ) allNames;
-      byPos  = builtins.groupBy (n: pkgs.${n}.meta.position or n) names;
+      byFamily = builtins.groupBy (n: pkgs.${n}.pname or n) names;
       slotRev = n: builtins.match ".*-[0-9]+$"  n != null;
       hasVer  = n: builtins.match ".*[0-9]$"    n != null;
       isUnstable = n: builtins.match ".*unstable.*" (pkgs.${n}.version or "") != null;
@@ -33,7 +33,7 @@ readarray -t raw_lines < <(
            else if slot != [] then builtins.head slot
            else if vers != [] then builtins.head vers
            else builtins.head ns;
-      unique = builtins.map pickBest (builtins.attrValues byPos);
+      unique = builtins.map pickBest (builtins.attrValues byFamily);
       versionHint = n: if isUnstable n then "branch" else "";
       nixchipFlags = n: builtins.concatStringsSep " " (pkgs.${n}.passthru.nixchipUpdateFlags or []);
       line = n: "${n}\t${versionHint n}\t${nixchipFlags n}";
@@ -53,15 +53,6 @@ for entry in "${raw_lines[@]}"; do
   [[ -n "$hint" ]] && version_hints["$pkg"]="$hint"
   [[ -n "$flags" ]] && nixchip_flags["$pkg"]="$flags"
 done
-
-# Packages whose version/hash live in pkgs/default.nix as callPackage args rather
-# than in their own derivation file cannot be updated by nix-update automatically.
-# They require manual edits to the call site in pkgs/default.nix.
-if [ "${NIXCHIP_UPDATE_HISTORICAL:-0}" = "1" ]; then
-  echo "WARNING: historical packages (cacti6, cacti7, verilator3, verilator4) have" >&2
-  echo "  version/hash as callPackage args and cannot be updated via nix-update." >&2
-  echo "  Edit pkgs/default.nix manually to update them." >&2
-fi
 
 # Extract the version series from a package name:
 #   "dramsim3-1"           → "1"   (trailing -N is the version major)

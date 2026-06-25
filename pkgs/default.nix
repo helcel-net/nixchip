@@ -66,46 +66,80 @@ let
       rev = "v6.0.0";
       hash = "sha256-Q5lAWMa1SFjoIJTdWlHSbS4Cg5RYWiej8F05Xrz9ArY=";
     };
-    ghdl = callPackage ./ghdl { ghdl = basePkgs.ghdl; };
+    ghdl = callPackage ./ghdl {
+      ghdl = basePkgs.ghdl;
+      version = "0-unstable-2026-06-25";
+      rev = "2ac3c8a72acc826cc7ccddb87fce4c69552711d1";
+      hash = "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=";
+    };
     nvc1 = basePkgs.nvc;
     nvc = nvc1;
     iverilog12 = basePkgs.iverilog;
-    iverilog13 = callPackage ./iverilog { iverilog = basePkgs.iverilog; };
+    iverilog13 = callPackage ./iverilog {
+      iverilog = basePkgs.iverilog;
+      version = "13.0";
+      hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWF0RFS3dSUm4=";
+    };
     iverilog = iverilog13;
     spike1 = basePkgs.spike;
     spike = spike1;
 
     # ── Synthesis ──────────────────────────────────────────────────────────────
-    yosys0 = callPackage ./yosys { yosys = basePkgs.yosys; };
+    yosys0 = callPackage ./yosys {
+      yosys = basePkgs.yosys;
+      version = "0.62";
+      hash = "sha256-FzvdjdAURB5iCkGwsYY6A2wP/Je/IW4AOd4kVOEOeVc=";
+    };
     yosys = yosys0;
     yosys-full0 = yosysWithPlugins;
     yosys-full = yosys-full0;
 
     sv-lang9 = basePkgs.sv-lang_9;
     sv-lang10 = basePkgs.sv-lang_10;
-    sv-lang11 = basePkgs.sv-lang11;
-    sv-lang = sv-lang;
+    sv-lang11 = basePkgs.sv-lang;
+    sv-lang = sv-lang11;
     slang = sv-lang;
 
-    yosys-slang0 = callPackage ./yosys-slang { };
+    yosys-slang0 = callPackage ./yosys-slang {
+      rev = "3e0db86b102953ee2a56a64eddfe02a50273e565";
+      hash = "sha256-mhAYkI0aYrttem6DE08bQ/bsITEaCzBd1MQBl0jQmCA=";
+    };
     yosys-slang = yosys-slang0;
 
-    chisel7 = callPackage ./chisel { };
+    chisel7 = callPackage ./chisel {
+      version = "7.13.0";
+      hash = "sha256-L4k6KEUpHSqrp06fthwHfkyTyvpyiNF+iS2GpuQm9z8=";
+    };
     chisel = chisel7;
 
     abc0 = basePkgs.abc-verifier;
-    abc = callPackage ./abc { abc-verifier = basePkgs.abc-verifier; };
+    abc = callPackage ./abc {
+      abc-verifier = basePkgs.abc-verifier;
+      version = "0-unstable-2026-06-25";
+      rev = "3ce53c361f6017153a0f9bb3c91f4d04eb820fc2";
+      hash = "sha256-9Sldy42mAfalA9Jqa752BCOTh+rtvu8nFeh1Nt0rJDk=";
+    };
     sv2v0 = basePkgs.haskellPackages.sv2v;
     sv2v = sv2v0;
 
     circt1 = basePkgs.circt;
     circt = circt1;
     firrtl1 = basePkgs.firrtl;
-    firrtl = callPackage ./firrtl { firrtl = basePkgs.firrtl; };
+    firrtl = callPackage ./firrtl {
+      firrtl = basePkgs.firrtl;
+      version = "0-unstable-2026-06-25";
+      rev = "64731bbb16142a2b09ccbe74ab41b76b7a265869";
+      hash = "sha256-djy81G2OGW/r0fGfluUa7+jL/6usD3Q015kuuH6DUE0=";
+    };
 
     # ── Waveform & debug ───────────────────────────────────────────────────────
     gtkwave3 = basePkgs.gtkwave;
-    gtkwave = callPackage ./gtkwave { gtkwave = basePkgs.gtkwave; };
+    gtkwave = callPackage ./gtkwave {
+      gtkwave = basePkgs.gtkwave;
+      version = "0-unstable-2026-06-25";
+      rev = "7d7b4db9e2f5485afe2aeeab0ad112f5b6a9b94b";
+      hash = "sha256-lEKW/OHk9xTqvf7UIcbZ3/toE6hWmed4dR/Ia21XY6I=";
+    };
     surfer0 = basePkgs.surfer;
     surfer = surfer0;
     openocd0 = basePkgs.openocd;
@@ -130,7 +164,10 @@ let
     trellis = trellis0;
     openfpgaloader0 = basePkgs.openfpgaloader;
     openfpgaloader = openfpgaloader0;
-    vtr7 = callPackage ./vtr7 { };
+    vtr7 = callPackage ./vtr7 {
+      version = "7";
+      hash = "sha256-/tb/ZA3k30oijfLHOLuE9OAEVRqj3bkb2Yx6aXnZ3uA=";
+    };
     vtr8 = callPackage ./vtr {
       version = "8.0.0";
       fetchSubmodules = false;
@@ -142,7 +179,12 @@ let
     };
     vtr = vtr9;
     fusesoc2 = basePkgs.fusesoc;
-    fusesoc = callPackage ./fusesoc { fusesoc = basePkgs.fusesoc; };
+    fusesoc = callPackage ./fusesoc {
+      fusesoc = basePkgs.fusesoc;
+      version = "0-unstable-2026-06-25";
+      rev = "f15e1c8a76815c4f391231dd0e743e2b683c6b45";
+      hash = "sha256-f5ao99G/m//sdrIM1j6AT+kAt7/Zl8xvV8zM2XvCWAU=";
+    };
 
     # ── Physical design ────────────────────────────────────────────────────────
     openroad26 = callPackage ./openroad {
@@ -151,16 +193,33 @@ let
       rev = "26Q2";
       hash = "sha256-dB9PfPlp6vZ9+Th8LJE65BW9YeuUL0G4JtjzQxg6UpQ=";
     };
-    openroad = callPackage ./openroad { openroad = basePkgs.openroad; };
+    openroad = callPackage ./openroad {
+      openroad = basePkgs.openroad;
+      version = "2021_03_09_stable-unstable-2026-06-25";
+      rev = "c6efacca3ee033a10bfc0a32202c103354f0804b";
+      hash = "sha256-SLiTRnAHfjvH4gDPoB4J0UwKRJugz234Kqy9t3KpHdo=";
+    };
     openroad-flow-scripts26 = callPackage ./openroad-flow-scripts {
       version = "26Q2";
       rev = "26Q2";
       hash = "sha256-TJf/LGhRTCnfGq/7JGAX13ftvvdGX7UKs/qKRK5LLug=";
     };
-    openroad-flow-scripts = callPackage ./openroad-flow-scripts { };
-    klayout0 = callPackage ./klayout { klayout = basePkgs.klayout; };
+    openroad-flow-scripts = callPackage ./openroad-flow-scripts {
+      version = "2021_03_09_stable-unstable-2026-06-20";
+      rev = "c9c22caf9bf9cfe46c5a4236c6ec7e7ae9863cc3";
+      hash = "sha256-bo6u+8R+lDfKAzsMbjVBprscjiTKkwQ5gnp1MSwv5m4=";
+    };
+    klayout0 = callPackage ./klayout {
+      klayout = basePkgs.klayout;
+      version = "0.30.8";
+      hash = "sha256-RjMH6hrc0jyCLgG1D6cztBp5Fb3W5HgTxVTfI2bxgCs=";
+    };
     klayout = klayout0;
-    magic-vlsi8 = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
+    magic-vlsi8 = callPackage ./magic-vlsi {
+      magic-vlsi = basePkgs.magic-vlsi;
+      version = "8.3.629";
+      hash = "sha256-K/w2El2jkXN8qIa0kWvN8rCKWzjd8DcM3O6hb5UVQnw=";
+    };
     magic-vlsi = magic-vlsi8;
     netgen-vlsi1 = basePkgs.netgen-vlsi;
     netgen-vlsi = netgen-vlsi1;
@@ -183,7 +242,11 @@ let
       rev = "v0.66";
       hash = "sha256-a2wc0OCVyl7N01g9MV3rnSay5c0jy8YCDB0d4eCNTr4=";
     };
-    eqy = callPackage ./eqy { };
+    eqy = callPackage ./eqy {
+      version = "0-unstable-2026-06-25";
+      rev = "8770b67d0bc802f17dbc9f2393d2dbc1f14c39ee";
+      hash = "sha256-YMTWXLb9PMxps42ppkCvabPp+dDu6j+DlhQ7NQ73IoQ=";
+    };
     mcy0 = basePkgs.mcy;
     mcy = mcy0;
 
@@ -203,7 +266,12 @@ let
     cvc5 = cvc5-1;
 
     aiger1 = basePkgs.aiger;
-    aiger = callPackage ./aiger { aiger = basePkgs.aiger; };
+    aiger = callPackage ./aiger {
+      aiger = basePkgs.aiger;
+      version = "0-unstable-2026-06-25";
+      rev = "039ec1a2cc37d3093ac35c4b6df65336b346f409";
+      hash = "sha256-evW5QSdXnT5rgxCRBYnvrE2zUAu/ZuH4Y2jHznXNAn4=";
+    };
     btor2tools0 = basePkgs.btor2tools;
     btor2tools = btor2tools0;
 
@@ -220,15 +288,27 @@ let
     };
     cacti = cacti7;
 
-    dramsim3-1 = callPackage ./dramsim3 { };
+    dramsim3-1 = callPackage ./dramsim3 {
+      version = "1.0.0";
+      hash = "sha256-uErpWJEn6C9oKR6Bv1NOAC3ij3ne3A6BPtjtX7D8ZwE=";
+    };
     dramsim3 = dramsim3-1;
-    mcpat1 = callPackage ./mcpat { };
+    mcpat1 = callPackage ./mcpat {
+      version = "1.3.0";
+      hash = "sha256-sr7H2vBOTyI59d3itVNqRVy1fR/83ZrTGl5s4I+g0Tw=";
+    };
     mcpat = mcpat1;
-    hotspot7 = callPackage ./hotspot { };
+    hotspot7 = callPackage ./hotspot {
+      version = "7.0";
+      hash = "sha256-AM8kTu0Rxpee3easDBKtu6+ld6lmpNVNO1z2jOQmhls=";
+    };
     hotspot = hotspot7;
 
     # ── SoC frameworks ────────────────────────────────────────────────────────
-    chipyard1 = callPackage ./chipyard { };
+    chipyard1 = callPackage ./chipyard {
+      version = "1.14.0";
+      hash = "sha256-vi0KRoioTPDdgZFITIOkAtMyWxuyAyMzwyqShGtVGZA=";
+    };
     chipyard = chipyard1;
 
     # ── PULP Platform (ETH Zurich) ────────────────────────────────────────────
@@ -269,7 +349,12 @@ let
     edalize0 = basePkgs.python3Packages.edalize;
     edalize = edalize0;
     amaranth0 = basePkgs.python3Packages.amaranth;
-    amaranth = callPackage ./amaranth { amaranth = basePkgs.python3Packages.amaranth; };
+    amaranth = callPackage ./amaranth {
+      amaranth = basePkgs.python3Packages.amaranth;
+      version = "0-unstable-2026-06-25";
+      rev = "c9be3e4a9e932c25e361d0085af31c5b420efc41";
+      hash = "sha256-0UfGuvfJTbF9enn6bb+75nKjLxsagQjnTL3UVKjqY+o=";
+    };
 
     # ── Tool bundles ──────────────────────────────────────────────────────────
     simulation-tools = pkgs.symlinkJoin {
