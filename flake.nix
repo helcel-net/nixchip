@@ -80,8 +80,19 @@
         let
           pkgs = mkPkgs system;
           hw = pkgs.nixchip;
+          # Flat derivations at the top level of hw.
+          flat = lib.filterAttrs (_: lib.isDerivation) hw;
+          # Nested attrsets of derivations (e.g. hw.pulp.riscv-dbg) are flattened
+          # to "group-name" keys (pulp-riscv-dbg) so they appear in packages output.
+          groups = lib.filterAttrs (_: v: lib.isAttrs v && !lib.isDerivation v) hw;
+          flatGroups = lib.concatMapAttrs (
+            groupName: groupPkgs:
+            lib.mapAttrs' (pkgName: pkg: lib.nameValuePair "${groupName}-${pkgName}" pkg) (
+              lib.filterAttrs (_: lib.isDerivation) groupPkgs
+            )
+          ) groups;
         in
-        lib.filterAttrs (_: lib.isDerivation) hw // { default = hw.hardware-tools; }
+        flat // flatGroups // { default = hw.hardware-tools; }
       );
 
       legacyPackages = forAllSystems mkPkgs;

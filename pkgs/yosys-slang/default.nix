@@ -49,6 +49,8 @@ stdenv.mkDerivation (finalAttrs: {
     attrPath = "yosys-slang0";
     extraArgs = [ "--version=branch" ];
   };
+  passthru.nixchipUpdate = true;
+  passthru.nixchipCI = true;
 
   meta = {
     description = "SystemVerilog frontend plugin for Yosys based on the slang library";

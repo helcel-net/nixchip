@@ -11,9 +11,11 @@ permissions:
   contents: read
 
 jobs:
-  evaluate:
-    name: Evaluate flake
+  generate-matrix:
+    name: Evaluate flake & generate matrix
     runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.matrix.outputs.packages }}
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
@@ -23,11 +25,57 @@ jobs:
             accept-flake-config = true
       - run: nix flake show path:.
       - run: nix flake check path:. --no-build
+      - id: matrix
+        name: Collect buildable packages
+        # Emits a JSON array consumed by the build job's fromJson() matrix.
+        # Sources:
+        #   1. Custom packages with passthru.nixchipUpdate = true (deduplicated by
+        #      meta.position so aliases like "chisel = chisel7" are collapsed).
+        #   2. Small integration bundles (*-tools, excluding the heavy full-stack builds).
+        run: |
+          packages=$(nix eval --json ".#packages.x86_64-linux" --apply '
+            pkgs:
+            let
+              allNames = builtins.attrNames pkgs;
+
+              updateNames = builtins.filter (n:
+                let p = pkgs.${n}; in
+                p ? passthru && p.passthru ? nixchipCI && p.passthru.nixchipCI
+              ) allNames;
+
+              # Use pkg.name (pname+version) so that parametrized siblings built from
+              # the same template file (e.g. pulp-riscv-dbg vs pulp-snitch, distinct
+              # pnames) are kept separate, while true aliases (chisel = chisel7, same
+              # derivation → same name) are collapsed to the versioned attr name.
+              byDrv   = builtins.groupBy (n: pkgs.${n}.name) updateNames;
+              slotRev = n: builtins.match ".*-[0-9]+$" n != null;
+              hasVer  = n: builtins.match ".*[0-9]$"   n != null;
+              pickBest = ns:
+                let slot = builtins.filter slotRev ns;
+                    vers = builtins.filter hasVer  ns;
+                in if slot != [] then builtins.head slot
+                   else if vers != [] then builtins.head vers
+                   else builtins.head ns;
+              deduped = builtins.map pickBest (builtins.attrValues byDrv);
+
+              bundles = builtins.filter (n:
+                builtins.match ".*-tools$" n != null
+                && !builtins.elem n ["hardware-tools" "asic-tools"]
+              ) allNames;
+            in
+            builtins.sort builtins.lessThan (deduped ++ bundles)
+          ')
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
 
   build:
-    name: Build package set
+    name: Build ${{ matrix.package }}
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 120
+    needs: generate-matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.generate-matrix.outputs.packages) }}
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
@@ -36,7 +84,27 @@ jobs:
             experimental-features = nix-command flakes
             accept-flake-config = true
       - uses: DeterminateSystems/magic-nix-cache-action@v9
-      - run: chmod +x scripts/*.sh
       - name: Build
-        timeout-minutes: 180
-        run: scripts/ci-build.sh x86_64-linux
+        run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}
+
+  build-full:
+    name: Full build (${{ matrix.package }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - hardware-tools
+          - asic-tools
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+      - uses: DeterminateSystems/magic-nix-cache-action@v9
+      - name: Build
+        run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}

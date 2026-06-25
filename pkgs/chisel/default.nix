@@ -5,6 +5,7 @@
   mill,
   sbt,
   scala-cli,
+  nix-update-script,
   version ? "7.13.0",
   hash ? "sha256-L4k6KEUpHSqrp06fthwHfkyTyvpyiNF+iS2GpuQm9z8=",
 }:
@@ -130,6 +131,10 @@ stdenvNoCC.mkDerivation {
 
     runHook postInstall
   '';
+
+  passthru.updateScript = nix-update-script { };
+  passthru.nixchipUpdate = true;
+  passthru.nixchipCI = true;
 
   meta = {
     description = "Chisel hardware construction language source and development helpers";

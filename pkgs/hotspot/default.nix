@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  nix-update-script,
   version ? "7.0",
   hash ? "sha256-AM8kTu0Rxpee3easDBKtu6+ld6lmpNVNO1z2jOQmhls=",
 }:
@@ -37,6 +38,10 @@ stdenv.mkDerivation {
 
     runHook postInstall
   '';
+
+  passthru.updateScript = nix-update-script { };
+  passthru.nixchipUpdate = true;
+  passthru.nixchipCI = true;
 
   meta = {
     description = "Pre-RTL thermal simulator for 2D/3D integrated circuits";

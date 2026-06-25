@@ -143,7 +143,8 @@ let
     openroad26 = callPackage ./openroad { openroad = basePkgs.openroad; };
     openroad = openroad26;
     openroad-flow-scripts26 = callPackage ./openroad-flow-scripts { };
-    openroad-flow-scripts = openroad-flow-scripts26;
+    # Tracks the main branch HEAD; nix-update edits rev/hash in branch.nix directly.
+    openroad-flow-scripts = callPackage ./openroad-flow-scripts/branch.nix { };
     klayout0 = callPackage ./klayout { klayout = basePkgs.klayout; };
     klayout = klayout0;
     magic-vlsi8 = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
@@ -165,7 +166,11 @@ let
     sby0 = basePkgs.sby;
     sby = sby0;
     eqy0 = callPackage ./eqy { };
-    eqy = eqy0;
+    eqy = callPackage ./eqy {
+      version = "0-unstable-2026-06-25";
+      rev = "yosys-0.47";
+      hash = "sha256-TH2wNvVi338JkxUsExUg2/JVdU3CWJ9MPKtitM/1Y00=";
+    };
     mcy0 = basePkgs.mcy;
     mcy = mcy0;
 
@@ -212,6 +217,37 @@ let
     # ── SoC frameworks ────────────────────────────────────────────────────────
     chipyard1 = callPackage ./chipyard { };
     chipyard = chipyard1;
+
+    # ── PULP Platform (ETH Zurich) ────────────────────────────────────────────
+    # Branch-tracking source packages (no version suffix → update script targets HEAD).
+    # Add a versioned alias (e.g. pulp-riscv-dbg0) once stable releases exist.
+    pulp = { 
+    riscv-dbg = callPackage ./pulp {
+      pname = "riscv-dbg";
+      version = "unstable-2026-06-25";
+      rev = "1cd764a82d7d49c5e8679fbb70b540b2e274bab9";
+      hash = "sha256-hNLmuAEXW7EKWqIye3Ll062WtDxFkLLsjA6eJ6tT0Bc=";
+      description = "PULP RISC-V debug module (JTAG DTM + DM)";
+    };
+
+    snitch = callPackage ./pulp {
+      pname = "snitch_cluster";
+      repo = "snitch_cluster";
+      version = "unstable-2026-06-25";
+      rev = "2fa38482c2c822bfbedfdfd87abb3ed45521646e";
+      hash = "sha256-Vwk9rjimOcRVComL5G4xgrHqztwBwd95EXBrWTt7Ing=";
+      description = "PULP Snitch: high-efficiency RISC-V many-core cluster";
+    };
+
+    cv32e40p = callPackage ./pulp {
+      pname = "cv32e40p";
+      version = "unstable-2026-06-25";
+      rev = "e1891cd1f76082420c9035d82be55a7c7d6a80db";
+      hash = "sha256-ifNMxQOaG5OM/qmvU5mPEjbhbmaWrXdvEDbqQySft6o=";
+      description = "CORE-V CV32E40P embedded RISC-V core";
+      license = lib.licenses.asl20;
+    };
+    };
 
     # ── Python: HDL & co-simulation ───────────────────────────────────────────
     # Compose into python3.withPackages for actual use; excluded from env-var exports.

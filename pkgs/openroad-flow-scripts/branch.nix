@@ -1,20 +1,27 @@
+# Branch-tracking variant of openroad-flow-scripts (latest main HEAD).
+# The versioned tag build lives in default.nix.
+# nix-update -F openroad-flow-scripts --version=branch updates rev and hash below.
 {
   lib,
   stdenvNoCC,
   fetchFromGitHub,
   gnumake,
   nix-update-script,
+  rev ? "c9c22caf9bf9cfe46c5a4236c6ec7e7ae9863cc3",
+  hash ? "sha256-bo6u+8R+lDfKAzsMbjVBprscjiTKkwQ5gnp1MSwv5m4=",
 }:
 
-stdenvNoCC.mkDerivation (finalAttrs: {
+let
+  version = "2021_03_09_stable-unstable-2026-06-20";
+in
+stdenvNoCC.mkDerivation {
   pname = "openroad-flow-scripts";
-  version = "26Q2";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "The-OpenROAD-Project";
     repo = "OpenROAD-flow-scripts";
-    tag = finalAttrs.version;
-    hash = "sha256-TJf/LGhRTCnfGq/7JGAX13ftvvdGX7UKs/qKRK5LLug=";
+    inherit rev hash;
   };
 
   dontConfigure = true;
@@ -36,7 +43,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     cat > "$out/bin/openroad-flow-scripts-init" <<EOF
     #!${stdenvNoCC.shell}
     set -eu
-    target="\''${1:-openroad-flow-scripts-${finalAttrs.version}}"
+    target="\''${1:-openroad-flow-scripts-${version}}"
     mkdir -p "\$target"
     cp -R "$out/share/openroad-flow-scripts/." "\$target/"
     chmod -R u+w "\$target"
@@ -58,15 +65,18 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
-  passthru.updateScript = nix-update-script { };
+  passthru.updateScript = nix-update-script {
+    attrPath = "openroad-flow-scripts";
+    extraArgs = [ "--version=branch" ];
+  };
   passthru.nixchipUpdate = true;
   passthru.nixchipCI = true;
 
   meta = {
-    description = "OpenROAD RTL-to-GDS flow scripts";
+    description = "OpenROAD RTL-to-GDS flow scripts (main branch)";
     homepage = "https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts";
     license = lib.licenses.bsd3;
     mainProgram = "openroad-flow-scripts-init";
     platforms = lib.platforms.unix;
   };
-})
+}

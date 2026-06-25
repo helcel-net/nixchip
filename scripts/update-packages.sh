@@ -4,65 +4,110 @@ set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
-packages=(
-  chisel7
-  chipyard1
-  dramsim3-1
-  ghdl6
-  hotspot7
-  iverilog13
-  klayout0
-  magic-vlsi8
-  mcpat1
-  openroad26
-  openroad-flow-scripts26
-  systemc2
-  systemc3
-  vtr9
-  eqy0
-  yosys0
-  yosys-slang0
+system="${NIX_SYSTEM:-x86_64-linux}"
+
+# Auto-discover packages to update from the flake.
+# Enrollment: add `passthru.nixchipUpdate = true;` to a package's own derivation file.
+# The nix expression also emits a "branch" hint for packages whose version string
+# contains "unstable" (e.g. "0-unstable-2026-06-23"), so that get_version_flags
+# does not incorrectly assign a version-series regex to branch-tracking packages.
+raw_lines=()
+readarray -t raw_lines < <(
+  nix eval --raw ".#packages.${system}" --apply '
+    pkgs:
+    let
+      allNames = builtins.attrNames pkgs;
+      names = builtins.filter (n:
+        let p = pkgs.${n}; in
+        p ? passthru && p.passthru ? nixchipUpdate && p.passthru.nixchipUpdate
+      ) allNames;
+      byPos  = builtins.groupBy (n: pkgs.${n}.meta.position or n) names;
+      slotRev = n: builtins.match ".*-[0-9]+$"  n != null;
+      hasVer  = n: builtins.match ".*[0-9]$"    n != null;
+      pickBest = ns:
+        let slot = builtins.filter slotRev ns;
+            vers = builtins.filter hasVer  ns;
+        in if slot != [] then builtins.head slot
+           else if vers != [] then builtins.head vers
+           else builtins.head ns;
+      unique = builtins.map pickBest (builtins.attrValues byPos);
+      isUnstable = n: builtins.match ".*unstable.*" (pkgs.${n}.version or "") != null;
+      versionHint = n: if isUnstable n then "branch" else "";
+      nixchipFlags = n: builtins.concatStringsSep " " (pkgs.${n}.passthru.nixchipUpdateFlags or []);
+      line = n: "${n}\t${versionHint n}\t${nixchipFlags n}";
+    in
+    builtins.concatStringsSep "\n" (builtins.sort builtins.lessThan (builtins.map line unique))
+  '
 )
 
+[[ ${#raw_lines[@]} -gt 0 ]] || { echo "error: package discovery returned 0 packages — check the flake for evaluation errors" >&2; exit 1; }
+
+packages=()
+declare -A version_hints
+declare -A nixchip_flags
+for entry in "${raw_lines[@]}"; do
+  IFS=$'\t' read -r pkg hint flags <<< "$entry"
+  packages+=("$pkg")
+  [[ -n "$hint" ]] && version_hints["$pkg"]="$hint"
+  [[ -n "$flags" ]] && nixchip_flags["$pkg"]="$flags"
+done
+
+# Packages whose version/hash live in pkgs/default.nix as callPackage args rather
+# than in their own derivation file cannot be updated by nix-update automatically.
+# They require manual edits to the call site in pkgs/default.nix.
 if [ "${NIXCHIP_UPDATE_HISTORICAL:-0}" = "1" ]; then
-  packages+=(
-    cacti6
-    cacti7
-    verilator3
-    verilator4
-  )
+  echo "WARNING: historical packages (cacti6, cacti7, verilator3, verilator4) have" >&2
+  echo "  version/hash as callPackage args and cannot be updated via nix-update." >&2
+  echo "  Edit pkgs/default.nix manually to update them." >&2
 fi
 
-# Per-package extra flags for nix-update.
-# Most important use: --version-regex to keep a package on a major version series.
-declare -A package_extra_flags=(
-  ["ghdl6"]="--version-regex=^v?(6\\.[0-9.]+)$"
-  ["iverilog11"]="--version-regex=^v?(11[\\._][0-9.]+)$"
-  ["iverilog12"]="--version-regex=^v?(12[\\._][0-9.]+)$"
-  ["iverilog13"]="--version-regex=^v?(13[\\._][0-9.]+)$"
-  ["klayout0"]="--version-regex=^v?(0\\.[0-9.]+)$"
-  ["magic-vlsi8"]="--version-regex=^(8\\.[0-9.]+)$"
-  ["openroad26"]="--version-regex=^(26Q[0-9]+)$"
-  ["openroad-flow-scripts26"]="--version-regex=^(26Q[0-9]+)$"
-  ["systemc2"]="--version-regex=^(2\\.[0-9.]+[a-z]?)$"
-  ["systemc3"]="--version-regex=^(3\\.[0-9.]+)$"
-  ["vtr7"]="--version-regex=^v?(7\\.[0-9.]+)$"
-  ["vtr8"]="--version-regex=^v?(8\\.[0-9.]+)$"
-  ["vtr9"]="--version-regex=^v?(9\\.[0-9.]+)$"
-  ["yosys0"]="--version-regex=^v?(0\\.[0-9.]+)$"
-  ["yosys-slang0"]="--version=branch"
-)
+# Extract the version series from a package name:
+#   "dramsim3-1"           → "1"   (trailing -N is the version major)
+#   "ghdl6"                → "6"   (trailing digits in the name)
+#   "openroad-flow-scripts"→ ""    (no trailing digits → branch tracking)
+pkg_major() {
+  local pkg="$1"
+  if [[ "$pkg" =~ -([0-9]+)$ ]]; then
+    echo "${BASH_REMATCH[1]}"
+  else
+    echo "${pkg##*[^0-9]}"
+  fi
+}
+
+# Emit nix-update version flags for a package.
+#
+# Packages with a trailing version number N get:
+#   --version-regex=^v?(N[Q._][0-9.]+[a-z]?)$
+# Covers semver (6.1.2), quarterly (26Q1), underscore (13_0), letter suffix (2.3.4a).
+#
+# Packages without a version number fall back to --version=branch.
+get_version_flags() {
+  local pkg="$1"
+  local major
+  major="$(pkg_major "$pkg")"
+  if [[ -z "$major" ]]; then
+    echo "--version=branch"
+  else
+    echo "--version-regex=^v?(${major}[Q._][0-9.]+[a-z]?)$"
+  fi
+}
 
 build_flag=()
 if [ "${NIXCHIP_UPDATE_BUILD:-0}" = "1" ]; then
-  build_flag=(--build --system "${NIX_SYSTEM:-x86_64-linux}")
+  build_flag=(--build --system "${system}")
 fi
 
 failed=()
 
 for package in "${packages[@]}"; do
   echo "::group::nix-update $package"
-  extra_flags="${package_extra_flags[$package]:-}"
+  if [[ -v "version_hints[$package]" ]] && [[ "${version_hints[$package]}" == "branch" ]]; then
+    extra_flags="--version=branch"
+  elif [[ -v "nixchip_flags[$package]" ]]; then
+    extra_flags="${nixchip_flags[$package]}"
+  else
+    extra_flags="$(get_version_flags "$package")"
+  fi
   # shellcheck disable=SC2086
   if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then
     echo "updated $package"
