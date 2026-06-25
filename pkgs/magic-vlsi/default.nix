@@ -4,6 +4,7 @@
   nix-update-script,
   version ? "8.3.629",
   hash ? "sha256-K/w2El2jkXN8qIa0kWvN8rCKWzjd8DcM3O6hb5UVQnw=",
+  ...
 }:
 
 magic-vlsi.overrideAttrs (old: {

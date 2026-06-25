@@ -4,6 +4,7 @@
   nix-update-script,
   version ? "0.30.8",
   hash ? "sha256-RjMH6hrc0jyCLgG1D6cztBp5Fb3W5HgTxVTfI2bxgCs=",
+  ...
 }:
 
 klayout.overrideAttrs (old: {
