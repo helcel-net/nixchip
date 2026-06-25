@@ -133,7 +133,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `systemc2` | 2.3.4 | SystemC 2.x (accellera-official/systemc, C++14) |
 | `systemc3` | 3.0.2 | SystemC 3.x (accellera-official/systemc, C++17) |
 | `vtr9` | 9.0.0 | Verilog-to-Routing — VPR place-and-route |
-| `eqy0` | yosys-0.47 | YosysHQ equivalence checker |
+| `eqy0` | 0.66 | YosysHQ equivalence checker |
 | `yosys-slang0` | — | povik/yosys-slang Yosys plugin |
 | `chisel7` | 7.x | Chisel 7 with `chisel-init`, `chisel-scala-cli`, `chisel-mill`, `chisel-sbt` |
 | `chipyard1` | 1.x | Chipyard SoC framework with `chipyard-init` |
@@ -153,9 +153,9 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `sv-lang9` | `basePkgs.sv-lang_9` | LLVM/slang SystemVerilog compiler 9.x |
 | `sv-lang10` | `basePkgs.sv-lang_10` | slang 10.x |
 | `sv-lang11` | `basePkgs.sv-lang` | slang 11.x (latest) |
-| `abc0` | `basePkgs.abc-verifier` | ABC logic synthesis and verification |
+| `abc0` | `basePkgs.abc-verifier` | Fixed ABC logic synthesis and verification release |
 | `sv2v0` | `basePkgs.haskellPackages.sv2v` | SystemVerilog-to-Verilog converter |
-| `ghdl6` | `basePkgs.ghdl` | GHDL VHDL simulator |
+| `ghdl6` | 6.0.0 | Fixed GHDL 6 release |
 | `nvc1` | `basePkgs.nvc` | NVC VHDL compiler/simulator |
 | `vhdl-ls0` | `basePkgs.vhdl-ls` | VHDL language server |
 | `spike1` | `basePkgs.spike` | RISC-V ISA simulator |
@@ -165,7 +165,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `uhdm1` | `basePkgs.uhdm` | Universal Hardware Data Model |
 | `openroad26` | `basePkgs.openroad` | OpenROAD physical design suite |
 | `circt1` | `basePkgs.circt` | CIRCT / MLIR circuit IR tools |
-| `firrtl1` | `basePkgs.firrtl` | FIRRTL compiler |
+| `firrtl1` | `basePkgs.firrtl` | Fixed FIRRTL 1.x compiler release |
 | `klayout0` | `basePkgs.klayout` | KLayout GDSII viewer and editor |
 | `magic-vlsi8` | `basePkgs.magic-vlsi` | Magic VLSI layout tool |
 | `netgen-vlsi1` | `basePkgs.netgen-vlsi` | Netgen LVS tool |
@@ -173,7 +173,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `xyce7` | `basePkgs.xyce` | Xyce parallel circuit simulator |
 | `qucs-s25` | `basePkgs.qucs-s` | Qucs-S schematic-driven simulator |
 | `xschem3` | `basePkgs.xschem` | Xschem schematic editor |
-| `fusesoc2` | `basePkgs.fusesoc` | FuseSoC IP-core package manager |
+| `fusesoc2` | `basePkgs.fusesoc` | Fixed FuseSoC 2.x release |
 | `cocotb2` | `basePkgs.python3Packages.cocotb` | Python co-simulation framework |
 | `edalize0` | `basePkgs.python3Packages.edalize` | EDA tool abstraction library |
 | `sby0` | `basePkgs.sby` | SymbiYosys formal verification front-end |
@@ -182,14 +182,16 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `bitwuzla0` | `basePkgs.bitwuzla` | Bitwuzla SMT solver |
 | `cadical3` | `basePkgs.cadical` | CaDiCaL SAT solver |
 | `cryptominisat5` | `basePkgs.cryptominisat` | CryptoMiniSat SAT solver |
-| `aiger0` | `basePkgs.aiger` | AIGER AIG format tools |
+| `aiger1` | `basePkgs.aiger` | Fixed AIGER 1.x AIG format tools release |
 | `btor2tools0` | `basePkgs.btor2tools` | BTOR2 word-level model checking tools |
 | `mcy0` | `basePkgs.mcy` | YosysHQ mutation cover for formal tests |
 
+Branch-tracking defaults: `ghdl`, `gtkwave`, `fusesoc`, `firrtl`, `abc`, `aiger`, `amaranth`, `openroad`, and `openroad-flow-scripts` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
+
 Aliases: `verilator = verilator5`, `systemc = systemc3`, `yosys = yosys0`,
-`sv-lang = slang = sv-lang11`, `vtr = vtr9`, `eqy = eqy0`, `abc = abc0`,
+`sv-lang = slang = sv-lang11`, `vtr = vtr9`, `eqy = eqy0`,
 `sv2v = sv2v0`, `spike = spike1`, `vhdl-ls = vhdl-ls0`, `xschem = xschem3`,
-`fusesoc = fusesoc2`, `cocotb = cocotb2`, `edalize = edalize0`, `cacti = cacti7`,
+`cocotb = cocotb2`, `edalize = edalize0`, `cacti = cacti7`,
 etc.
 
 ### Python packages
@@ -253,7 +255,7 @@ Workspace-style packages install immutable sources under `share/` and provide
 - **`vtr9`**: built with `fetchSubmodules = true` (requires Catch2 and sockpp
   submodules). Parmys, ODIN-II, analytic placement, capnproto, and graphics are
   disabled for a minimal portable build.
-- **`eqy0`**: YosysHQ equivalence checker pinned to `yosys-0.47` tag. Builds
+- **`eqy0`**: YosysHQ equivalence checker pinned to upstream `v0.66`. Builds
   three `.so` Yosys plugins and patches Python shebang + template variables.
 
 ## Automation

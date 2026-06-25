@@ -1,23 +1,23 @@
 {
   fetchFromGitHub,
-  ghdl,
+  gtkwave,
   nix-update-script,
   version ? "0-unstable-2026-06-25",
-  rev ? "2ac3c8a72acc826cc7ccddb87fce4c69552711d1",
-  hash ? "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=",
+  rev ? "7d7b4db9e2f5485afe2aeeab0ad112f5b6a9b94b",
+  hash ? "sha256-lEKW/OHk9xTqvf7UIcbZ3/toE6hWmed4dR/Ia21XY6I=",
   ...
 }:
 
-ghdl.overrideAttrs (old: {
+gtkwave.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "ghdl";
-    repo = "ghdl";
+    owner = "gtkwave";
+    repo = "gtkwave";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "ghdl";
+      attrPath = "gtkwave";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

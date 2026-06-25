@@ -1,23 +1,23 @@
 {
   fetchFromGitHub,
-  ghdl,
+  firrtl,
   nix-update-script,
   version ? "0-unstable-2026-06-25",
-  rev ? "2ac3c8a72acc826cc7ccddb87fce4c69552711d1",
-  hash ? "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=",
+  rev ? "64731bbb16142a2b09ccbe74ab41b76b7a265869",
+  hash ? "sha256-djy81G2OGW/r0fGfluUa7+jL/6usD3Q015kuuH6DUE0=",
   ...
 }:
 
-ghdl.overrideAttrs (old: {
+firrtl.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "ghdl";
-    repo = "ghdl";
+    owner = "chipsalliance";
+    repo = "firrtl";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "ghdl";
+      attrPath = "firrtl";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

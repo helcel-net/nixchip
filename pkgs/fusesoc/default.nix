@@ -1,23 +1,23 @@
 {
   fetchFromGitHub,
-  ghdl,
+  fusesoc,
   nix-update-script,
   version ? "0-unstable-2026-06-25",
-  rev ? "2ac3c8a72acc826cc7ccddb87fce4c69552711d1",
-  hash ? "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=",
+  rev ? "f15e1c8a76815c4f391231dd0e743e2b683c6b45",
+  hash ? "sha256-f5ao99G/m//sdrIM1j6AT+kAt7/Zl8xvV8zM2XvCWAU=",
   ...
 }:
 
-ghdl.overrideAttrs (old: {
+fusesoc.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "ghdl";
-    repo = "ghdl";
+    owner = "olofk";
+    repo = "fusesoc";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "ghdl";
+      attrPath = "fusesoc";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

@@ -1,23 +1,23 @@
 {
   fetchFromGitHub,
-  ghdl,
+  abc-verifier,
   nix-update-script,
   version ? "0-unstable-2026-06-25",
-  rev ? "2ac3c8a72acc826cc7ccddb87fce4c69552711d1",
-  hash ? "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=",
+  rev ? "3ce53c361f6017153a0f9bb3c91f4d04eb820fc2",
+  hash ? "sha256-9Sldy42mAfalA9Jqa752BCOTh+rtvu8nFeh1Nt0rJDk=",
   ...
 }:
 
-ghdl.overrideAttrs (old: {
+abc-verifier.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "ghdl";
-    repo = "ghdl";
+    owner = "berkeley-abc";
+    repo = "abc";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "ghdl";
+      attrPath = "abc";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

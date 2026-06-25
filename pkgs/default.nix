@@ -60,8 +60,13 @@ let
     };
     systemc = systemc3;
 
-    ghdl6 = callPackage ./ghdl { ghdl = basePkgs.ghdl; };
-    ghdl = ghdl6;
+    ghdl6 = callPackage ./ghdl {
+      ghdl = basePkgs.ghdl;
+      version = "6.0.0";
+      rev = "v6.0.0";
+      hash = "sha256-Q5lAWMa1SFjoIJTdWlHSbS4Cg5RYWiej8F05Xrz9ArY=";
+    };
+    ghdl = callPackage ./ghdl { ghdl = basePkgs.ghdl; };
     nvc1 = basePkgs.nvc;
     nvc = nvc1;
     iverilog12 = basePkgs.iverilog;
@@ -78,8 +83,8 @@ let
 
     sv-lang9 = basePkgs.sv-lang_9;
     sv-lang10 = basePkgs.sv-lang_10;
-    sv-lang11 = basePkgs.sv-lang;
-    sv-lang = sv-lang11;
+    sv-lang11 = basePkgs.sv-lang11;
+    sv-lang = sv-lang;
     slang = sv-lang;
 
     yosys-slang0 = callPackage ./yosys-slang { };
@@ -89,18 +94,18 @@ let
     chisel = chisel7;
 
     abc0 = basePkgs.abc-verifier;
-    abc = abc0;
+    abc = callPackage ./abc { abc-verifier = basePkgs.abc-verifier; };
     sv2v0 = basePkgs.haskellPackages.sv2v;
     sv2v = sv2v0;
 
     circt1 = basePkgs.circt;
     circt = circt1;
     firrtl1 = basePkgs.firrtl;
-    firrtl = firrtl1;
+    firrtl = callPackage ./firrtl { firrtl = basePkgs.firrtl; };
 
     # ── Waveform & debug ───────────────────────────────────────────────────────
     gtkwave3 = basePkgs.gtkwave;
-    gtkwave = gtkwave3;
+    gtkwave = callPackage ./gtkwave { gtkwave = basePkgs.gtkwave; };
     surfer0 = basePkgs.surfer;
     surfer = surfer0;
     openocd0 = basePkgs.openocd;
@@ -137,7 +142,7 @@ let
     };
     vtr = vtr9;
     fusesoc2 = basePkgs.fusesoc;
-    fusesoc = fusesoc2;
+    fusesoc = callPackage ./fusesoc { fusesoc = basePkgs.fusesoc; };
 
     # ── Physical design ────────────────────────────────────────────────────────
     openroad26 = callPackage ./openroad {
@@ -173,12 +178,12 @@ let
     # ── Formal verification ────────────────────────────────────────────────────
     sby0 = basePkgs.sby;
     sby = sby0;
-    eqy0 = callPackage ./eqy { };
-    eqy = callPackage ./eqy {
-      version = "0-unstable-2026-06-25";
-      rev = "yosys-0.47";
-      hash = "sha256-TH2wNvVi338JkxUsExUg2/JVdU3CWJ9MPKtitM/1Y00=";
+    eqy0 = callPackage ./eqy {
+      version = "0.66";
+      rev = "v0.66";
+      hash = "sha256-a2wc0OCVyl7N01g9MV3rnSay5c0jy8YCDB0d4eCNTr4=";
     };
+    eqy = callPackage ./eqy { };
     mcy0 = basePkgs.mcy;
     mcy = mcy0;
 
@@ -197,8 +202,8 @@ let
     cvc5-1 = basePkgs.cvc5;
     cvc5 = cvc5-1;
 
-    aiger0 = basePkgs.aiger;
-    aiger = aiger0;
+    aiger1 = basePkgs.aiger;
+    aiger = callPackage ./aiger { aiger = basePkgs.aiger; };
     btor2tools0 = basePkgs.btor2tools;
     btor2tools = btor2tools0;
 
@@ -229,32 +234,32 @@ let
     # ── PULP Platform (ETH Zurich) ────────────────────────────────────────────
     # Branch-tracking source packages (no version suffix → update script targets HEAD).
     # Add a versioned alias (e.g. pulp-riscv-dbg0) once stable releases exist.
-    pulp = { 
-    riscv-dbg = callPackage ./pulp {
-      pname = "riscv-dbg";
-      version = "unstable-2026-06-25";
-      rev = "1cd764a82d7d49c5e8679fbb70b540b2e274bab9";
-      hash = "sha256-hNLmuAEXW7EKWqIye3Ll062WtDxFkLLsjA6eJ6tT0Bc=";
-      description = "PULP RISC-V debug module (JTAG DTM + DM)";
-    };
+    pulp = {
+      riscv-dbg = callPackage ./pulp {
+        pname = "riscv-dbg";
+        version = "unstable-2026-06-25";
+        rev = "1cd764a82d7d49c5e8679fbb70b540b2e274bab9";
+        hash = "sha256-hNLmuAEXW7EKWqIye3Ll062WtDxFkLLsjA6eJ6tT0Bc=";
+        description = "PULP RISC-V debug module (JTAG DTM + DM)";
+      };
 
-    snitch = callPackage ./pulp {
-      pname = "snitch_cluster";
-      repo = "snitch_cluster";
-      version = "unstable-2026-06-25";
-      rev = "2fa38482c2c822bfbedfdfd87abb3ed45521646e";
-      hash = "sha256-Vwk9rjimOcRVComL5G4xgrHqztwBwd95EXBrWTt7Ing=";
-      description = "PULP Snitch: high-efficiency RISC-V many-core cluster";
-    };
+      snitch = callPackage ./pulp {
+        pname = "snitch_cluster";
+        repo = "snitch_cluster";
+        version = "unstable-2026-06-25";
+        rev = "2fa38482c2c822bfbedfdfd87abb3ed45521646e";
+        hash = "sha256-Vwk9rjimOcRVComL5G4xgrHqztwBwd95EXBrWTt7Ing=";
+        description = "PULP Snitch: high-efficiency RISC-V many-core cluster";
+      };
 
-    cv32e40p = callPackage ./pulp {
-      pname = "cv32e40p";
-      version = "unstable-2026-06-25";
-      rev = "e1891cd1f76082420c9035d82be55a7c7d6a80db";
-      hash = "sha256-ifNMxQOaG5OM/qmvU5mPEjbhbmaWrXdvEDbqQySft6o=";
-      description = "CORE-V CV32E40P embedded RISC-V core";
-      license = lib.licenses.asl20;
-    };
+      cv32e40p = callPackage ./pulp {
+        pname = "cv32e40p";
+        version = "unstable-2026-06-25";
+        rev = "e1891cd1f76082420c9035d82be55a7c7d6a80db";
+        hash = "sha256-ifNMxQOaG5OM/qmvU5mPEjbhbmaWrXdvEDbqQySft6o=";
+        description = "CORE-V CV32E40P embedded RISC-V core";
+        license = lib.licenses.asl20;
+      };
     };
 
     # ── Python: HDL & co-simulation ───────────────────────────────────────────
@@ -264,7 +269,7 @@ let
     edalize0 = basePkgs.python3Packages.edalize;
     edalize = edalize0;
     amaranth0 = basePkgs.python3Packages.amaranth;
-    amaranth = amaranth0;
+    amaranth = callPackage ./amaranth { amaranth = basePkgs.python3Packages.amaranth; };
 
     # ── Tool bundles ──────────────────────────────────────────────────────────
     simulation-tools = pkgs.symlinkJoin {

@@ -1,23 +1,23 @@
 {
   fetchFromGitHub,
-  ghdl,
+  aiger,
   nix-update-script,
   version ? "0-unstable-2026-06-25",
-  rev ? "2ac3c8a72acc826cc7ccddb87fce4c69552711d1",
-  hash ? "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=",
+  rev ? "039ec1a2cc37d3093ac35c4b6df65336b346f409",
+  hash ? "sha256-evW5QSdXnT5rgxCRBYnvrE2zUAu/ZuH4Y2jHznXNAn4=",
   ...
 }:
 
-ghdl.overrideAttrs (old: {
+aiger.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "ghdl";
-    repo = "ghdl";
+    owner = "arminbiere";
+    repo = "aiger";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "ghdl";
+      attrPath = "aiger";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

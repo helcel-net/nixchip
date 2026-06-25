@@ -1,23 +1,23 @@
 {
   fetchFromGitHub,
-  ghdl,
+  amaranth,
   nix-update-script,
   version ? "0-unstable-2026-06-25",
-  rev ? "2ac3c8a72acc826cc7ccddb87fce4c69552711d1",
-  hash ? "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=",
+  rev ? "c9be3e4a9e932c25e361d0085af31c5b420efc41",
+  hash ? "sha256-0UfGuvfJTbF9enn6bb+75nKjLxsagQjnTL3UVKjqY+o=",
   ...
 }:
 
-ghdl.overrideAttrs (old: {
+amaranth.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "ghdl";
-    repo = "ghdl";
+    owner = "amaranth-lang";
+    repo = "amaranth";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "ghdl";
+      attrPath = "amaranth";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;
