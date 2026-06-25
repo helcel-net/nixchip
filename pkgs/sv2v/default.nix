@@ -1,6 +1,7 @@
 {
   fetchFromGitHub,
-  abc-verifier,
+  haskell,
+  sv2v,
   nix-update-script,
   version,
   rev,
@@ -8,16 +9,16 @@
   ...
 }:
 
-abc-verifier.overrideAttrs (old: {
+haskell.lib.overrideCabal sv2v (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "berkeley-abc";
-    repo = "abc";
+    owner = "zachjs";
+    repo = "sv2v";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "abc";
+      attrPath = "sv2v";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

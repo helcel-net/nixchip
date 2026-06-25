@@ -2,9 +2,10 @@
   lib,
   stdenv,
   fetchFromGitHub,
-  version ? "6.5.0",
-  rev ? "v${version}",
-  hash ? "sha256-lYhaDQgQngoJs5GST+dTNPitVSmKhhivFtnzJH2XpdA=",
+  nix-update-script,
+  version,
+  rev,
+  hash,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -30,6 +31,13 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   enableParallelBuilding = true;
+
+  passthru.updateScript = nix-update-script {
+    attrPath = "cacti";
+    extraArgs = [ "--version=branch" ];
+  };
+  passthru.nixchipUpdate = true;
+  passthru.nixchipCI = true;
 
   buildPhase = ''
     runHook preBuild

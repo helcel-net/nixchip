@@ -1,6 +1,6 @@
 {
   fetchFromGitHub,
-  abc-verifier,
+  vhdl_ls,
   nix-update-script,
   version,
   rev,
@@ -8,16 +8,16 @@
   ...
 }:
 
-abc-verifier.overrideAttrs (old: {
+vhdl_ls.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "berkeley-abc";
-    repo = "abc";
+    owner = "VHDL-LS";
+    repo = "rust_hdl";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "abc";
+      attrPath = "vhdl-ls";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

@@ -39,26 +39,40 @@ let
     # ── Simulators ─────────────────────────────────────────────────────────────
     verilator3 = callPackage ./verilator {
       version = "3.926";
+      rev = "v3.926";
       hash = "sha256-sbUmoeyUVyZniigixGKjLnHskiPvyMQFpeGo5PRMdRk=";
       doCheck = false;
     };
     verilator4 = callPackage ./verilator {
       version = "4.228";
+      rev = "v4.228";
       hash = "sha256-ToYad8cvBF3Mio5fuT4Ce4zXbWxFxd6smqB1TxvlHao=";
       doCheck = false;
     };
     verilator5 = basePkgs.verilator;
-    verilator = verilator5;
+    verilator = callPackage ./verilator {
+      version = "5-unstable-2026-06-25";
+      rev = "f0f1c44dd69a4dd17f923c9ca2f85dda8c006820";
+      hash = "sha256-INVoGes/hJ1cpOS4H43uidB20DzJmMw85oCMyYqGFuo=";
+      doCheck = false;
+    };
 
     systemc2 = callPackage ./systemc {
       version = "2.3.4";
+      rev = "2.3.4";
       hash = "sha256-CzjrkgvMRmL82omffz+bTI9JR900sdRmhZIhcyflSGo=";
     };
     systemc3 = callPackage ./systemc {
       version = "3.0.2";
+      rev = "3.0.2";
       hash = "sha256-v/PcQu0m/7zyx2TtpZrLFbHtknahgVCkzcRi3lgrRGw=";
     };
-    systemc = systemc3;
+    systemc = callPackage ./systemc {
+      version = "3-unstable-2026-06-25";
+      rev = "a50561f14dfe8447d8a507ce42924322921a11ce";
+      hash = "sha256-KzuoA8xibRFdAjOTJ1pgqyaRAJ9DwOM790MPkE5AcTA=";
+      cxxStandard = "17";
+    };
 
     ghdl6 = callPackage ./ghdl {
       ghdl = basePkgs.ghdl;
@@ -82,22 +96,38 @@ let
     };
     iverilog = iverilog13;
     spike1 = basePkgs.spike;
-    spike = spike1;
+    spike = callPackage ./spike {
+      spike = basePkgs.spike;
+      version = "1-unstable-2026-06-25";
+      rev = "27731d158d7d9aa0f03b4b85fa684f5e3ac1a52e";
+      hash = "sha256-t7yTD5VYWzV0zFHUmJB6RSGL9PRka+G8qjlHxjZ3Ago=";
+    };
 
     # ── Synthesis ──────────────────────────────────────────────────────────────
     yosys0 = callPackage ./yosys {
       yosys = basePkgs.yosys;
       version = "0.62";
+      rev = "v0.62";
       hash = "sha256-FzvdjdAURB5iCkGwsYY6A2wP/Je/IW4AOd4kVOEOeVc=";
     };
-    yosys = yosys0;
+    yosys = callPackage ./yosys {
+      yosys = basePkgs.yosys;
+      version = "0-unstable-2026-06-25";
+      rev = "23aadd92ab0740bdaa256fbe1fecc23e417f77b6";
+      hash = "sha256-vPYdRxTjR5ucWYq60R4hzA3HKk9w1TwO4F+2qqfjRZA=";
+    };
     yosys-full0 = yosysWithPlugins;
     yosys-full = yosys-full0;
 
     sv-lang9 = basePkgs.sv-lang_9;
     sv-lang10 = basePkgs.sv-lang_10;
     sv-lang11 = basePkgs.sv-lang;
-    sv-lang = sv-lang11;
+    sv-lang = callPackage ./sv-lang {
+      sv_lang = basePkgs.sv-lang;
+      version = "11-unstable-2026-06-25";
+      rev = "ab9bdf1ed140bbbd83d060e6c5dd24319b93986b";
+      hash = "sha256-lMQCK0NlnDTEM68zsPNF4VVCrInyVYrcIlLyr276ZDQ=";
+    };
     slang = sv-lang;
 
     yosys-slang0 = callPackage ./yosys-slang {
@@ -120,7 +150,12 @@ let
       hash = "sha256-9Sldy42mAfalA9Jqa752BCOTh+rtvu8nFeh1Nt0rJDk=";
     };
     sv2v0 = basePkgs.haskellPackages.sv2v;
-    sv2v = sv2v0;
+    sv2v = callPackage ./sv2v {
+      sv2v = basePkgs.haskellPackages.sv2v;
+      version = "0-unstable-2026-06-25";
+      rev = "6662fa5da71f87797598060f17728b284b99a9fc";
+      hash = "sha256-ziwLw1/S4wbnqml/AnN/yerOJJ3VOfRc3dZa8cmEaD0=";
+    };
 
     circt1 = basePkgs.circt;
     circt = circt1;
@@ -149,7 +184,12 @@ let
     verible0 = basePkgs.verible;
     verible = verible0;
     vhdl-ls0 = basePkgs.vhdl-ls;
-    vhdl-ls = vhdl-ls0;
+    vhdl-ls = callPackage ./vhdl-ls {
+      vhdl_ls = basePkgs.vhdl-ls;
+      version = "0-unstable-2026-06-25";
+      rev = "873b2647712e2f6b1b775c8d555372120f386373";
+      hash = "sha256-wN1MpYIyuaQ23poyB/0TbFgeaTFvALczCAb/tykzq8k=";
+    };
     surelog1 = basePkgs.surelog;
     surelog = surelog1;
     uhdm1 = basePkgs.uhdm;
@@ -170,14 +210,20 @@ let
     };
     vtr8 = callPackage ./vtr {
       version = "8.0.0";
+      rev = "v8.0.0";
       fetchSubmodules = false;
       hash = "sha256-BDZcfG38b9jwqWDv2iOSKDAl+kbKobGXnZkYA9AZsJM=";
     };
     vtr9 = callPackage ./vtr {
       version = "9.0.0";
+      rev = "v9.0.0";
       hash = "sha256-g5pDGy6A0e1gHFU64G7NcTAGiUj8vfyhJkQ3++4Y2yw=";
     };
-    vtr = vtr9;
+    vtr = callPackage ./vtr {
+      version = "9-unstable-2026-06-25";
+      rev = "d312fab8017ecfcd28a898eed9b2bc7aa68c145b";
+      hash = "sha256-+wrXJ3+B300mYcEJVsRvGnLnlu4v85s7v1X9sXpv9Vc=";
+    };
     fusesoc2 = basePkgs.fusesoc;
     fusesoc = callPackage ./fusesoc {
       fusesoc = basePkgs.fusesoc;
@@ -232,7 +278,12 @@ let
     qucs-s25 = basePkgs.qucs-s;
     qucs-s = qucs-s25;
     xschem3 = basePkgs.xschem;
-    xschem = xschem3;
+    xschem = callPackage ./xschem {
+      xschem = basePkgs.xschem;
+      version = "3-unstable-2026-06-25";
+      rev = "c8b26a17d8d53ce7fbd9e7d45ab6bb03e75996e0";
+      hash = "sha256-OpFMBiR7UZ4nLxcrD1hgrEvnuccwYgTy2mTHjA3/E0w=";
+    };
 
     # ── Formal verification ────────────────────────────────────────────────────
     sby0 = basePkgs.sby;
@@ -286,7 +337,11 @@ let
       rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
       hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
     };
-    cacti = cacti7;
+    cacti = callPackage ./cacti {
+      version = "7-unstable-2026-06-25";
+      rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
+      hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
+    };
 
     dramsim3-1 = callPackage ./dramsim3 {
       version = "1.0.0";
@@ -345,9 +400,19 @@ let
     # ── Python: HDL & co-simulation ───────────────────────────────────────────
     # Compose into python3.withPackages for actual use; excluded from env-var exports.
     cocotb2 = basePkgs.python3Packages.cocotb;
-    cocotb = cocotb2;
+    cocotb = callPackage ./cocotb {
+      cocotb = basePkgs.python3Packages.cocotb;
+      version = "2-unstable-2026-06-25";
+      rev = "869c45921d7595668acafe44922e3bb5257d649d";
+      hash = "sha256-G0rsGw//7SUh6ahFMZds8ymKf7fMDt1bIbJrjFW5rjU=";
+    };
     edalize0 = basePkgs.python3Packages.edalize;
-    edalize = edalize0;
+    edalize = callPackage ./edalize {
+      edalize = basePkgs.python3Packages.edalize;
+      version = "0-unstable-2026-06-25";
+      rev = "5a4dc8c9cac28b6920ee5734b97409d379ffd382";
+      hash = "sha256-ddvoq8FcSCPaaEw/eY6NemrF7RZrGnM4ZumpDbyCwPI=";
+    };
     amaranth0 = basePkgs.python3Packages.amaranth;
     amaranth = callPackage ./amaranth {
       amaranth = basePkgs.python3Packages.amaranth;

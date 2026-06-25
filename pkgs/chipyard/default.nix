@@ -3,17 +3,19 @@
   stdenvNoCC,
   fetchFromGitHub,
   nix-update-script,
+  version,
+  hash,
 }:
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "chipyard";
-  version = "1.14.0";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "ucb-bar";
     repo = "chipyard";
     tag = finalAttrs.version;
-    hash = "sha256-vi0KRoioTPDdgZFITIOkAtMyWxuyAyMzwyqShGtVGZA=";
+    inherit hash;
   };
 
   dontConfigure = true;

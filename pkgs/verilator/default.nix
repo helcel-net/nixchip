@@ -15,7 +15,9 @@
   numactl,
   coreutils,
   gdb,
+  nix-update-script,
   version,
+  rev,
   hash,
   doCheck ? true,
 }:
@@ -27,8 +29,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "verilator";
     repo = "verilator";
-    tag = "v${finalAttrs.version}";
-    inherit hash;
+    inherit rev hash;
   };
 
   enableParallelBuilding = true;
@@ -64,38 +65,45 @@ stdenv.mkDerivation (finalAttrs: {
     numactl
   ];
 
+  passthru.updateScript = nix-update-script {
+    attrPath = "verilator";
+    extraArgs = [ "--version=branch" ];
+  };
+  passthru.nixchipUpdate = true;
+  passthru.nixchipCI = true;
+
   inherit doCheck;
   checkTarget = "test";
 
   preConfigure = "autoconf";
 
   postPatch = ''
-    # bisonpre rewrites the include inside V3ParseBison.c to "verilog.h"
-    # (via filename substitution) but saves the header as V3ParseBison.h;
-    # add a make rule to copy V3ParseBison.h → verilog.h after the bison step.
-    python3 - <<'PYEOF'
-with open('src/Makefile_obj.in', 'r') as f:
-    c = f.read()
-# bisonpre rewrites the #include inside V3ParseBison.c to "verilog.h" (via
-# filename substitution) but saves the header as V3ParseBison.h.  Copy it so
-# the compiler finds it.  V3ParseGrammar.o already depends on V3ParseBison.c,
-# so the copy runs before that compilation step — no extra make rule needed.
-old = '$(PERL) $(BISONPRE) --yacc ''${YACC} -d -v -o V3ParseBison.c $<'
-new = old + '\n\tcp V3ParseBison.h verilog.h'
-c = c.replace(old, new)
-with open('src/Makefile_obj.in', 'w') as f:
-    f.write(c)
-PYEOF
+        # bisonpre rewrites the include inside V3ParseBison.c to "verilog.h"
+        # (via filename substitution) but saves the header as V3ParseBison.h;
+        # add a make rule to copy V3ParseBison.h → verilog.h after the bison step.
+        python3 - <<'PYEOF'
+    with open('src/Makefile_obj.in', 'r') as f:
+        c = f.read()
+    # bisonpre rewrites the #include inside V3ParseBison.c to "verilog.h" (via
+    # filename substitution) but saves the header as V3ParseBison.h.  Copy it so
+    # the compiler finds it.  V3ParseGrammar.o already depends on V3ParseBison.c,
+    # so the copy runs before that compilation step — no extra make rule needed.
+    old = '$(PERL) $(BISONPRE) --yacc ''${YACC} -d -v -o V3ParseBison.c $<'
+    new = old + '\n\tcp V3ParseBison.h verilog.h'
+    c = c.replace(old, new)
+    with open('src/Makefile_obj.in', 'w') as f:
+        f.write(c)
+    PYEOF
 
-    for path in bin src nodist docs/bin examples/xml_py test_regress ci; do
-      if [ -e "$path" ]; then
-        patchShebangs "$path"
-      fi
-    done
+        for path in bin src nodist docs/bin examples/xml_py test_regress ci; do
+          if [ -e "$path" ]; then
+            patchShebangs "$path"
+          fi
+        done
 
-    if [ -f bin/verilator ]; then
-      substituteInPlace bin/verilator --replace-fail "/bin/echo" "${coreutils}/bin/echo" || true
-    fi
+        if [ -f bin/verilator ]; then
+          substituteInPlace bin/verilator --replace-fail "/bin/echo" "${coreutils}/bin/echo" || true
+        fi
   '';
 
   preCheck = ''

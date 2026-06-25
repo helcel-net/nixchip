@@ -2,8 +2,8 @@
   fetchFromGitHub,
   klayout,
   nix-update-script,
-  version ? "0.30.8",
-  hash ? "sha256-RjMH6hrc0jyCLgG1D6cztBp5Fb3W5HgTxVTfI2bxgCs=",
+  version,
+  hash,
   ...
 }:
 
@@ -15,5 +15,9 @@ klayout.overrideAttrs (old: {
     rev = "v${version}";
     inherit hash;
   };
-  passthru = (old.passthru or { }) // { updateScript = nix-update-script { }; nixchipUpdate = true; nixchipCI = true; };
+  passthru = (old.passthru or { }) // {
+    updateScript = nix-update-script { };
+    nixchipUpdate = true;
+    nixchipCI = true;
+  };
 })

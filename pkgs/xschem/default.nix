@@ -1,6 +1,6 @@
 {
   fetchFromGitHub,
-  abc-verifier,
+  xschem,
   nix-update-script,
   version,
   rev,
@@ -8,16 +8,16 @@
   ...
 }:
 
-abc-verifier.overrideAttrs (old: {
+xschem.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "berkeley-abc";
-    repo = "abc";
+    owner = "StefanSchippers";
+    repo = "xschem";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "abc";
+      attrPath = "xschem";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

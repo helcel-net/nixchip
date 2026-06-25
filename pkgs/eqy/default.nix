@@ -5,9 +5,9 @@
   python3,
   yosys,
   nix-update-script,
-  version ? "0-unstable-2026-06-25",
-  rev ? "8770b67d0bc802f17dbc9f2393d2dbc1f14c39ee",
-  hash ? "sha256-YMTWXLb9PMxps42ppkCvabPp+dDu6j+DlhQ7NQ73IoQ=",
+  version,
+  rev,
+  hash,
 }:
 
 let

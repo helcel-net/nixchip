@@ -9,10 +9,11 @@
   pkg-config,
   zlib,
   readline,
-  version ? "9.0.0",
-  tag ? "v${version}",
+  nix-update-script,
+  version,
+  rev,
   fetchSubmodules ? true,
-  hash ? "sha256-g5pDGy6A0e1gHFU64G7NcTAGiUj8vfyhJkQ3++4Y2yw=",
+  hash,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -22,7 +23,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "verilog-to-routing";
     repo = "vtr-verilog-to-routing";
-    inherit tag fetchSubmodules hash;
+    inherit rev fetchSubmodules hash;
   };
 
   nativeBuildInputs = [
@@ -50,6 +51,13 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   enableParallelBuilding = true;
+
+  passthru.updateScript = nix-update-script {
+    attrPath = "vtr";
+    extraArgs = [ "--version=branch" ];
+  };
+  passthru.nixchipUpdate = true;
+  passthru.nixchipCI = true;
 
   postInstall = ''
     # install bundled abc built by the VTR build system

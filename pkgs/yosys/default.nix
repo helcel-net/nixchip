@@ -2,8 +2,9 @@
   fetchFromGitHub,
   yosys,
   nix-update-script,
-  version ? "0.62",
-  hash ? "sha256-FzvdjdAURB5iCkGwsYY6A2wP/Je/IW4AOd4kVOEOeVc=",
+  version,
+  rev,
+  hash,
   ...
 }:
 
@@ -12,9 +13,12 @@ yosys.overrideAttrs (old: {
   src = fetchFromGitHub {
     owner = "YosysHQ";
     repo = "yosys";
-    tag = "v${version}";
     fetchSubmodules = true;
-    inherit hash;
+    inherit rev hash;
   };
-  passthru = (old.passthru or { }) // { updateScript = nix-update-script { }; nixchipUpdate = true; nixchipCI = true; };
+  passthru = (old.passthru or { }) // {
+    updateScript = nix-update-script { };
+    nixchipUpdate = true;
+    nixchipCI = true;
+  };
 })

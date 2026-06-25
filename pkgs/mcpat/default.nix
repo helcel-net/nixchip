@@ -3,8 +3,8 @@
   stdenv,
   fetchFromGitHub,
   nix-update-script,
-  version ? "1.3.0",
-  hash ? "sha256-sr7H2vBOTyI59d3itVNqRVy1fR/83ZrTGl5s4I+g0Tw=",
+  version,
+  hash,
 }:
 
 stdenv.mkDerivation {

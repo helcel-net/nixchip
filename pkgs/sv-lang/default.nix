@@ -1,6 +1,6 @@
 {
   fetchFromGitHub,
-  abc-verifier,
+  sv_lang,
   nix-update-script,
   version,
   rev,
@@ -8,16 +8,16 @@
   ...
 }:
 
-abc-verifier.overrideAttrs (old: {
+sv_lang.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "berkeley-abc";
-    repo = "abc";
+    owner = "MikePopoloski";
+    repo = "slang";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "abc";
+      attrPath = "sv-lang";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

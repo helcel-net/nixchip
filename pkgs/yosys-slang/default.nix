@@ -6,8 +6,8 @@
   python3,
   nix-update-script,
   yosys,
-  rev ? "3e0db86b102953ee2a56a64eddfe02a50273e565",
-  hash ? "sha256-mhAYkI0aYrttem6DE08bQ/bsITEaCzBd1MQBl0jQmCA=",
+  rev,
+  hash,
 }:
 
 stdenv.mkDerivation (finalAttrs: {

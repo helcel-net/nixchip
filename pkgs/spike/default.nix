@@ -1,6 +1,6 @@
 {
   fetchFromGitHub,
-  abc-verifier,
+  spike,
   nix-update-script,
   version,
   rev,
@@ -8,16 +8,16 @@
   ...
 }:
 
-abc-verifier.overrideAttrs (old: {
+spike.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "berkeley-abc";
-    repo = "abc";
+    owner = "riscv-software-src";
+    repo = "riscv-isa-sim";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "abc";
+      attrPath = "spike";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

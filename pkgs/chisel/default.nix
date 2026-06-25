@@ -6,8 +6,8 @@
   sbt,
   scala-cli,
   nix-update-script,
-  version ? "7.13.0",
-  hash ? "sha256-L4k6KEUpHSqrp06fthwHfkyTyvpyiNF+iS2GpuQm9z8=",
+  version,
+  hash,
 }:
 
 stdenvNoCC.mkDerivation {

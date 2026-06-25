@@ -5,8 +5,8 @@
   cmake,
   patchelf,
   nix-update-script,
-  version ? "1.0.0",
-  hash ? "sha256-uErpWJEn6C9oKR6Bv1NOAC3ij3ne3A6BPtjtX7D8ZwE=",
+  version,
+  hash,
 }:
 
 stdenv.mkDerivation {

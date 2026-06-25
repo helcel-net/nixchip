@@ -186,13 +186,9 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `btor2tools0` | `basePkgs.btor2tools` | BTOR2 word-level model checking tools |
 | `mcy0` | `basePkgs.mcy` | YosysHQ mutation cover for formal tests |
 
-Branch-tracking defaults: `ghdl`, `gtkwave`, `fusesoc`, `firrtl`, `abc`, `aiger`, `amaranth`, `openroad`, and `openroad-flow-scripts` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
+Branch-tracking defaults: `verilator`, `systemc`, `ghdl`, `yosys`, `sv-lang`, `slang`, `yosys-slang`, `abc`, `sv2v`, `firrtl`, `gtkwave`, `spike`, `vhdl-ls`, `vtr`, `fusesoc`, `openroad`, `openroad-flow-scripts`, `eqy`, `aiger`, `cacti`, `xschem`, `cocotb`, `edalize`, and `amaranth` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
 
-Aliases: `verilator = verilator5`, `systemc = systemc3`, `yosys = yosys0`,
-`sv-lang = slang = sv-lang11`, `vtr = vtr9`, `eqy = eqy0`,
-`sv2v = sv2v0`, `spike = spike1`, `vhdl-ls = vhdl-ls0`, `xschem = xschem3`,
-`cocotb = cocotb2`, `edalize = edalize0`, `cacti = cacti7`,
-etc.
+Fixed aliases: `sv-lang9`, `sv-lang10`, `sv-lang11`, `verilator5`, `systemc3`, `yosys0`, `vtr9`, `eqy0`, `sv2v0`, `spike1`, `vhdl-ls0`, `xschem3`, `cocotb2`, `edalize0`, `cacti7`, etc.
 
 ### Python packages
 

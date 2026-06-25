@@ -1,6 +1,6 @@
 {
   fetchFromGitHub,
-  abc-verifier,
+  cocotb,
   nix-update-script,
   version,
   rev,
@@ -8,16 +8,16 @@
   ...
 }:
 
-abc-verifier.overrideAttrs (old: {
+cocotb.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "berkeley-abc";
-    repo = "abc";
+    owner = "cocotb";
+    repo = "cocotb";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "abc";
+      attrPath = "cocotb";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

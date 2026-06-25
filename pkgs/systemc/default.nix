@@ -3,8 +3,10 @@
   stdenv,
   fetchFromGitHub,
   cmake,
-  version ? "2.3.4",
-  hash ? "sha256-CzjrkgvMRmL82omffz+bTI9JR900sdRmhZIhcyflSGo=",
+  nix-update-script,
+  version,
+  rev,
+  hash,
   # 2.x compiles with C++14; 3.x requires C++17 due to
   # https://github.com/accellera-official/systemc/issues/21
   cxxStandard ? if lib.versionAtLeast version "3" then "17" else "14",
@@ -17,8 +19,7 @@ stdenv.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "accellera-official";
     repo = "systemc";
-    tag = finalAttrs.version;
-    inherit hash;
+    inherit rev hash;
   };
 
   postPatch = lib.optionalString (lib.versionOlder version "3") ''
@@ -33,6 +34,13 @@ stdenv.mkDerivation (finalAttrs: {
   cmakeFlags = [ "-DCMAKE_CXX_STANDARD=${cxxStandard}" ];
 
   doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
+
+  passthru.updateScript = nix-update-script {
+    attrPath = "systemc";
+    extraArgs = [ "--version=branch" ];
+  };
+  passthru.nixchipUpdate = true;
+  passthru.nixchipCI = true;
 
   meta = {
     description = "Language for system-level design, modeling and verification";

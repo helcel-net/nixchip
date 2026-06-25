@@ -1,6 +1,6 @@
 {
   fetchFromGitHub,
-  abc-verifier,
+  edalize,
   nix-update-script,
   version,
   rev,
@@ -8,16 +8,16 @@
   ...
 }:
 
-abc-verifier.overrideAttrs (old: {
+edalize.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
-    owner = "berkeley-abc";
-    repo = "abc";
+    owner = "olofk";
+    repo = "edalize";
     inherit rev hash;
   };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
-      attrPath = "abc";
+      attrPath = "edalize";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

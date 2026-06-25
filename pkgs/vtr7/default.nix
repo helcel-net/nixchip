@@ -8,8 +8,8 @@
   pkg-config,
   zlib,
   readline,
-  version ? "7",
-  hash ? "sha256-/tb/ZA3k30oijfLHOLuE9OAEVRqj3bkb2Yx6aXnZ3uA=",
+  version,
+  hash,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
