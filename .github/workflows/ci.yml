@@ -16,8 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       packages: ${{ steps.matrix.outputs.packages }}
+      has-packages: ${{ steps.matrix.outputs.has-packages }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
@@ -27,13 +30,10 @@ jobs:
       - run: nix flake check path:. --no-build
       - id: matrix
         name: Collect buildable packages
-        # Emits a JSON array consumed by the build job's fromJson() matrix.
-        # Sources:
-        #   1. Custom packages with passthru.nixchipUpdate = true (deduplicated by
-        #      meta.position so aliases like "chisel = chisel7" are collapsed).
-        #   2. Small integration bundles (*-tools, excluding the heavy full-stack builds).
+        # On pull_request events, only build packages whose pkgs/<name>/ directory
+        # was touched in the PR. On push/dispatch, build everything.
         run: |
-          packages=$(nix eval --json ".#packages.x86_64-linux" --apply '
+          all_packages=$(nix eval --json ".#packages.x86_64-linux" --apply '
             pkgs:
             let
               allNames = builtins.attrNames pkgs;
@@ -65,13 +65,30 @@ jobs:
             in
             builtins.sort builtins.lessThan (deduped ++ bundles)
           ')
-          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            changed=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} \
+              | grep '^pkgs/' | cut -d/ -f2 | sort -u | jq -R . | jq -s .)
+            packages=$(echo "$all_packages" | jq --argjson c "$changed" \
+              '[.[] | select(. as $p | $c | any(. == $p))]')
+          else
+            packages="$all_packages"
+          fi
+
+          if [ "$(echo "$packages" | jq 'length')" = "0" ]; then
+            echo "has-packages=false" >> "$GITHUB_OUTPUT"
+            echo "packages=[]" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-packages=true" >> "$GITHUB_OUTPUT"
+            echo "packages=$packages" >> "$GITHUB_OUTPUT"
+          fi
 
   build:
     name: Build ${{ matrix.package }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     needs: generate-matrix
+    if: needs.generate-matrix.outputs.has-packages == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -83,7 +100,13 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             accept-flake-config = true
-      - uses: DeterminateSystems/flakehub-cache-action@v3
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-${{ matrix.package }}-${{ hashFiles('**/*.nix', 'flake.lock') }}
+          restore-keys: |
+            nix-${{ runner.os }}-${{ matrix.package }}-
+            nix-${{ runner.os }}-
+          gc-max-store-size-linux: 4294967296
       - name: Build
         run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}
 
@@ -105,6 +128,12 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             accept-flake-config = true
-      - uses: DeterminateSystems/flakehub-cache-action@v3
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-${{ matrix.package }}-${{ hashFiles('**/*.nix', 'flake.lock') }}
+          restore-keys: |
+            nix-${{ runner.os }}-${{ matrix.package }}-
+            nix-${{ runner.os }}-
+          gc-max-store-size-linux: 8589934592
       - name: Build
         run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}
