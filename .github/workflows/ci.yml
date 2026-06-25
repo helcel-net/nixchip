@@ -103,7 +103,7 @@ jobs:
       - uses: nix-community/cache-nix-action@v6
         with:
           primary-key: nix-${{ runner.os }}-${{ matrix.package }}-${{ hashFiles('**/*.nix', 'flake.lock') }}
-          restore-keys: |
+          restore-prefixes-first-match: |
             nix-${{ runner.os }}-${{ matrix.package }}-
             nix-${{ runner.os }}-
           gc-max-store-size-linux: 4294967296
@@ -131,7 +131,7 @@ jobs:
       - uses: nix-community/cache-nix-action@v6
         with:
           primary-key: nix-${{ runner.os }}-${{ matrix.package }}-${{ hashFiles('**/*.nix', 'flake.lock') }}
-          restore-keys: |
+          restore-prefixes-first-match: |
             nix-${{ runner.os }}-${{ matrix.package }}-
             nix-${{ runner.os }}-
           gc-max-store-size-linux: 8589934592

@@ -1,7 +1,6 @@
 {
   fetchFromGitHub,
-  haskell,
-  sv2v,
+  haskellPackages,
   nix-update-script,
   version,
   rev,
@@ -9,14 +8,14 @@
   ...
 }:
 
-haskell.lib.overrideCabal sv2v (old: {
+haskellPackages.sv2v.overrideAttrs (_: {
   inherit version;
   src = fetchFromGitHub {
     owner = "zachjs";
     repo = "sv2v";
     inherit rev hash;
   };
-  passthru = (old.passthru or { }) // {
+  passthru = {
     updateScript = nix-update-script {
       attrPath = "sv2v";
       extraArgs = [ "--version=branch" ];

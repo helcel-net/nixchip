@@ -151,7 +151,6 @@ let
     };
     sv2v0 = basePkgs.haskellPackages.sv2v;
     sv2v = callPackage ./sv2v {
-      sv2v = basePkgs.haskellPackages.sv2v;
       version = "0-unstable-2026-06-25";
       rev = "6662fa5da71f87797598060f17728b284b99a9fc";
       hash = "sha256-ziwLw1/S4wbnqml/AnN/yerOJJ3VOfRc3dZa8cmEaD0=";
@@ -170,7 +169,6 @@ let
     # ── Waveform & debug ───────────────────────────────────────────────────────
     gtkwave3 = basePkgs.gtkwave;
     gtkwave = callPackage ./gtkwave {
-      gtkwave = basePkgs.gtkwave;
       version = "0-unstable-2026-06-25";
       rev = "7d7b4db9e2f5485afe2aeeab0ad112f5b6a9b94b";
       hash = "sha256-lEKW/OHk9xTqvf7UIcbZ3/toE6hWmed4dR/Ia21XY6I=";
