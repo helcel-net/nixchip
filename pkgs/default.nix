@@ -115,6 +115,7 @@ let
       version = "0-unstable-2026-06-25";
       rev = "23aadd92ab0740bdaa256fbe1fecc23e417f77b6";
       hash = "sha256-vPYdRxTjR5ucWYq60R4hzA3HKk9w1TwO4F+2qqfjRZA=";
+      useCmake = true;
     };
     yosys-full0 = yosysWithPlugins;
     yosys-full = yosys-full0;
