@@ -28,12 +28,6 @@ stdenv.mkDerivation {
       --replace-fail "CC  = gcc -m32" "CC  = ${stdenv.cc.targetPrefix}cc"
   '';
 
-  buildPhase = ''
-    runHook preBuild
-    make -j$NIX_BUILD_CORES
-    runHook postBuild
-  '';
-
   installPhase = ''
     runHook preInstall
 

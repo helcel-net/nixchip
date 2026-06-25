@@ -1,4 +1,5 @@
 {
+  lib,
   stdenv,
   fetchFromGitHub,
   desktop-file-utils,
@@ -78,5 +79,13 @@ stdenv.mkDerivation {
     };
     nixchipUpdate = true;
     nixchipCI = true;
+  };
+
+  meta = {
+    description = "Waveform viewer for Verilog, VHDL, and other simulation dump formats";
+    homepage = "https://gtkwave.sourceforge.net";
+    license = lib.licenses.gpl2Plus;
+    mainProgram = "gtkwave";
+    platforms = lib.platforms.unix;
   };
 }

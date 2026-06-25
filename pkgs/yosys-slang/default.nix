@@ -6,13 +6,14 @@
   python3,
   nix-update-script,
   yosys,
+  version,
   rev,
   hash,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "yosys-slang";
-  version = "0-unstable-2026-06-23";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "povik";

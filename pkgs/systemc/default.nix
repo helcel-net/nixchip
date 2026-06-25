@@ -12,7 +12,7 @@
   cxxStandard ? if lib.versionAtLeast version "3" then "17" else "14",
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenv.mkDerivation {
   pname = "systemc";
   inherit version;
 
@@ -48,4 +48,4 @@ stdenv.mkDerivation (finalAttrs: {
     license = lib.licenses.asl20;
     platforms = lib.platforms.unix;
   };
-})
+}

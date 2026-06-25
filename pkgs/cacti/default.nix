@@ -8,7 +8,7 @@
   hash,
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenv.mkDerivation {
   pname = "cacti";
   inherit version;
 
@@ -61,4 +61,4 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "cacti";
     platforms = lib.platforms.unix;
   };
-})
+}

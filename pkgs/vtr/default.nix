@@ -19,7 +19,7 @@
   hash,
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenv.mkDerivation {
   pname = "vtr";
   inherit version;
 
@@ -115,4 +115,4 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "vpr";
     platforms = lib.platforms.linux;
   };
-})
+}

@@ -132,6 +132,7 @@ let
     slang = sv-lang;
 
     yosys-slang0 = callPackage ./yosys-slang {
+      version = "0-unstable-2026-06-23";
       rev = "3e0db86b102953ee2a56a64eddfe02a50273e565";
       hash = "sha256-mhAYkI0aYrttem6DE08bQ/bsITEaCzBd1MQBl0jQmCA=";
     };

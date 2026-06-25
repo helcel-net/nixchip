@@ -13,7 +13,7 @@
 let
   pythonEnv = python3.withPackages (ps: [ ps.click ]);
 in
-stdenv.mkDerivation (finalAttrs: {
+stdenv.mkDerivation {
   pname = "eqy";
   inherit version;
 
@@ -61,4 +61,4 @@ stdenv.mkDerivation (finalAttrs: {
     mainProgram = "eqy";
     platforms = lib.platforms.unix;
   };
-})
+}
