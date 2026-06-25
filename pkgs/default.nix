@@ -260,7 +260,9 @@ let
       version = "0.30.8";
       hash = "sha256-RjMH6hrc0jyCLgG1D6cztBp5Fb3W5HgTxVTfI2bxgCs=";
     };
-    klayout = klayout0;
+    klayout = callPackage ./klayout {
+      klayout = basePkgs.klayout;
+    };
     magic-vlsi8 = callPackage ./magic-vlsi {
       magic-vlsi = basePkgs.magic-vlsi;
       version = "8.3.629";

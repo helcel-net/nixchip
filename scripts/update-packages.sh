@@ -94,12 +94,13 @@ failed=()
 
 for package in "${packages[@]}"; do
   echo "::group::nix-update $package"
-  if [[ -v "version_hints[$package]" ]] && [[ "${version_hints[$package]}" == "branch" ]]; then
-    extra_flags="--version=branch"
-  elif [[ -v "nixchip_flags[$package]" ]]; then
-    extra_flags="${nixchip_flags[$package]}"
-  else
-    extra_flags="$(get_version_flags "$package")"
+  extra_flags="${nixchip_flags[$package]:-}"
+  if [[ " $extra_flags " != *" --version"* ]]; then
+    if [[ -v "version_hints[$package]" ]] && [[ "${version_hints[$package]}" == "branch" ]]; then
+      extra_flags+=" --version=branch"
+    else
+      extra_flags+=" $(get_version_flags "$package")"
+    fi
   fi
   # shellcheck disable=SC2086
   if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then

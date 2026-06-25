@@ -102,7 +102,7 @@ stdenv.mkDerivation (finalAttrs: {
         done
 
         if [ -f bin/verilator ]; then
-          substituteInPlace bin/verilator --replace-fail "/bin/echo" "${coreutils}/bin/echo" || true
+          substituteInPlace bin/verilator --replace-quiet "/bin/echo" "${coreutils}/bin/echo"
         fi
   '';
 
