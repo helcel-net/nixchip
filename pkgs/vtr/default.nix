@@ -5,8 +5,11 @@
   cmake,
   bison,
   flex,
+  git,
   python3,
   pkg-config,
+  swig,
+  tcl,
   zlib,
   readline,
   nix-update-script,
@@ -30,11 +33,14 @@ stdenv.mkDerivation (finalAttrs: {
     cmake
     bison
     flex
+    git
     python3
     pkg-config
+    swig
   ];
 
   buildInputs = [
+    tcl
     zlib
     readline
   ];
@@ -42,8 +48,10 @@ stdenv.mkDerivation (finalAttrs: {
   postPatch = ''
     # GCC 15 no longer implicitly includes these headers
     sed -i '/#include <iostream>/a #include <cstdint>' \
-      libs/librtlnumber/src/rtl_utils.cpp \
-      libs/libeasygl/src/graphics_types.h
+      libs/librtlnumber/src/rtl_utils.cpp
+    [ -f libs/libeasygl/src/graphics_types.h ] && \
+      sed -i '/#include <iostream>/a #include <cstdint>' \
+        libs/libeasygl/src/graphics_types.h || true
     sed -i '1i #include <limits>' \
       libs/EXTERNAL/libargparse/src/argparse.cpp
     sed -i '/#include <memory>/a #include <array>' \
@@ -51,11 +59,13 @@ stdenv.mkDerivation (finalAttrs: {
     sed -i '1i #include <limits>' \
       libs/libvtrutil/src/vtr_geometry.tpp
     # SIGSTKSZ is no longer a compile-time constant in glibc 2.34+
-    sed -i 's/altStackMem\[SIGSTKSZ\]/altStackMem[65536]/g' \
-      libs/EXTERNAL/libcatch/catch.hpp
+    [ -f libs/EXTERNAL/libcatch/catch.hpp ] && \
+      sed -i 's/altStackMem\[SIGSTKSZ\]/altStackMem[65536]/g' \
+        libs/EXTERNAL/libcatch/catch.hpp || true
     # vtr 8 unconditionally adds ODIN_II; make it respect WITH_ODIN
-    sed -i 's|^add_subdirectory(ODIN_II)|option(WITH_ODIN "Build ODIN II front-end" ON)\nif(WITH_ODIN)\n  add_subdirectory(ODIN_II)\nendif()|' \
-      CMakeLists.txt
+    [ -d ODIN_II ] && \
+      sed -i 's|^add_subdirectory(ODIN_II)|option(WITH_ODIN "Build ODIN II front-end" ON)\nif(WITH_ODIN)\n  add_subdirectory(ODIN_II)\nendif()|' \
+        CMakeLists.txt || true
   '';
 
   cmakeFlags = [

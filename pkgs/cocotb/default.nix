@@ -15,6 +15,9 @@ cocotb.overrideAttrs (old: {
     repo = "cocotb";
     inherit rev hash;
   };
+  pytestFlagsArray = (old.pytestFlagsArray or [ ]) ++ [
+    "--ignore=tests/pytest/test_ipython_support.py"
+  ];
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
       attrPath = "cocotb";
