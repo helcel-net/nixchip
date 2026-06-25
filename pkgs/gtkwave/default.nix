@@ -1,6 +1,9 @@
 {
   stdenv,
   fetchFromGitHub,
+  desktop-file-utils,
+  flex,
+  gperf,
   meson,
   ninja,
   pkg-config,
@@ -41,6 +44,9 @@ stdenv.mkDerivation {
   '';
 
   nativeBuildInputs = [
+    desktop-file-utils
+    flex
+    gperf
     meson
     ninja
     pkg-config
