@@ -63,7 +63,6 @@ stdenv.mkDerivation {
     "-Dlibgtkwave_docs=false"
     "-Dintrospection=false"
     "-Dset_rpath=disabled"
-    "-Dwrap-mode=nodownload"
   ];
 
   passthru = {
