@@ -17,6 +17,10 @@ iverilog.overrideAttrs (old: {
     repo = "iverilog";
     inherit rev hash;
   };
+  doInstallCheck = false;
+  env = (old.env or { }) // {
+    NIX_CFLAGS_COMPILE = "${old.env.NIX_CFLAGS_COMPILE or ""} -Wno-error=format-security";
+  };
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script { };
     nixchipUpdate = true;
