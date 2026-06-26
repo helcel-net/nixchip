@@ -58,12 +58,8 @@ jobs:
                    else builtins.head ns;
               deduped = builtins.map pickBest (builtins.attrValues byDrv);
 
-              bundles = builtins.filter (n:
-                builtins.match ".*-tools$" n != null
-                && !builtins.elem n ["hardware-tools" "asic-tools"]
-              ) allNames;
             in
-            builtins.sort builtins.lessThan (deduped ++ bundles)
+            builtins.sort builtins.lessThan deduped
           ')
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
@@ -104,16 +100,11 @@ jobs:
         run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}
 
   build-full:
-    name: Full build (${{ matrix.package }})
+    name: Full build hardware-tools
     runs-on: ubuntu-latest
     timeout-minutes: 360
     needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        package:
-          - hardware-tools
-          - asic-tools
+    if: github.event_name != 'pull_request'
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
@@ -122,4 +113,4 @@ jobs:
             experimental-features = nix-command flakes
             accept-flake-config = true
       - name: Build
-        run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}
+        run: scripts/ci-build.sh x86_64-linux hardware-tools

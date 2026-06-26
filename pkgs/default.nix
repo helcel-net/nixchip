@@ -238,11 +238,12 @@ let
       version = "26Q2";
       rev = "26Q2";
       hash = "sha256-dB9PfPlp6vZ9+Th8LJE65BW9YeuUL0G4JtjzQxg6UpQ=";
+      patches = basePkgs.openroad.patches or [ ];
     };
     openroad = callPackage ./openroad {
       openroad = basePkgs.openroad;
-      version = "2021_03_09_stable-unstable-2026-06-25";
-      rev = "c6efacca3ee033a10bfc0a32202c103354f0804b";
+      version = "unstable-2026-06-25";
+      rev = "42735125d521989ee7097c2cb6242ee98c50f8bb";
       hash = "sha256-SLiTRnAHfjvH4gDPoB4J0UwKRJugz234Kqy9t3KpHdo=";
     };
     openroad-flow-scripts26 = callPackage ./openroad-flow-scripts {
@@ -251,8 +252,8 @@ let
       hash = "sha256-TJf/LGhRTCnfGq/7JGAX13ftvvdGX7UKs/qKRK5LLug=";
     };
     openroad-flow-scripts = callPackage ./openroad-flow-scripts {
-      version = "2021_03_09_stable-unstable-2026-06-20";
-      rev = "c9c22caf9bf9cfe46c5a4236c6ec7e7ae9863cc3";
+      version = "unstable-2026-06-25";
+      rev = "ae9a8ed9d67b087abffd4645208672a33da2d3bf";
       hash = "sha256-bo6u+8R+lDfKAzsMbjVBprscjiTKkwQ5gnp1MSwv5m4=";
     };
     klayout0 = callPackage ./klayout {

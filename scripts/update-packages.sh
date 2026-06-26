@@ -85,6 +85,40 @@ get_version_flags() {
   fi
 }
 
+
+verify_branch_head() {
+  local package="$1"
+  local info owner repo rev version remote
+
+  info="$(nix eval --raw ".#packages.${system}.${package}" --apply '
+    p: "${p.src.owner or ""}\t${p.src.repo or ""}\t${p.src.rev or ""}\t${p.version or ""}"
+  ')"
+  IFS=$'\t' read -r owner repo rev version <<< "$info"
+
+  if [[ -z "$owner" || -z "$repo" || -z "$rev" ]]; then
+    echo "warning: cannot verify branch HEAD for $package; src owner/repo/rev unavailable" >&2
+    return 0
+  fi
+
+  if [[ ! "$version" =~ ^([0-9]+-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    echo "error: $package branch version '$version' should look like unstable-YYYY-MM-DD or N-unstable-YYYY-MM-DD" >&2
+    return 1
+  fi
+
+  remote="$(git ls-remote "https://github.com/${owner}/${repo}.git" HEAD | awk '{print $1}')"
+  if [[ -z "$remote" ]]; then
+    echo "error: failed to resolve upstream HEAD for $package (${owner}/${repo})" >&2
+    return 1
+  fi
+
+  if [[ "$rev" != "$remote" ]]; then
+    echo "error: $package is not at upstream HEAD after update" >&2
+    echo "  current: $rev" >&2
+    echo "  upstream: $remote" >&2
+    return 1
+  fi
+}
+
 build_flag=()
 if [ "${NIXCHIP_UPDATE_BUILD:-0}" = "1" ]; then
   build_flag=(--build --system "${system}")
@@ -102,8 +136,15 @@ for package in "${packages[@]}"; do
       extra_flags+=" $(get_version_flags "$package")"
     fi
   fi
+  branch_update=false
+  if [[ " $extra_flags " == *" --version=branch "* ]]; then
+    branch_update=true
+  fi
   # shellcheck disable=SC2086
   if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then
+    if [[ "$branch_update" == true ]]; then
+      verify_branch_head "$package"
+    fi
     echo "updated $package"
   else
     failed+=("$package")

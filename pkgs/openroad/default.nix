@@ -5,6 +5,7 @@
   version,
   rev,
   hash,
+  patches ? [ ],
   ...
 }:
 
@@ -16,6 +17,7 @@ openroad.overrideAttrs (old: {
     fetchSubmodules = true;
     inherit rev hash;
   };
+  inherit patches;
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
       attrPath = "openroad";
