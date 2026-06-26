@@ -86,7 +86,7 @@ let
     iverilog12 =  callPackage ./iverilog {
       iverilog = basePkgs.iverilog;
       version = "12.0";
-      hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWAARFS3dSUm4=";
+      hash = "sha256-J9hedSmC6mFVcoDnXBtaTXigxrSCFa2AhhFd77ueo7I=";
     };
     iverilog13 = callPackage ./iverilog {
       iverilog = basePkgs.iverilog;

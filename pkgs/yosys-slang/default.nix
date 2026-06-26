@@ -8,7 +8,7 @@
   yosys,
   version ? "unstable-2026-06-26",
   rev ? "6760afa2c9b9ba231a9c6a9e94f0939dd39f0a20",
-  hash ? "sha256-zDR0BBeTTjYZfUXgHZsMfcEtAadjU1MIwk/p4ruUcqA=",
+  hash ? "sha256-FpreG1IEblwn6wUCDMLI9sE1lEwUk09S0/vlkrc7GsA=",
 }:
 
 stdenv.mkDerivation (finalAttrs: {

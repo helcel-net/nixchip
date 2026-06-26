@@ -3,8 +3,8 @@
   stdenv,
   fetchFromGitHub,
   nix-update-script,
-  version ? "unstable-2026-05-05",
-  rev ? if lib.hasPrefix "unstable-" version then "428dbeb35d1059e82823cd8556530bab578f1084" else "v${version}",
+  version ? "unstable-2015-09-14",
+  rev ? if lib.hasPrefix "unstable-" version then "74d4759f3ba2dff8f5a69e07a68efdb46b42fb8c" else "v${version}",
   hash  ? "sha256-sr7H2vBOTyI59d3itVNqRVy1fR/83ZrTGl5s4I+g0Tw="
 }:
 
