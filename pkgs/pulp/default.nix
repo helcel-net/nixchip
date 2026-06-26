@@ -26,7 +26,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   src = fetchFromGitHub {
     owner = "pulp-platform";
-    inherit repo rev hash fetchSubmodules;
+    inherit
+      repo
+      rev
+      hash
+      fetchSubmodules
+      ;
   };
 
   dontConfigure = true;

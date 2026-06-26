@@ -11,6 +11,9 @@ system="${NIX_SYSTEM:-x86_64-linux}"
 # The nix expression also emits a "branch" hint for packages whose version string
 # contains "unstable" (e.g. "0-unstable-2026-06-23"), so that get_version_flags
 # does not incorrectly assign a version-series regex to branch-tracking packages.
+_nix_unique='builtins.map pickBest (builtins.attrValues byFamily)'
+[ "${NIXCHIP_UPDATE_HISTORICAL:-0}" = "1" ] && _nix_unique='names'
+
 raw_lines=()
 readarray -t raw_lines < <(
   nix eval --raw ".#packages.${system}" --apply '
@@ -25,15 +28,19 @@ readarray -t raw_lines < <(
       slotRev = n: builtins.match ".*-[0-9]+$"  n != null;
       hasVer  = n: builtins.match ".*[0-9]$"    n != null;
       isUnstable = n: builtins.match ".*unstable.*" (pkgs.${n}.version or "") != null;
+      matchingPname = n: pkgs.${n}.pname or n == n;
+      preferred = ns:
+        let direct = builtins.filter matchingPname ns;
+        in if direct != [] then direct else ns;
       pickBest = ns:
-        let branch = builtins.filter isUnstable ns;
-            slot = builtins.filter slotRev ns;
-            vers = builtins.filter hasVer  ns;
+        let branch = preferred (builtins.filter isUnstable ns);
+            slot = preferred (builtins.filter slotRev ns);
+            vers = preferred (builtins.filter hasVer  ns);
         in if branch != [] then builtins.head branch
            else if slot != [] then builtins.head slot
            else if vers != [] then builtins.head vers
-           else builtins.head ns;
-      unique = builtins.map pickBest (builtins.attrValues byFamily);
+           else builtins.head (preferred ns);
+      unique = '"${_nix_unique}"';
       versionHint = n: if isUnstable n then "branch" else "";
       nixchipFlags = n: builtins.concatStringsSep " " (pkgs.${n}.passthru.nixchipUpdateFlags or []);
       line = n: "${n}\t${versionHint n}\t${nixchipFlags n}";
@@ -100,8 +107,8 @@ verify_branch_head() {
     return 0
   fi
 
-  if [[ ! "$version" =~ ^([0-9]+-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-    echo "error: $package branch version '$version' should look like unstable-YYYY-MM-DD or N-unstable-YYYY-MM-DD" >&2
+  if [[ ! "$version" =~ ^unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    echo "error: $package branch version '$version' should look like unstable-YYYY-MM-DD" >&2
     return 1
   fi
 
@@ -137,12 +144,19 @@ for package in "${packages[@]}"; do
     fi
   fi
   branch_update=false
-  if [[ " $extra_flags " == *" --version=branch "* ]]; then
+  if [[ " $extra_flags " == *" --version=branch"* ]]; then
     branch_update=true
   fi
   # shellcheck disable=SC2086
   if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then
     if [[ "$branch_update" == true ]]; then
+      # nix-update --version=branch prepends the nearest release tag to the version
+      # (e.g. "0.30.9-unstable-2026-06-19").  Strip that prefix so the stored
+      # version is always "unstable-YYYY-MM-DD".
+      while IFS= read -r f; do
+        [[ "$f" == *.nix ]] && \
+          sed -Ei 's/(version [?=] ")[^"]*-unstable-([0-9]{4}-[0-9]{2}-[0-9]{2})"/\1unstable-\2"/g' "$f"
+      done < <(git diff --name-only)
       verify_branch_head "$package"
     fi
     echo "updated $package"

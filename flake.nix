@@ -48,9 +48,7 @@
           ];
           pkgsToExport = lib.filterAttrs (
             name: pkg:
-            lib.isDerivation pkg
-            && !lib.hasSuffix "-tools" name
-            && !builtins.elem name pythonPackages
+            lib.isDerivation pkg && !lib.hasSuffix "-tools" name && !builtins.elem name pythonPackages
           ) hw;
         in
         lib.concatStringsSep "\n" (
@@ -131,7 +129,8 @@
             packages = [
               hw.fpga-tools
               hw.simulation-tools
-            ] ++ nonHardwareTools;
+            ]
+            ++ nonHardwareTools;
             shellHook = varsHook;
           };
 
@@ -139,7 +138,8 @@
             packages = [
               hw.asic-tools
               hw.simulation-tools
-            ] ++ nonHardwareTools;
+            ]
+            ++ nonHardwareTools;
             shellHook = varsHook;
           };
 

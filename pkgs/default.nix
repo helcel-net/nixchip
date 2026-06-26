@@ -51,7 +51,7 @@ let
     };
     verilator5 = basePkgs.verilator;
     verilator = callPackage ./verilator {
-      version = "5-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "f0f1c44dd69a4dd17f923c9ca2f85dda8c006820";
       hash = "sha256-INVoGes/hJ1cpOS4H43uidB20DzJmMw85oCMyYqGFuo=";
       doCheck = false;
@@ -68,7 +68,7 @@ let
       hash = "sha256-v/PcQu0m/7zyx2TtpZrLFbHtknahgVCkzcRi3lgrRGw=";
     };
     systemc = callPackage ./systemc {
-      version = "3-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "a50561f14dfe8447d8a507ce42924322921a11ce";
       hash = "sha256-KzuoA8xibRFdAjOTJ1pgqyaRAJ9DwOM790MPkE5AcTA=";
       cxxStandard = "17";
@@ -82,7 +82,7 @@ let
     };
     ghdl = callPackage ./ghdl {
       ghdl = basePkgs.ghdl;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "2ac3c8a72acc826cc7ccddb87fce4c69552711d1";
       hash = "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=";
     };
@@ -98,7 +98,7 @@ let
     spike1 = basePkgs.spike;
     spike = callPackage ./spike {
       spike = basePkgs.spike;
-      version = "1-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "27731d158d7d9aa0f03b4b85fa684f5e3ac1a52e";
       hash = "sha256-t7yTD5VYWzV0zFHUmJB6RSGL9PRka+G8qjlHxjZ3Ago=";
     };
@@ -112,7 +112,7 @@ let
     };
     yosys = callPackage ./yosys {
       yosys = basePkgs.yosys;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "23aadd92ab0740bdaa256fbe1fecc23e417f77b6";
       hash = "sha256-vPYdRxTjR5ucWYq60R4hzA3HKk9w1TwO4F+2qqfjRZA=";
       useCmake = true;
@@ -125,14 +125,14 @@ let
     sv-lang11 = basePkgs.sv-lang;
     sv-lang = callPackage ./sv-lang {
       sv_lang = basePkgs.sv-lang;
-      version = "11-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "ab9bdf1ed140bbbd83d060e6c5dd24319b93986b";
       hash = "sha256-lMQCK0NlnDTEM68zsPNF4VVCrInyVYrcIlLyr276ZDQ=";
     };
     slang = sv-lang;
 
     yosys-slang0 = callPackage ./yosys-slang {
-      version = "0-unstable-2026-06-23";
+      version = "unstable-2026-06-23";
       rev = "3e0db86b102953ee2a56a64eddfe02a50273e565";
       hash = "sha256-mhAYkI0aYrttem6DE08bQ/bsITEaCzBd1MQBl0jQmCA=";
     };
@@ -147,13 +147,13 @@ let
     abc0 = basePkgs.abc-verifier;
     abc = callPackage ./abc {
       abc-verifier = basePkgs.abc-verifier;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "3ce53c361f6017153a0f9bb3c91f4d04eb820fc2";
       hash = "sha256-9Sldy42mAfalA9Jqa752BCOTh+rtvu8nFeh1Nt0rJDk=";
     };
     sv2v0 = basePkgs.haskellPackages.sv2v;
     sv2v = callPackage ./sv2v {
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "6662fa5da71f87797598060f17728b284b99a9fc";
       hash = "sha256-ziwLw1/S4wbnqml/AnN/yerOJJ3VOfRc3dZa8cmEaD0=";
     };
@@ -163,7 +163,7 @@ let
     firrtl1 = basePkgs.firrtl;
     firrtl = callPackage ./firrtl {
       firrtl = basePkgs.firrtl;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "64731bbb16142a2b09ccbe74ab41b76b7a265869";
       hash = "sha256-djy81G2OGW/r0fGfluUa7+jL/6usD3Q015kuuH6DUE0=";
     };
@@ -171,7 +171,7 @@ let
     # ── Waveform & debug ───────────────────────────────────────────────────────
     gtkwave3 = basePkgs.gtkwave;
     gtkwave = callPackage ./gtkwave {
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "7d7b4db9e2f5485afe2aeeab0ad112f5b6a9b94b";
       hash = "sha256-lEKW/OHk9xTqvf7UIcbZ3/toE6hWmed4dR/Ia21XY6I=";
     };
@@ -186,7 +186,7 @@ let
     vhdl-ls0 = basePkgs.vhdl-ls;
     vhdl-ls = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "873b2647712e2f6b1b775c8d555372120f386373";
       hash = "sha256-wN1MpYIyuaQ23poyB/0TbFgeaTFvALczCAb/tykzq8k=";
     };
@@ -220,14 +220,14 @@ let
       hash = "sha256-g5pDGy6A0e1gHFU64G7NcTAGiUj8vfyhJkQ3++4Y2yw=";
     };
     vtr = callPackage ./vtr {
-      version = "9-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "d312fab8017ecfcd28a898eed9b2bc7aa68c145b";
       hash = "sha256-+wrXJ3+B300mYcEJVsRvGnLnlu4v85s7v1X9sXpv9Vc=";
     };
     fusesoc2 = basePkgs.fusesoc;
     fusesoc = callPackage ./fusesoc {
       fusesoc = basePkgs.fusesoc;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "f15e1c8a76815c4f391231dd0e743e2b683c6b45";
       hash = "sha256-f5ao99G/m//sdrIM1j6AT+kAt7/Zl8xvV8zM2XvCWAU=";
     };
@@ -242,20 +242,13 @@ let
     };
     openroad = callPackage ./openroad {
       openroad = basePkgs.openroad;
-      version = "unstable-2026-06-25";
-      rev = "42735125d521989ee7097c2cb6242ee98c50f8bb";
-      hash = "sha256-SLiTRnAHfjvH4gDPoB4J0UwKRJugz234Kqy9t3KpHdo=";
     };
     openroad-flow-scripts26 = callPackage ./openroad-flow-scripts {
       version = "26Q2";
       rev = "26Q2";
       hash = "sha256-TJf/LGhRTCnfGq/7JGAX13ftvvdGX7UKs/qKRK5LLug=";
     };
-    openroad-flow-scripts = callPackage ./openroad-flow-scripts {
-      version = "unstable-2026-06-25";
-      rev = "ae9a8ed9d67b087abffd4645208672a33da2d3bf";
-      hash = "sha256-bo6u+8R+lDfKAzsMbjVBprscjiTKkwQ5gnp1MSwv5m4=";
-    };
+    openroad-flow-scripts = callPackage ./openroad-flow-scripts { };
     klayout0 = callPackage ./klayout {
       klayout = basePkgs.klayout;
       version = "0.30.8";
@@ -283,7 +276,7 @@ let
     xschem3 = basePkgs.xschem;
     xschem = callPackage ./xschem {
       xschem = basePkgs.xschem;
-      version = "3-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "c8b26a17d8d53ce7fbd9e7d45ab6bb03e75996e0";
       hash = "sha256-OpFMBiR7UZ4nLxcrD1hgrEvnuccwYgTy2mTHjA3/E0w=";
     };
@@ -297,7 +290,7 @@ let
       hash = "sha256-a2wc0OCVyl7N01g9MV3rnSay5c0jy8YCDB0d4eCNTr4=";
     };
     eqy = callPackage ./eqy {
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "8770b67d0bc802f17dbc9f2393d2dbc1f14c39ee";
       hash = "sha256-YMTWXLb9PMxps42ppkCvabPp+dDu6j+DlhQ7NQ73IoQ=";
     };
@@ -322,7 +315,7 @@ let
     aiger1 = basePkgs.aiger;
     aiger = callPackage ./aiger {
       aiger = basePkgs.aiger;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "039ec1a2cc37d3093ac35c4b6df65336b346f409";
       hash = "sha256-evW5QSdXnT5rgxCRBYnvrE2zUAu/ZuH4Y2jHznXNAn4=";
     };
@@ -336,12 +329,12 @@ let
       hash = "sha256-lYhaDQgQngoJs5GST+dTNPitVSmKhhivFtnzJH2XpdA=";
     };
     cacti7 = callPackage ./cacti {
-      version = "7.0-unstable-2026-06-20";
+      version = "unstable-2026-06-20";
       rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
       hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
     };
     cacti = callPackage ./cacti {
-      version = "7-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
       hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
     };
@@ -405,21 +398,21 @@ let
     cocotb2 = basePkgs.python3Packages.cocotb;
     cocotb = callPackage ./cocotb {
       cocotb = basePkgs.python3Packages.cocotb;
-      version = "2-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "869c45921d7595668acafe44922e3bb5257d649d";
       hash = "sha256-G0rsGw//7SUh6ahFMZds8ymKf7fMDt1bIbJrjFW5rjU=";
     };
     edalize0 = basePkgs.python3Packages.edalize;
     edalize = callPackage ./edalize {
       edalize = basePkgs.python3Packages.edalize;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "5a4dc8c9cac28b6920ee5734b97409d379ffd382";
       hash = "sha256-ddvoq8FcSCPaaEw/eY6NemrF7RZrGnM4ZumpDbyCwPI=";
     };
     amaranth0 = basePkgs.python3Packages.amaranth;
     amaranth = callPackage ./amaranth {
       amaranth = basePkgs.python3Packages.amaranth;
-      version = "0-unstable-2026-06-25";
+      version = "unstable-2026-06-25";
       rev = "c9be3e4a9e932c25e361d0085af31c5b420efc41";
       hash = "sha256-0UfGuvfJTbF9enn6bb+75nKjLxsagQjnTL3UVKjqY+o=";
     };

@@ -10,12 +10,13 @@
 }:
 
 let
-  # PDM's SCM hook rejects the nixchip "0-unstable-YYYY-MM-DD" version string
-  # (not PEP 440).  Derive a compliant version following the same pattern that
-  # nixpkgs uses for amaranth-boards: strip the tag prefix, append ".dev1+g<rev>".
+  # PDM's SCM hook rejects the nixchip "unstable-YYYY-MM-DD" version string
+  # (not PEP 440).  Derive a compliant version: use the first segment if it's a
+  # digit (historic N-unstable-... format), otherwise fall back to "0".
   pep440Version =
     let
-      tag = builtins.elemAt (lib.splitString "-" version) 0;
+      rawTag = builtins.elemAt (lib.splitString "-" version) 0;
+      tag = if builtins.match "[0-9].*" rawTag != null then rawTag else "0";
       shortRev = lib.substring 0 7 rev;
     in
     "${tag}1.dev1+g${shortRev}";

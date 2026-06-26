@@ -47,5 +47,5 @@ jobs:
             "${{ github.event.repository.default_branch }}" <<'BODY'
           Automated update of custom hardware package versions and source hashes.
 
-          The workflow uses `nix-update -F --build` for package attrs maintained in `pkgs/`, then evaluates `nix flake check --no-build`.
+          The workflow uses `nix-update -F` for package attrs maintained in `pkgs/`, then evaluates `nix flake check --no-build`.
           BODY

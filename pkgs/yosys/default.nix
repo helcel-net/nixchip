@@ -64,10 +64,17 @@ if useCmake then
       nixchipUpdate = true;
       nixchipCI = true;
     };
+
+    meta = (yosys.meta or { }) // {
+      mainProgram = yosys.meta.mainProgram or "yosys";
+    };
   }
 else
   yosys.overrideAttrs (old: {
     inherit version src;
+    meta = (old.meta or { }) // {
+      mainProgram = old.meta.mainProgram or "yosys";
+    };
     passthru = (old.passthru or { }) // {
       updateScript = nix-update-script { };
       nixchipUpdate = true;

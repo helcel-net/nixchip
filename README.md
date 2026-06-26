@@ -260,11 +260,14 @@ GitHub Actions workflows:
 
 - `CI`: evaluates the flake and builds the fast package set on Linux.
 - `Update flake inputs`: runs `nix flake update` weekly and opens or updates a PR.
-- `Update package pins`: runs `nix-update -F --build` for custom hardware packages and opens or updates a PR.
+- `Update package pins`: runs `nix-update -F` for custom hardware packages, evaluates `nix flake check --no-build`, and opens or updates a PR.
 - `GitHub Pages`: publishes a searchable package browser from flake metadata.
 
+Branch-tracking packages always use the `unstable-YYYY-MM-DD` version format (no
+tag prefix). Released version pins use standard semver (e.g. `0.62`, `26Q2`).
+
 The update script (`scripts/update-packages.sh`) accepts per-package
-`--version-regex` constraints via `package_extra_flags` to keep packages on
+`--version-regex` constraints via `nixchipUpdateFlags` to keep packages on
 their intended major version series (e.g., `systemc2` stays on 2.x).
 
 Set `NIXCHIP_UPDATE_HISTORICAL=1` to also update historical version pins
