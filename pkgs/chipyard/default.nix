@@ -3,8 +3,9 @@
   stdenvNoCC,
   fetchFromGitHub,
   nix-update-script,
-  version,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? "0acc1e1de2d3284bcd4d876956932a013ffe1949",
+  hash ? "sha256-vi0KRoioTPDdgZFITIOkAtMyWxuyAyMzwyqShGtVGZA=",
 }:
 
 stdenvNoCC.mkDerivation (finalAttrs: {
@@ -14,8 +15,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   src = fetchFromGitHub {
     owner = "ucb-bar";
     repo = "chipyard";
-    tag = finalAttrs.version;
-    inherit hash;
+    inherit rev hash;
   };
 
   dontConfigure = true;

@@ -2,9 +2,9 @@
   fetchFromGitHub,
   cocotb,
   nix-update-script,
-  version,
-  rev,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? "869c45921d7595668acafe44922e3bb5257d649d",
+  hash ? "sha256-G0rsGw//7SUh6ahFMZds8ymKf7fMDt1bIbJrjFW5rjU=",
   ...
 }:
 

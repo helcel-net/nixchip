@@ -2,9 +2,9 @@
   fetchFromGitHub,
   haskellPackages,
   nix-update-script,
-  version,
-  rev,
-  hash,
+  version ? "unstable-2026-06-25",
+  rev ? "6662fa5da71f87797598060f17728b284b99a9fc",
+  hash ? "sha256-ziwLw1/S4wbnqml/AnN/yerOJJ3VOfRc3dZa8cmEaD0=",
   ...
 }:
 

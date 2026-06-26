@@ -6,8 +6,9 @@
   sbt,
   scala-cli,
   nix-update-script,
-  version,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? if lib.hasPrefix "unstable-" version then "428dbeb35d1059e82823cd8556530bab578f1084" else "v${version}",
+  hash ? "sha256-5NpXW+24SN7Wde2d7UnfkmZSGWLNZXRw+D1R/v46HEM=",
 }:
 
 stdenvNoCC.mkDerivation {
@@ -17,8 +18,7 @@ stdenvNoCC.mkDerivation {
   src = fetchFromGitHub {
     owner = "chipsalliance";
     repo = "chisel";
-    rev = "v${version}";
-    inherit hash;
+    inherit rev hash;
   };
 
   dontPatchShebangs = true;

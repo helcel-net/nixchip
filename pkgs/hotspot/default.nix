@@ -3,8 +3,9 @@
   stdenv,
   fetchFromGitHub,
   nix-update-script,
-  version,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? if lib.hasPrefix "unstable-" version then "f18831e48cef5d62580585cca0d7fab6c71bc3cc" else "v${version}",
+  hash ? "sha256-JlSEbvuT+szQ6cGab/n/WdEhh3XZSR82gVUWFfueqFw=",
 }:
 
 stdenv.mkDerivation {
@@ -14,8 +15,7 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "uvahotspot";
     repo = "HotSpot";
-    rev = "v${version}";
-    inherit hash;
+    inherit rev hash;
   };
 
   enableParallelBuilding = true;

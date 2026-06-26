@@ -4,9 +4,9 @@
   fetchFromGitHub,
   cmake,
   nix-update-script,
-  version,
-  rev,
-  hash,
+  version ? "unstable-2026-06-25",
+  rev ? "a50561f14dfe8447d8a507ce42924322921a11ce",
+  hash ? "sha256-KzuoA8xibRFdAjOTJ1pgqyaRAJ9DwOM790MPkE5AcTA=",
   # 2.x compiles with C++14; 3.x requires C++17 due to
   # https://github.com/accellera-official/systemc/issues/21
   cxxStandard ? if lib.versionAtLeast version "3" then "17" else "14",

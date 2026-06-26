@@ -2,9 +2,9 @@
   fetchFromGitHub,
   aiger,
   nix-update-script,
-  version,
-  rev,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? "039ec1a2cc37d3093ac35c4b6df65336b346f409",
+  hash ? "sha256-evW5QSdXnT5rgxCRBYnvrE2zUAu/ZuH4Y2jHznXNAn4=",
   ...
 }:
 

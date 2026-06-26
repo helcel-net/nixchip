@@ -3,8 +3,9 @@
   stdenv,
   fetchFromGitHub,
   nix-update-script,
-  version,
-  hash,
+  version ? "unstable-2026-05-05",
+  rev ? if lib.hasPrefix "unstable-" version then "428dbeb35d1059e82823cd8556530bab578f1084" else "v${version}",
+  hash  ? "sha256-sr7H2vBOTyI59d3itVNqRVy1fR/83ZrTGl5s4I+g0Tw="
 }:
 
 stdenv.mkDerivation {
@@ -14,8 +15,7 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "HewlettPackard";
     repo = "mcpat";
-    rev = "v${version}";
-    inherit hash;
+    inherit rev hash;
   };
 
   enableParallelBuilding = true;
@@ -39,9 +39,14 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.updateScript = nix-update-script { };
-  passthru.nixchipUpdate = true;
-  passthru.nixchipCI = true;
+  passthru = {
+    updateScript = nix-update-script {
+      attrPath = "mcpat";
+      extraArgs = [ "--version=branch" ];
+    };
+    nixchipUpdate = true;
+    nixchipCI = true;
+  };
 
   meta = {
     description = "Power, area, and timing modeling framework for multicore architectures";

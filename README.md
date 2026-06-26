@@ -186,9 +186,11 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `btor2tools0` | `basePkgs.btor2tools` | BTOR2 word-level model checking tools |
 | `mcy0` | `basePkgs.mcy` | YosysHQ mutation cover for formal tests |
 
-Branch-tracking defaults: `verilator`, `systemc`, `ghdl`, `yosys`, `sv-lang`, `slang`, `yosys-slang`, `abc`, `sv2v`, `firrtl`, `gtkwave`, `spike`, `vhdl-ls`, `vtr`, `fusesoc`, `openroad`, `openroad-flow-scripts`, `eqy`, `aiger`, `cacti`, `xschem`, `cocotb`, `edalize`, and `amaranth` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
+Package naming convention: unsuffixed custom package attributes track upstream branch HEAD and use `unstable-YYYY-MM-DD` versions. Numbered attributes are fixed release slots for side-by-side tool versions.
 
-Fixed aliases: `sv-lang9`, `sv-lang10`, `sv-lang11`, `verilator5`, `systemc3`, `yosys0`, `vtr9`, `eqy0`, `sv2v0`, `spike1`, `vhdl-ls0`, `xschem3`, `cocotb2`, `edalize0`, `cacti7`, etc.
+Branch-tracking defaults: `abc`, `aiger`, `amaranth`, `cacti`, `chipyard`, `chisel`, `cocotb`, `edalize`, `eqy`, `firrtl`, `fusesoc`, `ghdl`, `gtkwave`, `hotspot`, `klayout`, `openroad`, `openroad-flow-scripts`, `spike`, `sv-lang`, `slang`, `sv2v`, `systemc`, `verilator`, `vhdl-ls`, `vtr`, `xschem`, `yosys`, and `yosys-slang` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
+
+Fixed release slots and forwarded aliases include `sv-lang9`, `sv-lang10`, `sv-lang11`, `verilator5`, `systemc2`, `systemc3`, `yosys0`, `vtr9`, `eqy0`, `sv2v0`, `chisel7`, `chipyard1`, `hotspot7`, `spike1`, `vhdl-ls0`, `xschem3`, `cocotb2`, `edalize0`, `cacti6`, and `cacti7`.
 
 ### Python packages
 

@@ -34,6 +34,10 @@ let
       };
     });
 
+  # Naming convention:
+  # - Unsuffixed custom package attrs track upstream branch HEAD and use
+  #   unstable-YYYY-MM-DD versions.
+  # - Numbered attrs are fixed release slots for side-by-side tool versions.
   nixchipPackages = rec {
 
     # ── Simulators ─────────────────────────────────────────────────────────────
@@ -65,9 +69,6 @@ let
       hash = "sha256-v/PcQu0m/7zyx2TtpZrLFbHtknahgVCkzcRi3lgrRGw=";
     };
     systemc = callPackage ./systemc {
-      version = "unstable-2026-06-25";
-      rev = "a50561f14dfe8447d8a507ce42924322921a11ce";
-      hash = "sha256-KzuoA8xibRFdAjOTJ1pgqyaRAJ9DwOM790MPkE5AcTA=";
       cxxStandard = "17";
     };
 
@@ -79,19 +80,20 @@ let
     };
     ghdl = callPackage ./ghdl {
       ghdl = basePkgs.ghdl;
-      version = "unstable-2026-06-25";
-      rev = "2ac3c8a72acc826cc7ccddb87fce4c69552711d1";
-      hash = "sha256-zD421ILhobLGJJIHfjgCFJcAGUGg7/LXFlyXkgZoS3Q=";
     };
     nvc1 = basePkgs.nvc;
     nvc = nvc1;
-    iverilog12 = basePkgs.iverilog;
+    iverilog12 =  callPackage ./iverilog {
+      iverilog = basePkgs.iverilog;
+      version = "12.0";
+      hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWAARFS3dSUm4=";
+    };
     iverilog13 = callPackage ./iverilog {
       iverilog = basePkgs.iverilog;
       version = "13.0";
       hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWF0RFS3dSUm4=";
     };
-    iverilog = iverilog13;
+    iverilog = callPackage ./iverilog { iverilog = basePkgs.iverilog; };
     spike1 = basePkgs.spike;
     spike = callPackage ./spike {
       spike = basePkgs.spike;
@@ -106,9 +108,6 @@ let
     };
     yosys = callPackage ./yosys {
       yosys = basePkgs.yosys;
-      version = "unstable-2026-06-25";
-      rev = "23aadd92ab0740bdaa256fbe1fecc23e417f77b6";
-      hash = "sha256-vPYdRxTjR5ucWYq60R4hzA3HKk9w1TwO4F+2qqfjRZA=";
       useCmake = true;
     };
     yosys-full0 = yosysWithPlugins;
@@ -119,9 +118,6 @@ let
     sv-lang11 = basePkgs.sv-lang;
     sv-lang = callPackage ./sv-lang {
       sv_lang = basePkgs.sv-lang;
-      version = "unstable-2026-06-25";
-      rev = "ab9bdf1ed140bbbd83d060e6c5dd24319b93986b";
-      hash = "sha256-lMQCK0NlnDTEM68zsPNF4VVCrInyVYrcIlLyr276ZDQ=";
     };
     slang = sv-lang;
 
@@ -132,39 +128,25 @@ let
       version = "7.13.0";
       hash = "sha256-L4k6KEUpHSqrp06fthwHfkyTyvpyiNF+iS2GpuQm9z8=";
     };
-    chisel = chisel7;
+    chisel = callPackage ./chisel { };
 
     abc0 = basePkgs.abc-verifier;
     abc = callPackage ./abc {
       abc-verifier = basePkgs.abc-verifier;
-      version = "unstable-2026-06-25";
-      rev = "3ce53c361f6017153a0f9bb3c91f4d04eb820fc2";
-      hash = "sha256-9Sldy42mAfalA9Jqa752BCOTh+rtvu8nFeh1Nt0rJDk=";
     };
     sv2v0 = basePkgs.haskellPackages.sv2v;
-    sv2v = callPackage ./sv2v {
-      version = "unstable-2026-06-25";
-      rev = "6662fa5da71f87797598060f17728b284b99a9fc";
-      hash = "sha256-ziwLw1/S4wbnqml/AnN/yerOJJ3VOfRc3dZa8cmEaD0=";
-    };
+    sv2v = callPackage ./sv2v { };
 
     circt1 = basePkgs.circt;
     circt = circt1;
     firrtl1 = basePkgs.firrtl;
     firrtl = callPackage ./firrtl {
       firrtl = basePkgs.firrtl;
-      version = "unstable-2026-06-25";
-      rev = "64731bbb16142a2b09ccbe74ab41b76b7a265869";
-      hash = "sha256-djy81G2OGW/r0fGfluUa7+jL/6usD3Q015kuuH6DUE0=";
     };
 
     # ── Waveform & debug ───────────────────────────────────────────────────────
     gtkwave3 = basePkgs.gtkwave;
-    gtkwave = callPackage ./gtkwave {
-      version = "unstable-2026-06-25";
-      rev = "7d7b4db9e2f5485afe2aeeab0ad112f5b6a9b94b";
-      hash = "sha256-lEKW/OHk9xTqvf7UIcbZ3/toE6hWmed4dR/Ia21XY6I=";
-    };
+    gtkwave = callPackage ./gtkwave { };
     surfer0 = basePkgs.surfer;
     surfer = surfer0;
     openocd0 = basePkgs.openocd;
@@ -176,9 +158,6 @@ let
     vhdl-ls0 = basePkgs.vhdl-ls;
     vhdl-ls = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
-      version = "unstable-2026-06-25";
-      rev = "873b2647712e2f6b1b775c8d555372120f386373";
-      hash = "sha256-wN1MpYIyuaQ23poyB/0TbFgeaTFvALczCAb/tykzq8k=";
     };
     surelog1 = basePkgs.surelog;
     surelog = surelog1;
@@ -209,17 +188,10 @@ let
       rev = "v9.0.0";
       hash = "sha256-g5pDGy6A0e1gHFU64G7NcTAGiUj8vfyhJkQ3++4Y2yw=";
     };
-    vtr = callPackage ./vtr {
-      version = "unstable-2026-06-25";
-      rev = "d312fab8017ecfcd28a898eed9b2bc7aa68c145b";
-      hash = "sha256-+wrXJ3+B300mYcEJVsRvGnLnlu4v85s7v1X9sXpv9Vc=";
-    };
+    vtr = callPackage ./vtr { };
     fusesoc2 = basePkgs.fusesoc;
     fusesoc = callPackage ./fusesoc {
       fusesoc = basePkgs.fusesoc;
-      version = "unstable-2026-06-25";
-      rev = "f15e1c8a76815c4f391231dd0e743e2b683c6b45";
-      hash = "sha256-f5ao99G/m//sdrIM1j6AT+kAt7/Zl8xvV8zM2XvCWAU=";
     };
 
     # ── Physical design ────────────────────────────────────────────────────────
@@ -252,7 +224,7 @@ let
       version = "8.3.629";
       hash = "sha256-K/w2El2jkXN8qIa0kWvN8rCKWzjd8DcM3O6hb5UVQnw=";
     };
-    magic-vlsi = magic-vlsi8;
+    magic-vlsi = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
     netgen-vlsi1 = basePkgs.netgen-vlsi;
     netgen-vlsi = netgen-vlsi1;
 
@@ -266,9 +238,6 @@ let
     xschem3 = basePkgs.xschem;
     xschem = callPackage ./xschem {
       xschem = basePkgs.xschem;
-      version = "unstable-2026-06-25";
-      rev = "c8b26a17d8d53ce7fbd9e7d45ab6bb03e75996e0";
-      hash = "sha256-OpFMBiR7UZ4nLxcrD1hgrEvnuccwYgTy2mTHjA3/E0w=";
     };
 
     # ── Formal verification ────────────────────────────────────────────────────
@@ -276,14 +245,9 @@ let
     sby = sby0;
     eqy0 = callPackage ./eqy {
       version = "0.66";
-      rev = "v0.66";
       hash = "sha256-a2wc0OCVyl7N01g9MV3rnSay5c0jy8YCDB0d4eCNTr4=";
     };
-    eqy = callPackage ./eqy {
-      version = "unstable-2026-06-25";
-      rev = "8770b67d0bc802f17dbc9f2393d2dbc1f14c39ee";
-      hash = "sha256-YMTWXLb9PMxps42ppkCvabPp+dDu6j+DlhQ7NQ73IoQ=";
-    };
+    eqy = callPackage ./eqy { };
     mcy0 = basePkgs.mcy;
     mcy = mcy0;
 
@@ -305,9 +269,6 @@ let
     aiger1 = basePkgs.aiger;
     aiger = callPackage ./aiger {
       aiger = basePkgs.aiger;
-      version = "unstable-2026-06-25";
-      rev = "039ec1a2cc37d3093ac35c4b6df65336b346f409";
-      hash = "sha256-evW5QSdXnT5rgxCRBYnvrE2zUAu/ZuH4Y2jHznXNAn4=";
     };
     btor2tools0 = basePkgs.btor2tools;
     btor2tools = btor2tools0;
@@ -323,34 +284,31 @@ let
       rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
       hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
     };
-    cacti = callPackage ./cacti {
-      version = "unstable-2026-06-25";
-      rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
-      hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
-    };
+    cacti = callPackage ./cacti { };
 
-    dramsim3-1 = callPackage ./dramsim3 {
+    dramsim3_1 = callPackage ./dramsim3 {
       version = "1.0.0";
       hash = "sha256-uErpWJEn6C9oKR6Bv1NOAC3ij3ne3A6BPtjtX7D8ZwE=";
     };
-    dramsim3 = dramsim3-1;
+    dramsim3_ = callPackage ./dramsim3 { };
     mcpat1 = callPackage ./mcpat {
       version = "1.3.0";
       hash = "sha256-sr7H2vBOTyI59d3itVNqRVy1fR/83ZrTGl5s4I+g0Tw=";
     };
-    mcpat = mcpat1;
+    mcpat = callPackage ./mcpat { };
     hotspot7 = callPackage ./hotspot {
       version = "7.0";
       hash = "sha256-AM8kTu0Rxpee3easDBKtu6+ld6lmpNVNO1z2jOQmhls=";
     };
-    hotspot = hotspot7;
+    hotspot = callPackage ./hotspot { };
 
     # ── SoC frameworks ────────────────────────────────────────────────────────
     chipyard1 = callPackage ./chipyard {
       version = "1.14.0";
+      rev = "1.14.0";
       hash = "sha256-vi0KRoioTPDdgZFITIOkAtMyWxuyAyMzwyqShGtVGZA=";
     };
-    chipyard = chipyard1;
+    chipyard = callPackage ./chipyard { };
 
     # ── PULP Platform (ETH Zurich) ────────────────────────────────────────────
     # Branch-tracking source packages (no version suffix → update script targets HEAD).
@@ -388,23 +346,14 @@ let
     cocotb2 = basePkgs.python3Packages.cocotb;
     cocotb = callPackage ./cocotb {
       cocotb = basePkgs.python3Packages.cocotb;
-      version = "unstable-2026-06-25";
-      rev = "869c45921d7595668acafe44922e3bb5257d649d";
-      hash = "sha256-G0rsGw//7SUh6ahFMZds8ymKf7fMDt1bIbJrjFW5rjU=";
     };
     edalize0 = basePkgs.python3Packages.edalize;
     edalize = callPackage ./edalize {
       edalize = basePkgs.python3Packages.edalize;
-      version = "unstable-2026-06-25";
-      rev = "5a4dc8c9cac28b6920ee5734b97409d379ffd382";
-      hash = "sha256-ddvoq8FcSCPaaEw/eY6NemrF7RZrGnM4ZumpDbyCwPI=";
     };
     amaranth0 = basePkgs.python3Packages.amaranth;
     amaranth = callPackage ./amaranth {
       amaranth = basePkgs.python3Packages.amaranth;
-      version = "unstable-2026-06-25";
-      rev = "c9be3e4a9e932c25e361d0085af31c5b420efc41";
-      hash = "sha256-0UfGuvfJTbF9enn6bb+75nKjLxsagQjnTL3UVKjqY+o=";
     };
 
     # ── Tool bundles ──────────────────────────────────────────────────────────
@@ -494,7 +443,7 @@ let
       name = "nixchip-memory-tools";
       paths = [
         cacti
-        dramsim3
+        dramsim3_
         mcpat
       ];
     };
@@ -503,7 +452,7 @@ let
       name = "nixchip-thermal-tools";
       paths = [
         hotspot
-        dramsim3
+        dramsim3_
       ];
     };
 

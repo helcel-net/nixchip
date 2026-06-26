@@ -43,7 +43,8 @@ readarray -t raw_lines < <(
       unique = '"${_nix_unique}"';
       versionHint = n: if isUnstable n then "branch" else "";
       nixchipFlags = n: builtins.concatStringsSep " " (pkgs.${n}.passthru.nixchipUpdateFlags or []);
-      line = n: "${n}\t${versionHint n}\t${nixchipFlags n}";
+      packageVersion = n: pkgs.${n}.version or "";
+      line = n: "${n}|${versionHint n}|${nixchipFlags n}|${packageVersion n}";
     in
     builtins.concatStringsSep "\n" (builtins.sort builtins.lessThan (builtins.map line unique))
   '
@@ -54,11 +55,13 @@ readarray -t raw_lines < <(
 packages=()
 declare -A version_hints
 declare -A nixchip_flags
+declare -A package_versions
 for entry in "${raw_lines[@]}"; do
-  IFS=$'\t' read -r pkg hint flags <<< "$entry"
+  IFS="|" read -r pkg hint flags version <<< "$entry"
   packages+=("$pkg")
   [[ -n "$hint" ]] && version_hints["$pkg"]="$hint"
   [[ -n "$flags" ]] && nixchip_flags["$pkg"]="$flags"
+  package_versions["$pkg"]="$version"
 done
 
 # Extract the version series from a package name:
@@ -92,6 +95,36 @@ get_version_flags() {
   fi
 }
 
+
+validate_package_selection() {
+  local package extra_flags version
+  local invalid=()
+
+  for package in "${packages[@]}"; do
+    extra_flags="${nixchip_flags[$package]:-}"
+    if [[ " $extra_flags " == *" --version"* ]]; then
+      continue
+    fi
+    if [[ -v "version_hints[$package]" ]] && [[ "${version_hints[$package]}" == "branch" ]]; then
+      continue
+    fi
+    if [[ -z "$(pkg_major "$package")" ]]; then
+      version="${package_versions[$package]:-}"
+      if [[ ! "$version" =~ ^unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+        invalid+=("$package ($version)")
+      fi
+    fi
+  done
+
+  if [ "${#invalid[@]}" -ne 0 ]; then
+    echo "error: update discovery selected unsuffixed release packages for branch updates:" >&2
+    printf "  %s\n" "${invalid[@]}" >&2
+    echo "       make the unsuffixed attr branch-tracking, use a versioned slot, or set passthru.nixchipUpdateFlags." >&2
+    return 1
+  fi
+}
+
+validate_package_selection
 
 verify_branch_head() {
   local package="$1"
@@ -181,13 +214,33 @@ for package in "${packages[@]}"; do
     # Fall back to meta.position for any package that doesn't follow the convention.
     nix_file="${repo_root}/pkgs/${package}/default.nix"
     if [[ ! -f "$nix_file" ]]; then
-      pos="$(nix eval --raw ".#packages.${system}.${package}" \
-        --apply 'p: p.meta.position or ""' 2>/dev/null | sed 's/:[0-9]*$//')"
-      [[ -f "$pos" ]] && nix_file="$pos"
+      # Try stripping a trailing underscore (e.g. dramsim3_ → dramsim3).
+      pkg_base="${package%_}"
+      if [[ "$pkg_base" != "$package" && -f "${repo_root}/pkgs/${pkg_base}/default.nix" ]]; then
+        nix_file="${repo_root}/pkgs/${pkg_base}/default.nix"
+      else
+        pos="$(nix eval --raw ".#packages.${system}.${package}" \
+          --apply 'p: p.meta.position or ""' 2>/dev/null | sed 's/:[0-9]*$//')"
+        [[ -f "$pos" ]] && nix_file="$pos"
+      fi
     fi
     if [[ ! -f "$nix_file" ]]; then
       echo "error: cannot find nix file for $package" >&2
       failed+=("$package"); echo "::endgroup::"; continue
+    fi
+    if [[ "$nix_file" == /nix/store/* ]]; then
+      # Versioned slot — version/rev/hash live as callPackage args in pkgs/default.nix,
+      # so the branch sed approach can't be used. Fall back to nix-update with a
+      # major-version constraint so the slot tracks its own version series.
+      ver_flags="$(get_version_flags "$package")"
+      # shellcheck disable=SC2086
+      if nix run nixpkgs#nix-update -- -F "$package" $ver_flags "${build_flag[@]}"; then
+        echo "updated $package"
+      else
+        failed+=("$package")
+        echo "failed to update $package" >&2
+      fi
+      echo "::endgroup::"; continue
     fi
 
     sed -Ei "s/version ([?=]) \"[^\"]*\"/version \\1 \"unstable-${today}\"/" "$nix_file"

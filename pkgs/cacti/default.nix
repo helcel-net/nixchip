@@ -3,9 +3,9 @@
   stdenv,
   fetchFromGitHub,
   nix-update-script,
-  version,
-  rev,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? "1ffd8dfb10303d306ecd8d215320aea07651e878",
+  hash ? "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=",
 }:
 
 stdenv.mkDerivation {

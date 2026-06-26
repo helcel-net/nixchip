@@ -5,8 +5,9 @@
   cmake,
   patchelf,
   nix-update-script,
-  version,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? if lib.hasPrefix "unstable-" version then "29817593b3389f1337235d63cac515024ab8fd6e" else version,
+  hash ? "sha256-uErpWJEn6C9oKR6Bv1NOAC3ij3ne3A6BPtjtX7D8ZwE=",
 }:
 
 stdenv.mkDerivation {
@@ -16,8 +17,7 @@ stdenv.mkDerivation {
   src = fetchFromGitHub {
     owner = "umd-memsys";
     repo = "DRAMsim3";
-    rev = version;
-    inherit hash;
+    inherit rev hash;
   };
 
   nativeBuildInputs = [
@@ -49,9 +49,15 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.updateScript = nix-update-script { };
-  passthru.nixchipUpdate = true;
-  passthru.nixchipCI = true;
+  
+  passthru = {
+    updateScript = nix-update-script {
+      attrPath = "dramsim3_";
+      extraArgs = [ "--version=branch" ];
+    };
+    nixchipUpdate = true;
+    nixchipCI = true;
+  };
 
   meta = {
     description = "Cycle-accurate, thermal-capable DRAM simulator";

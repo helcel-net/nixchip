@@ -3,9 +3,9 @@
   edalize,
   lib,
   nix-update-script,
-  version,
-  rev,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? "5a4dc8c9cac28b6920ee5734b97409d379ffd382",
+  hash ? "sha256-ddvoq8FcSCPaaEw/eY6NemrF7RZrGnM4ZumpDbyCwPI=",
   ...
 }:
 

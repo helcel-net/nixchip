@@ -2,9 +2,9 @@
   fetchFromGitHub,
   vhdl_ls,
   nix-update-script,
-  version,
-  rev,
-  hash,
+  version ? "unstable-2026-06-25",
+  rev ? "873b2647712e2f6b1b775c8d555372120f386373",
+  hash ? "sha256-wN1MpYIyuaQ23poyB/0TbFgeaTFvALczCAb/tykzq8k=",
   ...
 }:
 
