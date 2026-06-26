@@ -16,9 +16,9 @@
   coreutils,
   gdb,
   nix-update-script,
-  version,
-  rev,
-  hash,
+  version ? "unstable-2026-06-26",
+  rev ? "2d157b29b0d155650c9a41805195b74db27b46dd",
+  hash ? "sha256-NzhcEGYtEUcZRIBdNSrZkB72EftF3upQK1JpwdmO3FE=",
   doCheck ? true,
 }:
 

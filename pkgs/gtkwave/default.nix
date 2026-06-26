@@ -26,8 +26,8 @@ let
   libfstSrc = fetchFromGitHub {
     owner = "gtkwave";
     repo = "libfst";
-    rev = "cf74bef8d0435eceb20524fe6f5674e0ecb68b25";
-    hash = "sha256-nrbsMtbnZR4uMOf6MnvEy4QuQtk+Xxqaqzj6ldNunbE=";
+    rev = "7d7b4db9e2f5485afe2aeeab0ad112f5b6a9b94b";
+    hash = "sha256-lEKW/OHk9xTqvf7UIcbZ3/toE6hWmed4dR/Ia21XY6I=";
   };
 in
 stdenv.mkDerivation {

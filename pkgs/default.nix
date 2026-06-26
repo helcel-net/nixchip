@@ -51,9 +51,6 @@ let
     };
     verilator5 = basePkgs.verilator;
     verilator = callPackage ./verilator {
-      version = "unstable-2026-06-25";
-      rev = "f0f1c44dd69a4dd17f923c9ca2f85dda8c006820";
-      hash = "sha256-INVoGes/hJ1cpOS4H43uidB20DzJmMw85oCMyYqGFuo=";
       doCheck = false;
     };
 
@@ -98,9 +95,6 @@ let
     spike1 = basePkgs.spike;
     spike = callPackage ./spike {
       spike = basePkgs.spike;
-      version = "unstable-2026-06-25";
-      rev = "27731d158d7d9aa0f03b4b85fa684f5e3ac1a52e";
-      hash = "sha256-t7yTD5VYWzV0zFHUmJB6RSGL9PRka+G8qjlHxjZ3Ago=";
     };
 
     # ── Synthesis ──────────────────────────────────────────────────────────────
@@ -131,11 +125,7 @@ let
     };
     slang = sv-lang;
 
-    yosys-slang0 = callPackage ./yosys-slang {
-      version = "unstable-2026-06-23";
-      rev = "3e0db86b102953ee2a56a64eddfe02a50273e565";
-      hash = "sha256-mhAYkI0aYrttem6DE08bQ/bsITEaCzBd1MQBl0jQmCA=";
-    };
+    yosys-slang0 = callPackage ./yosys-slang { };
     yosys-slang = yosys-slang0;
 
     chisel7 = callPackage ./chisel {

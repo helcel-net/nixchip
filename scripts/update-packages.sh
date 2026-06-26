@@ -147,22 +147,63 @@ for package in "${packages[@]}"; do
   if [[ " $extra_flags " == *" --version=branch"* ]]; then
     branch_update=true
   fi
-  # shellcheck disable=SC2086
-  if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then
-    if [[ "$branch_update" == true ]]; then
-      # nix-update --version=branch prepends the nearest release tag to the version
-      # (e.g. "0.30.9-unstable-2026-06-19").  Strip that prefix so the stored
-      # version is always "unstable-YYYY-MM-DD".
-      while IFS= read -r f; do
-        [[ "$f" == *.nix ]] && \
-          sed -Ei 's/(version [?=] ")[^"]*-unstable-([0-9]{4}-[0-9]{2}-[0-9]{2})"/\1unstable-\2"/g' "$f"
-      done < <(git diff --name-only)
-      verify_branch_head "$package"
+
+  if [[ "$branch_update" == true ]]; then
+    # nix-update --version=branch resolves to the nearest tag commit rather than
+    # actual HEAD. Bypass it entirely: fetch HEAD directly and patch the nix file.
+    pkg_src_info="$(nix eval --raw ".#packages.${system}.${package}" --apply '
+      p: "${p.src.owner or ""}\t${p.src.repo or ""}"
+    ' 2>/dev/null || printf '\t')"
+    IFS=$'\t' read -r src_owner src_repo <<< "$pkg_src_info"
+
+    if [[ -z "$src_owner" || -z "$src_repo" ]]; then
+      echo "error: cannot determine owner/repo for $package" >&2
+      failed+=("$package"); echo "::endgroup::"; continue
     fi
+
+    head_rev="$(git ls-remote "https://github.com/${src_owner}/${src_repo}.git" HEAD | awk '{print $1}')"
+    if [[ -z "$head_rev" ]]; then
+      echo "error: cannot resolve HEAD for ${src_owner}/${src_repo}" >&2
+      failed+=("$package"); echo "::endgroup::"; continue
+    fi
+
+    today="$(date -u +%Y-%m-%d)"
+
+    raw_hash="$(nix-prefetch-url --type sha256 --unpack \
+      "https://github.com/${src_owner}/${src_repo}/archive/${head_rev}.tar.gz" 2>/dev/null)"
+    new_hash="$(nix hash to-sri --type sha256 "$raw_hash" 2>/dev/null)"
+    if [[ -z "$new_hash" ]]; then
+      echo "error: cannot compute hash for ${package}@${head_rev}" >&2
+      failed+=("$package"); echo "::endgroup::"; continue
+    fi
+
+    # Locate the nix file: convention is pkgs/<attribute>/default.nix.
+    # Fall back to meta.position for any package that doesn't follow the convention.
+    nix_file="${repo_root}/pkgs/${package}/default.nix"
+    if [[ ! -f "$nix_file" ]]; then
+      pos="$(nix eval --raw ".#packages.${system}.${package}" \
+        --apply 'p: p.meta.position or ""' 2>/dev/null | sed 's/:[0-9]*$//')"
+      [[ -f "$pos" ]] && nix_file="$pos"
+    fi
+    if [[ ! -f "$nix_file" ]]; then
+      echo "error: cannot find nix file for $package" >&2
+      failed+=("$package"); echo "::endgroup::"; continue
+    fi
+
+    sed -Ei "s/version ([?=]) \"[^\"]*\"/version \\1 \"unstable-${today}\"/" "$nix_file"
+    sed -Ei "s/\"[a-f0-9]{40}\"/\"${head_rev}\"/" "$nix_file"
+    sed -Ei "s|hash ([?=]) \"[^\"]*\"|hash \\1 \"${new_hash}\"|" "$nix_file"
+
+    verify_branch_head "$package"
     echo "updated $package"
   else
-    failed+=("$package")
-    echo "failed to update $package" >&2
+    # shellcheck disable=SC2086
+    if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then
+      echo "updated $package"
+    else
+      failed+=("$package")
+      echo "failed to update $package" >&2
+    fi
   fi
   echo "::endgroup::"
 done
