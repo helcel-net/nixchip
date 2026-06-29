@@ -21,8 +21,10 @@ openroad.overrideAttrs (old: {
   doCheck = false;
   doInstallCheck = false;
   postPatch = (old.postPatch or "") + ''
-    chmod +x src/web/src/embed_web_assets.py
-    patchShebangs src/web/src/embed_web_assets.py
+    if [ -f src/web/src/embed_web_assets.py ]; then
+      chmod +x src/web/src/embed_web_assets.py
+      patchShebangs src/web/src/embed_web_assets.py
+    fi
   '';
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
