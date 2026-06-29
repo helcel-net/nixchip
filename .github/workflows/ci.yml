@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   generate-matrix:
-    name: Evaluate flake & generate matrix
+    name: Evaluate flake & generate package list
     runs-on: ubuntu-latest
     outputs:
       packages: ${{ steps.matrix.outputs.packages }}
@@ -31,7 +31,9 @@ jobs:
       - id: matrix
         name: Collect buildable packages
         # On pull_request events, only build packages whose pkgs/<name>/ directory
-        # was touched in the PR. On push/dispatch, build everything.
+        # was touched in the PR. On push/dispatch, build everything and then build
+        # hardware-tools in the same runner to validate the bundle without starting
+        # from another empty Nix store.
         run: |
           all_packages=$(nix eval --json ".#packages.x86_64-linux" --apply '
             pkgs:
@@ -46,7 +48,7 @@ jobs:
               # Use pkg.name (pname+version) so that parametrized siblings built from
               # the same template file (e.g. pulp-riscv-dbg vs pulp-snitch, distinct
               # pnames) are kept separate, while true aliases (chisel = chisel7, same
-              # derivation → same name) are collapsed to the versioned attr name.
+              # derivation -> same name) are collapsed to the versioned attr name.
               byDrv   = builtins.groupBy (n: pkgs.${n}.name) updateNames;
               slotRev = n: builtins.match ".*-[0-9]+$" n != null;
               hasVer  = n: builtins.match ".*[0-9]$"   n != null;
@@ -64,11 +66,14 @@ jobs:
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             changed=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} \
-              | grep '^pkgs/' | cut -d/ -f2 | sort -u | jq -R . | jq -s .)
-            packages=$(echo "$all_packages" | jq --argjson c "$changed" \
+              | awk -F/ '/^pkgs\// { print $2 }' \
+              | sort -u \
+              | jq -R . \
+              | jq -sc .)
+            packages=$(echo "$all_packages" | jq -c --argjson c "$changed" \
               '[.[] | select(. as $p | $c | any(. == $p))]')
           else
-            packages="$all_packages"
+            packages=$(echo "$all_packages" | jq -c '. + ["hardware-tools"]')
           fi
 
           if [ "$(echo "$packages" | jq 'length')" = "0" ]; then
@@ -80,37 +85,46 @@ jobs:
           fi
 
   build:
-    name: Build ${{ matrix.package }}
+    name: Build selected packages
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 360
     needs: generate-matrix
     if: needs.generate-matrix.outputs.has-packages == 'true'
+    outputs:
+      results: ${{ steps.build.outputs.results }}
+      has-failures: ${{ steps.build.outputs.has-failures }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+      - id: build
+        name: Build
+        env:
+          PACKAGES: ${{ needs.generate-matrix.outputs.packages }}
+        run: |
+          mapfile -t packages < <(jq -r '.[]' <<< "$PACKAGES")
+          scripts/ci-build.sh x86_64-linux "${packages[@]}"
+
+  report:
+    name: ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    needs:
+      - generate-matrix
+      - build
+    if: always() && needs.generate-matrix.outputs.has-packages == 'true'
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJson(needs.generate-matrix.outputs.packages) }}
+        include: ${{ fromJson(needs.build.outputs.results || '[]') }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: cachix/install-nix-action@v31
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-            accept-flake-config = true
-      - name: Build
-        run: scripts/ci-build.sh x86_64-linux ${{ matrix.package }}
-
-  build-full:
-    name: Full build hardware-tools
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    needs: build
-    if: github.event_name != 'pull_request'
-    steps:
-      - uses: actions/checkout@v7
-      - uses: cachix/install-nix-action@v31
-        with:
-          extra_nix_config: |
-            experimental-features = nix-command flakes
-            accept-flake-config = true
-      - name: Build
-        run: scripts/ci-build.sh x86_64-linux hardware-tools
+      - name: Report package result
+        run: |
+          if [ "${{ matrix.status }}" = "success" ]; then
+            echo "${{ matrix.package }} built successfully."
+          else
+            echo "::error title=${{ matrix.package }} failed::See the 'Build selected packages' job logs for the build failure."
+            exit 1
+          fi
