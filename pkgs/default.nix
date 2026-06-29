@@ -398,7 +398,7 @@ let
           curl
           ;
       };
-      riscv-spike = callPackage .pulp/riscv-spike {
+      riscv-spike = callPackage ./pulp/riscv-spike {
         inherit (basePkgs) dtc;
       };
     };
