@@ -6,8 +6,10 @@
   python3,
   gitMinimal,
   nix-update-script,
-  version ? "0.32.0",
-  hash ? "sha256-Pyx68NTlCNTGKXdEGG9YML5E+vJlLHlPQjjbSV2uOsE=",
+  cargoLockFile ? ./Cargo.lock,
+  version ? "unstable-2026-06-18",
+  rev ? "4ff8b6b843ed240fb3cb268f489a25e33bd6af98",
+  hash ? "sha256-wCaLCMbjhU8Hb7gNjMzslOU50CFF45/Gtx7yq9I5+3k=",
 }:
 
 let
@@ -34,17 +36,17 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "bender";
-  inherit version;
+  inherit version rev;
 
   src = fetchFromGitHub {
     owner = "pulp-platform";
     repo = "bender";
-    tag = "v${finalAttrs.version}";
+    inherit (finalAttrs) rev;
     inherit hash;
   };
 
   cargoLock = {
-    lockFile = ./Cargo.lock;
+    lockFile = cargoLockFile;
   };
 
   postPatch = ''

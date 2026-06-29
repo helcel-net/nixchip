@@ -102,7 +102,13 @@ let
       inherit (basePkgs) cmake ninja makeWrapper lz4 zlib elfutils;
       inherit (basePkgs) python3;
     };
-    bender0 = basePkgs.bender;
+    bender0 = callPackage ./bender {
+      inherit (basePkgs) rustPlatform gitMinimal;
+      version = "0.32.0";
+      rev = "v0.32.0";
+      hash = "sha256-Pyx68NTlCNTGKXdEGG9YML5E+vJlLHlPQjjbSV2uOsE=";
+      cargoLockFile = ./bender/Cargo-0.lock;
+    };
     bender = callPackage ./bender {
       inherit (basePkgs) rustPlatform gitMinimal;
     };
