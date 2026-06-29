@@ -98,6 +98,14 @@ let
     spike = callPackage ./spike {
       spike = basePkgs.spike;
     };
+    gvsoc = callPackage ./gvsoc {
+      inherit (basePkgs) cmake ninja makeWrapper lz4 zlib;
+      inherit (basePkgs) python3;
+    };
+    bender0 = basePkgs.bender;
+    bender = callPackage ./bender {
+      inherit (basePkgs) rustPlatform gitMinimal;
+    };
 
     # ── Synthesis ──────────────────────────────────────────────────────────────
     yosys0 = callPackage ./yosys {
@@ -212,6 +220,11 @@ let
       hash = "sha256-TJf/LGhRTCnfGq/7JGAX13ftvvdGX7UKs/qKRK5LLug=";
     };
     openroad-flow-scripts = callPackage ./openroad-flow-scripts { };
+    openroad-flow-scripts-wrapper = callPackage ./openroad-flow-scripts-wrapper {
+      inherit (basePkgs) makeWrapper gnumake tcl;
+      inherit openroad openroad-flow-scripts klayout yosys-full yosys-slang;
+    };
+    orfs = openroad-flow-scripts-wrapper;
     klayout0 = callPackage ./klayout {
       klayout = basePkgs.klayout;
       version = "0.30.8";
@@ -275,6 +288,33 @@ let
     btor2tools = btor2tools0;
 
     # ── Microarchitecture modeling ─────────────────────────────────────────────
+    flexfloat = callPackage ./flexfloat { };
+    pyflexfloat = callPackage ./pyflexfloat {
+      inherit flexfloat;
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        setuptools
+        setuptools-scm
+        wheel
+        numpy
+        cffi
+        ;
+    };
+    openram = callPackage ./openram {
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        setuptools
+        numpy
+        scipy
+        matplotlib
+        scikit-learn
+        coverage
+        ;
+    };
+    openram-wrapper = callPackage ./openram-wrapper {
+      inherit (basePkgs) makeWrapper python3;
+      inherit openram cacti;
+    };
     cacti6 = callPackage ./cacti {
       version = "6.5.0";
       rev = "v6.5.0";
@@ -340,10 +380,61 @@ let
         description = "CORE-V CV32E40P embedded RISC-V core";
         license = lib.licenses.asl20;
       };
+      riscv-llvm = callPackage ./pulp/riscv-llvm {
+        inherit (basePkgs) llvmPackages cmake python3 ninja;
+      };
+      riscv-gcc = callPackage ./pulp/riscv-gcc {
+        inherit (basePkgs)
+          gmp
+          mpfr
+          libmpc
+          isl
+          zlib
+          flex
+          perl
+          texinfo
+          bison
+          python3
+          curl
+          ;
+      };
+      riscv-spike = callPackage .pulp/riscv-spike {
+        inherit (basePkgs) dtc;
+      };
     };
 
     # ── Python: HDL & co-simulation ───────────────────────────────────────────
     # Compose into python3.withPackages for actual use; excluded from env-var exports.
+    ciel = callPackage ./ciel {
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        poetry-core
+        click
+        pyyaml
+        rich
+        httpx
+        pcpp
+        zstandard
+        ;
+    };
+    pyflooNoC = callPackage ./pyflooNoC {
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        setuptools
+        wheel
+        mako
+        hjson
+        jsonref
+        pylint
+        pytest
+        pygame
+        pydantic
+        ruamel-yaml
+        click
+        networkx
+        matplotlib
+        ;
+    };
     cocotb2 = basePkgs.python3Packages.cocotb;
     cocotb = callPackage ./cocotb {
       cocotb = basePkgs.python3Packages.cocotb;
@@ -419,6 +510,7 @@ let
       paths = [
         openroad
         openroad-flow-scripts
+        openroad-flow-scripts-wrapper
         yosys-full
         circt
         firrtl

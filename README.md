@@ -138,6 +138,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `chisel7` | 7.x | Chisel 7 with `chisel-init`, `chisel-scala-cli`, `chisel-mill`, `chisel-sbt` |
 | `chipyard1` | 1.x | Chipyard SoC framework with `chipyard-init` |
 | `openroad-flow-scripts26` | 26Q2 | OpenROAD Flow Scripts with `openroad-flow-scripts-init` |
+| `openroad-flow-scripts-wrapper`, `orfs` | — | `orfs` wrapper for running OpenROAD Flow Scripts with tool PATH setup |
 | `hotspot7` | 7 | HotSpot thermal modeling (uvahotspot/HotSpot) |
 | `dramsim3-1` | 1 | DRAMsim3 memory simulator (umd-memsys/DRAMsim3) |
 | `mcpat1` | 1 | McPAT power/area/timing model (HewlettPackard/mcpat) |
@@ -210,7 +211,7 @@ Tool groups are `symlinkJoin` bundles for easy shell composition:
 | `simulation-tools` | verilator, sv-lang, chisel, systemc (3.x), ghdl, nvc, iverilog, gtkwave, surfer, verible, spike, vhdl-ls |
 | `formal-tools` | yosys-full, sby, eqy, yices, boolector, bitwuzla, cadical, cryptominisat, cvc5, z3, abc, aiger, btor2tools, mcy |
 | `fpga-tools` | yosys-full, yosys-slang, nextpnr, icestorm, trellis, openfpgaloader, sv2v, vtr, fusesoc, sby |
-| `physical-design-tools` | openroad, openroad-flow-scripts, yosys-full, circt, firrtl, klayout, magic-vlsi, netgen-vlsi, (espresso if unfree) |
+| `physical-design-tools` | openroad, openroad-flow-scripts, openroad-flow-scripts-wrapper, yosys-full, circt, firrtl, klayout, magic-vlsi, netgen-vlsi, (espresso if unfree) |
 | `analog-tools` | ngspice, xyce, qucs-s, xschem |
 | `memory-tools` | cacti, dramsim3, mcpat |
 | `thermal-tools` | hotspot, dramsim3 |
