@@ -2,6 +2,7 @@
   fetchFromGitHub,
   fusesoc,
   lib,
+  pydantic,
   nix-update-script,
   version ? "unstable-2026-06-26",
   rev ? "f15e1c8a76815c4f391231dd0e743e2b683c6b45",
@@ -25,6 +26,11 @@ fusesoc.overrideAttrs (old: {
     repo = "fusesoc";
     inherit rev hash;
   };
+  propagatedBuildInputs = (old.propagatedBuildInputs or [ ]) ++ [ pydantic ];
+  postPatch = (old.postPatch or "") + ''
+    substituteInPlace pyproject.toml \
+      --replace-quiet 'pydantic>=2.13.3' 'pydantic>=2.0'
+  '';
   preBuild = (old.preBuild or "") + ''
     export SETUPTOOLS_SCM_PRETEND_VERSION="${pep440Version}"
   '';

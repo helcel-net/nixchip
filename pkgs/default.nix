@@ -192,6 +192,7 @@ let
     fusesoc2 = basePkgs.fusesoc;
     fusesoc = callPackage ./fusesoc {
       fusesoc = basePkgs.fusesoc;
+      pydantic = basePkgs.python3Packages.pydantic;
     };
 
     # ── Physical design ────────────────────────────────────────────────────────
