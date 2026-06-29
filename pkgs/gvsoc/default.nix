@@ -7,6 +7,7 @@
   python3,
   lz4,
   zlib,
+  elfutils,
   makeWrapper,
   nix-update-script,
   version ? "unstable-2026-06-22",
@@ -23,6 +24,12 @@ let
     rich
     psutil
     pyyaml
+    pytablewriter
+    pandas
+    matplotlib
+    tabulate
+    mako
+    setuptools
     hjson
     typing-extensions
     six
@@ -49,6 +56,7 @@ stdenv.mkDerivation {
   buildInputs = [
     lz4
     zlib
+    elfutils
   ];
 
   postPatch = ''

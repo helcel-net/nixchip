@@ -99,7 +99,7 @@ let
       spike = basePkgs.spike;
     };
     gvsoc = callPackage ./gvsoc {
-      inherit (basePkgs) cmake ninja makeWrapper lz4 zlib;
+      inherit (basePkgs) cmake ninja makeWrapper lz4 zlib elfutils;
       inherit (basePkgs) python3;
     };
     bender0 = basePkgs.bender;
