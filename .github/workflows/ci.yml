@@ -30,50 +30,59 @@ jobs:
       - run: nix flake check path:. --no-build
       - id: matrix
         name: Collect buildable packages
-        # On pull_request events, only build packages whose pkgs/<name>/ directory
-        # was touched in the PR. On push/dispatch, build everything and then build
-        # hardware-tools in the same runner to validate the bundle without starting
-        # from another empty Nix store.
+        # Default CI builds branch-tracking package attrs only and skips heavyweight
+        # LLVM/GCC toolchains. Pull requests additionally build exact attrs whose
+        # package version changed, including pinned release slots.
         run: |
-          all_packages=$(nix eval --json ".#packages.x86_64-linux" --apply '
-            pkgs:
-            let
-              allNames = builtins.attrNames pkgs;
+          package_meta() {
+            nix eval --json "$1#packages.x86_64-linux" --apply '
+              pkgs:
+              let
+                allNames = builtins.attrNames pkgs;
+                isCiPackage = n:
+                  let p = pkgs.${n}; in
+                  p ? passthru && p.passthru ? nixchipCI && p.passthru.nixchipCI;
+                isSkipped = n: builtins.match ".*(llvm|LLVM|gcc|GCC|ggc|GGC).*" n != null;
+                isPinned = n:
+                  let version = pkgs.${n}.version or "";
+                  in builtins.match ".*unstable.*" version == null;
+                mk = n: {
+                  name = n;
+                  version = pkgs.${n}.version or "";
+                  pname = pkgs.${n}.pname or n;
+                  default = !isPinned n;
+                };
+              in
+              builtins.sort (a: b: builtins.lessThan a.name b.name)
+                (builtins.map mk (builtins.filter (n: isCiPackage n && !isSkipped n) allNames))
+            '
+          }
 
-              updateNames = builtins.filter (n:
-                let p = pkgs.${n}; in
-                p ? passthru && p.passthru ? nixchipCI && p.passthru.nixchipCI
-              ) allNames;
-
-              # Use pkg.name (pname+version) so that parametrized siblings built from
-              # the same template file (e.g. pulp-riscv-dbg vs pulp-snitch, distinct
-              # pnames) are kept separate, while true aliases (chisel = chisel7, same
-              # derivation -> same name) are collapsed to the versioned attr name.
-              byDrv   = builtins.groupBy (n: pkgs.${n}.name) updateNames;
-              slotRev = n: builtins.match ".*-[0-9]+$" n != null;
-              hasVer  = n: builtins.match ".*[0-9]$"   n != null;
-              pickBest = ns:
-                let slot = builtins.filter slotRev ns;
-                    vers = builtins.filter hasVer  ns;
-                in if slot != [] then builtins.head slot
-                   else if vers != [] then builtins.head vers
-                   else builtins.head ns;
-              deduped = builtins.map pickBest (builtins.attrValues byDrv);
-
-            in
-            builtins.sort builtins.lessThan deduped
-          ')
+          current_meta=$(package_meta path:.)
+          default_packages=$(echo "$current_meta" | jq -c '[.[] | select(.default) | .name]')
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            changed=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} \
+            base_meta=$(package_meta "github:${{ github.repository }}/${{ github.event.pull_request.base.sha }}")
+            version_changed=$(jq -n -c \
+              --argjson base "$base_meta" \
+              --argjson current "$current_meta" '
+                ($base | map({key: .name, value: .version}) | from_entries) as $baseVersions |
+                $current
+                | map(select(.version != ($baseVersions[.name] // null)) | .name)
+              ')
+            changed_dirs=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} \
               | awk -F/ '/^pkgs\// { print $2 }' \
               | sort -u \
               | jq -R . \
               | jq -sc .)
-            packages=$(echo "$all_packages" | jq -c --argjson c "$changed" \
+            touched_default=$(echo "$default_packages" | jq -c --argjson c "$changed_dirs" \
               '[.[] | select(. as $p | $c | any(. == $p))]')
+            packages=$(jq -n -c \
+              --argjson touched "$touched_default" \
+              --argjson changed "$version_changed" \
+              '($touched + $changed) | unique')
           else
-            packages=$(echo "$all_packages" | jq -c '. + ["hardware-tools"]')
+            packages="$default_packages"
           fi
 
           if [ "$(echo "$packages" | jq 'length')" = "0" ]; then
