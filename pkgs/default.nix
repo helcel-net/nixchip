@@ -66,10 +66,15 @@ let
         ;
     };
 
+  taggedGithubSource = args: githubSource args // { tag = args.rev; };
+
   pinnedOverride =
     pkg: version: src:
-    pkg.overrideAttrs (_old: {
+    pkg.overrideAttrs (old: {
       inherit version src;
+      passthru = (old.passthru or { }) // {
+        nixchipUpdate = true;
+      };
     });
 
   branchOverride =
@@ -80,7 +85,6 @@ let
         nixchipUpdate = true;
       };
     });
-
 
   # Naming convention:
   # - Unsuffixed custom package attrs track upstream branch HEAD and use
@@ -99,8 +103,8 @@ let
       hash = "sha256-ToYad8cvBF3Mio5fuT4Ce4zXbWxFxd6smqB1TxvlHao=";
     };
     verilator5 = callPackage ./verilator {
-        version = "5.048";
-        hash = "sha256-xvqqgbW7L07+NBYzGN2KLhwir58ByShxo4VVPI3pgZk=";
+      version = "5.048";
+      hash = "sha256-xvqqgbW7L07+NBYzGN2KLhwir58ByShxo4VVPI3pgZk=";
     };
     verilator = callPackage ./verilator { };
 
@@ -324,13 +328,13 @@ let
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
-    nextpnr0 = pinnedOverride basePkgs.nextpnr "0.10" (githubSource {
+    nextpnr0 = pinnedOverride basePkgs.nextpnr "0.10" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
       rev = "refs/tags/nextpnr-0.10";
       hash = "sha256-goHHEvkBw+9s3RHGfQtRaueXRBnoI14TmfGmb+1WPAY=";
     });
-    nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-06-30" (githubSource {
+    nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-06-30" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
       rev = "2b560ad0ccc6e7e93ad8bd6cb0f88f925bbb314b";
@@ -486,7 +490,7 @@ let
       owner = "YosysHQ";
       repo = "mcy";
       rev = "62048e69df13f8e03670424626755ae8ef4c36ff";
-      hash = "15xxgzx1zxzx5kshqyrxnfx33cz6cjzxcdcn6z98jhs9bwyvf96f";
+      hash = "sha256-ziS3PV9JQ4nSN5Y11r9k5rMxurM9ewz1LP33H/p/vZc=";
     });
 
     yices2 = pinnedOverride basePkgs.yices "2.7.0" (githubSource {

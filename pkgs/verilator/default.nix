@@ -17,7 +17,11 @@
   gdb,
   nix-update-script,
   version ? "unstable-2026-06-26",
-  rev ? if lib.hasPrefix "unstable-" version then "2d157b29b0d155650c9a41805195b74db27b46dd" else "v${version}",
+  rev ?
+    if lib.hasPrefix "unstable-" version then
+      "2d157b29b0d155650c9a41805195b74db27b46dd"
+    else
+      "v${version}",
   hash ? "sha256-NzhcEGYtEUcZRIBdNSrZkB72EftF3upQK1JpwdmO3FE=",
   doCheck ? false,
 }:

@@ -4,7 +4,11 @@
   lib,
   nix-update-script,
   version ? "unstable-2026-06-26",
-  rev ? if lib.hasPrefix "unstable-" version then "5a4dc8c9cac28b6920ee5734b97409d379ffd382" else "refs/tags/v${version}",
+  rev ?
+    if lib.hasPrefix "unstable-" version then
+      "5a4dc8c9cac28b6920ee5734b97409d379ffd382"
+    else
+      "refs/tags/v${version}",
   hash ? "sha256-ddvoq8FcSCPaaEw/eY6NemrF7RZrGnM4ZumpDbyCwPI=",
   ...
 }:

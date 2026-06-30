@@ -5,7 +5,8 @@
   cmake,
   nix-update-script,
   version ? "unstable-2026-06-25",
-  rev ? if lib.hasPrefix "unstable-" version then "a50561f14dfe8447d8a507ce42924322921a11ce" else version,
+  rev ?
+    if lib.hasPrefix "unstable-" version then "a50561f14dfe8447d8a507ce42924322921a11ce" else version,
   hash ? "sha256-KzuoA8xibRFdAjOTJ1pgqyaRAJ9DwOM790MPkE5AcTA=",
   # 2.x compiles with C++14; 3.x requires C++17 due to
   # https://github.com/accellera-official/systemc/issues/21
