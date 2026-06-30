@@ -234,7 +234,7 @@ let
       version = "0.0.13.1";
       src = pkgs.fetchurl {
         url = "mirror://hackage/sv2v-0.0.13.1.tar.gz";
-        hash = "1idv0mm1n02k9qzqqshylp310bcjlg5m3dh7l6dvz575553r4d1l";
+        hash = "sha256-NDSSRynllL+boQe2Ucujki0QxqUeaow/TlMAG2oFu8U=";
       };
     });
     sv2v = callPackage ./sv2v { };
