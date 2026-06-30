@@ -13,24 +13,31 @@ repo_root="$(git rev-parse --show-toplevel)"
 flake_ref="path:${repo_root}"
 results_file="$(mktemp)"
 results_tmp="$(mktemp)"
+log_dir="${CI_LOG_DIR:-ci-logs}"
 failed=0
 
+mkdir -p "$log_dir"
 printf '[]' > "$results_file"
 
 for package in "$@"; do
-  echo "::group::build packages.${system}.${package}"
-  if nix build "${flake_ref}#packages.${system}.${package}" --print-build-logs; then
+  log_file="${log_dir}/${package}.log"
+  echo "build packages.${system}.${package} -> ${log_file}"
+
+  if nix build "${flake_ref}#packages.${system}.${package}" --print-build-logs > "$log_file" 2>&1; then
     status="success"
+    echo "ok ${package}"
   else
     status="failure"
     failed=1
+    echo "failed ${package}; last log lines:"
+    tail -n 80 "$log_file" || true
   fi
-  echo "::endgroup::"
 
   jq \
     --arg package "$package" \
     --arg status "$status" \
-    '. + [{ package: $package, status: $status }]' \
+    --arg log "$log_file" \
+    '. + [{ package: $package, status: $status, log: $log }]' \
     "$results_file" > "$results_tmp"
   mv "$results_tmp" "$results_file"
 done
@@ -54,9 +61,11 @@ if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
   {
     echo "## Package build results"
     echo
-    echo "| Package | Status |"
-    echo "| --- | --- |"
-    jq -r '.[] | "| `\(.package)` | \(.status) |"' "$results_file"
+    echo "Full per-package logs are available in the \`ci-build-logs\` artifact."
+    echo
+    echo "| Package | Status | Log file |"
+    echo "| --- | --- | --- |"
+    jq -r '.[] | "| `\(.package)` | \(.status) | `\(.log)` |"' "$results_file"
   } >> "$GITHUB_STEP_SUMMARY"
 fi
 

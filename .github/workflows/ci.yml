@@ -116,6 +116,13 @@ jobs:
         run: |
           mapfile -t packages < <(jq -r '.[]' <<< "$PACKAGES")
           scripts/ci-build.sh x86_64-linux "${packages[@]}"
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ci-build-logs
+          path: ci-logs/
+          if-no-files-found: ignore
 
   report:
     name: ${{ matrix.package }}
@@ -134,6 +141,6 @@ jobs:
           if [ "${{ matrix.status }}" = "success" ]; then
             echo "${{ matrix.package }} built successfully."
           else
-            echo "::error title=${{ matrix.package }} failed::See the 'Build selected packages' job logs for the build failure."
+            echo "::error title=${{ matrix.package }} failed::See ${{ matrix.log }} in the ci-build-logs artifact."
             exit 1
           fi
