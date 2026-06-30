@@ -34,38 +34,82 @@ let
       };
     });
 
+  githubSource =
+    {
+      owner,
+      repo,
+      rev,
+      hash,
+    }:
+    pkgs.fetchFromGitHub {
+      inherit
+        owner
+        repo
+        rev
+        hash
+        ;
+    };
+
+  gitlabSource =
+    {
+      owner,
+      repo,
+      rev,
+      hash,
+    }:
+    pkgs.fetchFromGitLab {
+      inherit
+        owner
+        repo
+        rev
+        hash
+        ;
+    };
+
+  pinnedOverride =
+    pkg: version: src:
+    pkg.overrideAttrs (_old: {
+      inherit version src;
+    });
+
+  branchOverride =
+    pkg: version: src:
+    pkg.overrideAttrs (old: {
+      inherit version src;
+      passthru = (old.passthru or { }) // {
+        nixchipUpdate = true;
+      };
+    });
+
+
   # Naming convention:
   # - Unsuffixed custom package attrs track upstream branch HEAD and use
   #   unstable-YYYY-MM-DD versions.
   # - Numbered attrs are fixed release slots for side-by-side tool versions.
+  # - Upstream names ending in digits use a trailing underscore (e.g. z3_, cvc5_).
   nixchipPackages = rec {
 
     # ── Simulators ─────────────────────────────────────────────────────────────
     verilator3 = callPackage ./verilator {
       version = "3.926";
-      rev = "v3.926";
       hash = "sha256-sbUmoeyUVyZniigixGKjLnHskiPvyMQFpeGo5PRMdRk=";
-      doCheck = false;
     };
     verilator4 = callPackage ./verilator {
       version = "4.228";
-      rev = "v4.228";
       hash = "sha256-ToYad8cvBF3Mio5fuT4Ce4zXbWxFxd6smqB1TxvlHao=";
-      doCheck = false;
     };
-    verilator5 = basePkgs.verilator;
-    verilator = callPackage ./verilator {
-      doCheck = false;
+    verilator5 = callPackage ./verilator {
+        version = "5.048";
+        hash = "sha256-xvqqgbW7L07+NBYzGN2KLhwir58ByShxo4VVPI3pgZk=";
     };
+    verilator = callPackage ./verilator { };
 
     systemc2 = callPackage ./systemc {
       version = "2.3.4";
-      rev = "2.3.4";
       hash = "sha256-CzjrkgvMRmL82omffz+bTI9JR900sdRmhZIhcyflSGo=";
     };
     systemc3 = callPackage ./systemc {
       version = "3.0.2";
-      rev = "3.0.2";
       hash = "sha256-v/PcQu0m/7zyx2TtpZrLFbHtknahgVCkzcRi3lgrRGw=";
     };
     systemc = callPackage ./systemc {
@@ -81,9 +125,13 @@ let
     ghdl = callPackage ./ghdl {
       ghdl = basePkgs.ghdl;
     };
-    nvc1 = basePkgs.nvc;
-    nvc = nvc1;
-    iverilog12 =  callPackage ./iverilog {
+    nvc1 = pinnedOverride basePkgs.nvc "1.21.0" (githubSource {
+      owner = "nickg";
+      repo = "nvc";
+      rev = "refs/tags/r1.21.0";
+      hash = "sha256-aGRN12QL+ODcCpxRXK8RtjT7Zk+rd1ld1gjxlubPFgI=";
+    });
+    iverilog12 = callPackage ./iverilog {
       iverilog = basePkgs.iverilog;
       version = "12.0";
       hash = "sha256-J9hedSmC6mFVcoDnXBtaTXigxrSCFa2AhhFd77ueo7I=";
@@ -94,12 +142,24 @@ let
       hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWF0RFS3dSUm4=";
     };
     iverilog = callPackage ./iverilog { iverilog = basePkgs.iverilog; };
-    spike1 = basePkgs.spike;
+    spike1 = callPackage ./spike {
+      spike = basePkgs.spike;
+      version = "unstable-2024-09-21";
+      rev = "de5094a1a901d77ff44f89b38e00fefa15d4018e";
+      hash = "sha256-mAgR2VzDgeuIdmPEgrb+MaA89BnWfmNanOVidqn0cgc=";
+    };
     spike = callPackage ./spike {
       spike = basePkgs.spike;
     };
     gvsoc = callPackage ./gvsoc {
-      inherit (basePkgs) cmake ninja makeWrapper lz4 zlib elfutils;
+      inherit (basePkgs)
+        cmake
+        ninja
+        makeWrapper
+        lz4
+        zlib
+        elfutils
+        ;
       inherit (basePkgs) python3;
     };
     bender0 = callPackage ./bender {
@@ -124,19 +184,32 @@ let
       yosys = basePkgs.yosys;
       useCmake = true;
     };
-    yosys-full0 = yosysWithPlugins;
-    yosys-full = yosys-full0;
+    yosys-full = yosysWithPlugins;
 
-    sv-lang9 = basePkgs.sv-lang_9;
-    sv-lang10 = basePkgs.sv-lang_10;
-    sv-lang11 = basePkgs.sv-lang;
+    sv-lang9 = pinnedOverride basePkgs.sv-lang_9 "9.1" (githubSource {
+      owner = "MikePopoloski";
+      repo = "slang";
+      rev = "refs/tags/v9.1";
+      hash = "sha256-IfRh6F6vA+nFa+diPKD2aMv9kRbvVIY80IqX0d+d5JA=";
+    });
+    sv-lang10 = pinnedOverride basePkgs.sv-lang_10 "10.0" (githubSource {
+      owner = "MikePopoloski";
+      repo = "slang";
+      rev = "refs/tags/v10.0";
+      hash = "sha256-rw+DztENuY+DiAhQR2oNN/dQJzrcP5neF3LoWnqri+c=";
+    });
+    sv-lang11 = pinnedOverride basePkgs.sv-lang "11.0" (githubSource {
+      owner = "MikePopoloski";
+      repo = "slang";
+      rev = "refs/tags/v11.0";
+      hash = "sha256-popHzwX0qwv2POAl7/qX3e//OwJRXGtSl9xogpSn2LI=";
+    });
     sv-lang = callPackage ./sv-lang {
       sv_lang = basePkgs.sv-lang;
     };
     slang = sv-lang;
 
-    yosys-slang0 = callPackage ./yosys-slang { };
-    yosys-slang = yosys-slang0;
+    yosys-slang = callPackage ./yosys-slang { };
 
     chisel7 = callPackage ./chisel {
       version = "7.13.0";
@@ -144,49 +217,146 @@ let
     };
     chisel = callPackage ./chisel { };
 
-    abc0 = basePkgs.abc-verifier;
+    abc0 = pinnedOverride basePkgs.abc-verifier "0.62" (githubSource {
+      owner = "yosyshq";
+      repo = "abc";
+      rev = "v0.62";
+      hash = "sha256-T6Hj8zrr3XuI3Eh0I5rJI3+DAsuQIMtWEsaBJ8a5Cag=";
+    });
     abc = callPackage ./abc {
       abc-verifier = basePkgs.abc-verifier;
     };
-    sv2v0 = basePkgs.haskellPackages.sv2v;
+    sv2v0 = basePkgs.haskellPackages.sv2v.overrideAttrs (_old: {
+      version = "0.0.13.1";
+      src = pkgs.fetchurl {
+        url = "mirror://hackage/sv2v-0.0.13.1.tar.gz";
+        hash = "1idv0mm1n02k9qzqqshylp310bcjlg5m3dh7l6dvz575553r4d1l";
+      };
+    });
     sv2v = callPackage ./sv2v { };
 
-    circt1 = basePkgs.circt;
-    circt = circt1;
-    firrtl1 = basePkgs.firrtl;
+    circt1 = pinnedOverride basePkgs.circt "1.147.0" (githubSource {
+      owner = "llvm";
+      repo = "circt";
+      rev = "refs/tags/firtool-1.147.0";
+      hash = "sha256-rtnvahI7EzUJXE80X3XPWjjDD/6f9BPmZ7S97Lstuhw=";
+    });
+    firrtl1 = callPackage ./firrtl {
+      firrtl = basePkgs.firrtl;
+      version = "1.5.3";
+      hash = "sha256-7lv3I3TODEWiCWtKwk8Cl9EG8nVwZpz8T0yDjuL2AJg=";
+    };
     firrtl = callPackage ./firrtl {
       firrtl = basePkgs.firrtl;
     };
 
     # ── Waveform & debug ───────────────────────────────────────────────────────
-    gtkwave3 = basePkgs.gtkwave;
+    gtkwave3 = pinnedOverride basePkgs.gtkwave "3.3.127" (
+      pkgs.fetchurl {
+        url = "mirror://sourceforge/gtkwave/gtkwave-gtk3-3.3.127.tar.gz";
+        hash = "sha256-8Z2i20Oye7zGaXJYQ0UZRaaMOkziMlYuNB1vY7gLVeQ=";
+      }
+    );
     gtkwave = callPackage ./gtkwave { };
-    surfer0 = basePkgs.surfer;
-    surfer = surfer0;
-    openocd0 = basePkgs.openocd;
-    openocd = openocd0;
+    surfer0 = pinnedOverride basePkgs.surfer "0.7.0" (gitlabSource {
+      owner = "surfer-project";
+      repo = "surfer";
+      rev = "v0.7.0";
+      hash = "sha256-WO0TWmUaKqUh+Cr75Hrxa2x4V9xZhzHY5PzlIRNUzZA=";
+    });
+    surfer = branchOverride basePkgs.surfer "unstable-2026-06-30" (gitlabSource {
+      owner = "surfer-project";
+      repo = "surfer";
+      rev = "98287107b99fb03e50b11431413450f17c8d295a";
+      hash = "sha256-m2Lk59cvlWTVL6xvk9zvfL52riub/4qRoLre7fyu1Uk=";
+    });
+    openocd0 = pinnedOverride basePkgs.openocd "0.12.0" (
+      pkgs.fetchurl {
+        url = "mirror://sourceforge/project/openocd/openocd/0.12.0/openocd-0.12.0.tar.bz2";
+        hash = "sha256-ryVHiL6Yhh8r2RA/5uYKd07Jaow3R0Tu+Rl/YEMHWvo=";
+      }
+    );
 
     # ── Linting, formatting & elaboration ─────────────────────────────────────
-    verible0 = basePkgs.verible;
-    verible = verible0;
-    vhdl-ls0 = basePkgs.vhdl-ls;
+    verible0 = pinnedOverride basePkgs.verible "0.0.4023" (githubSource {
+      owner = "chipsalliance";
+      repo = "verible";
+      rev = "refs/tags/v0.0-4023-gc1271a00";
+      hash = "sha256-N+yjRcVxFI56kP3zq+qFHNXZLTtVnQaVnseZS13YN0s=";
+    });
+    verible = branchOverride basePkgs.verible "unstable-2026-06-30" (githubSource {
+      owner = "chipsalliance";
+      repo = "verible";
+      rev = "b33cc90019824a8a157f2d5a042912a4b7d67391";
+      hash = "sha256-r++v5wD0+FBAlPV0/sUomqO4BIxUPAqFS2p26d0iFzo=";
+    });
+    vhdl-ls0 = callPackage ./vhdl-ls {
+      vhdl_ls = basePkgs.vhdl-ls;
+      version = "0.87.1";
+      hash = "sha256-+7kjRjRtsb038xw0x+yojhWVChvkBz6kTlqSc3rTwXE=";
+    };
     vhdl-ls = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
     };
-    surelog1 = basePkgs.surelog;
-    surelog = surelog1;
-    uhdm1 = basePkgs.uhdm;
-    uhdm = uhdm1;
+    surelog1 = pinnedOverride basePkgs.surelog "1.86" (githubSource {
+      owner = "chipsalliance";
+      repo = "surelog";
+      rev = "refs/tags/v1.86";
+      hash = "sha256-EEhaYimyzOgQB7dxbbTfsa7APC6SlFkz9ah9BLcKDq4=";
+    });
+    surelog = branchOverride basePkgs.surelog "unstable-2026-06-30" (githubSource {
+      owner = "chipsalliance";
+      repo = "surelog";
+      rev = "42d50ad5de3b9be659e925f057851726c0456456";
+      hash = "sha256-o6EOjchU9KJPFOXJ1/PpTfho3w01eCYwbZHT/ZC12As=";
+    });
+    uhdm1 = pinnedOverride basePkgs.uhdm "1.86" (githubSource {
+      owner = "chipsalliance";
+      repo = "UHDM";
+      rev = "refs/tags/v1.86";
+      hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
+    });
+    uhdm = branchOverride basePkgs.uhdm "unstable-2026-06-30" (githubSource {
+      owner = "chipsalliance";
+      repo = "UHDM";
+      rev = "885cf7ca90085a612c18c1f0e08645ad3c35bfd2";
+      hash = "sha256-r9rUNpDaq/jtnJl+tjg24QBNKU8RyxV7wiMP7Q6cd8s=";
+    });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
-    nextpnr0 = basePkgs.nextpnr;
-    nextpnr = nextpnr0;
-    icestorm0 = basePkgs.icestorm;
-    icestorm = icestorm0;
-    trellis0 = basePkgs.trellis;
-    trellis = trellis0;
-    openfpgaloader0 = basePkgs.openfpgaloader;
-    openfpgaloader = openfpgaloader0;
+    nextpnr0 = pinnedOverride basePkgs.nextpnr "0.10" (githubSource {
+      owner = "YosysHQ";
+      repo = "nextpnr";
+      rev = "refs/tags/nextpnr-0.10";
+      hash = "sha256-goHHEvkBw+9s3RHGfQtRaueXRBnoI14TmfGmb+1WPAY=";
+    });
+    nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-06-30" (githubSource {
+      owner = "YosysHQ";
+      repo = "nextpnr";
+      rev = "2b560ad0ccc6e7e93ad8bd6cb0f88f925bbb314b";
+      hash = "sha256-NOAj3/OCmybEnbhdL+pzVD/JBmnXZ0UyqVaEc4q6R0A=";
+    });
+    icestorm0 = pinnedOverride basePkgs.icestorm "unstable-2025-06-03" (githubSource {
+      owner = "YosysHQ";
+      repo = "icestorm";
+      rev = "f31c39cc2eadd0ab7f29f34becba1348ae9f8721";
+      hash = "sha256-SLSxqgVsYMUxv8YjY1iRLnVFiIAhk/GKmZr4Ido0A3o=";
+    });
+    trellis0 = basePkgs.trellis.overrideAttrs (_old: {
+      version = "unstable-2025-01-30";
+    });
+    openfpgaloader0 = pinnedOverride basePkgs.openfpgaloader "1.1.1" (githubSource {
+      owner = "trabucayre";
+      repo = "openFPGALoader";
+      rev = "v1.1.1";
+      hash = "sha256-VQM3swGAvuLnqKjjUEXJlQp1nGH9M1ydEKQUV/5xiwM=";
+    });
+    openfpgaloader = branchOverride basePkgs.openfpgaloader "unstable-2026-06-30" (githubSource {
+      owner = "trabucayre";
+      repo = "openFPGALoader";
+      rev = "d90fa0ca85763f0d91de89c17c55a20fc35fba94";
+      hash = "sha256-p+MYdR0XNaKJH8MiDsROootu+frdibkH2e9YTLuog6s=";
+    });
     vtr7 = callPackage ./vtr7 {
       version = "7";
       hash = "sha256-/tb/ZA3k30oijfLHOLuE9OAEVRqj3bkb2Yx6aXnZ3uA=";
@@ -203,7 +373,12 @@ let
       hash = "sha256-g5pDGy6A0e1gHFU64G7NcTAGiUj8vfyhJkQ3++4Y2yw=";
     };
     vtr = callPackage ./vtr { };
-    fusesoc2 = basePkgs.fusesoc;
+    fusesoc2 = callPackage ./fusesoc {
+      fusesoc = basePkgs.fusesoc;
+      pydantic = basePkgs.python3Packages.pydantic;
+      version = "2.4.6";
+      hash = "sha256-d4ro802pkpZqm5MYg3Yplu8IhKhVEqR5MfvrCsLcdYU=";
+    };
     fusesoc = callPackage ./fusesoc {
       fusesoc = basePkgs.fusesoc;
       pydantic = basePkgs.python3Packages.pydantic;
@@ -228,7 +403,13 @@ let
     openroad-flow-scripts = callPackage ./openroad-flow-scripts { };
     openroad-flow-scripts-wrapper = callPackage ./openroad-flow-scripts-wrapper {
       inherit (basePkgs) makeWrapper gnumake tcl;
-      inherit openroad openroad-flow-scripts klayout yosys-full yosys-slang;
+      inherit
+        openroad
+        openroad-flow-scripts
+        klayout
+        yosys-full
+        yosys-slang
+        ;
     };
     orfs = openroad-flow-scripts-wrapper;
     klayout0 = callPackage ./klayout {
@@ -245,53 +426,138 @@ let
       hash = "sha256-K/w2El2jkXN8qIa0kWvN8rCKWzjd8DcM3O6hb5UVQnw=";
     };
     magic-vlsi = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
-    netgen-vlsi1 = basePkgs.netgen-vlsi;
-    netgen-vlsi = netgen-vlsi1;
+    netgen-vlsi1 = pinnedOverride basePkgs.netgen-vlsi "1.5.321" (githubSource {
+      owner = "RTimothyEdwards";
+      repo = "netgen";
+      rev = "refs/tags/1.5.321";
+      hash = "sha256-jq7JvChnNSeZf7OrV9EIiOPv5nDqs6r8L9TY6k4vGXc=";
+    });
 
     # ── Analog & mixed-signal ─────────────────────────────────────────────────
-    ngspice45 = basePkgs.ngspice;
-    ngspice = ngspice45;
-    xyce7 = basePkgs.xyce;
-    xyce = xyce7;
-    qucs-s25 = basePkgs.qucs-s;
-    qucs-s = qucs-s25;
-    xschem3 = basePkgs.xschem;
+    ngspice45 = pinnedOverride basePkgs.ngspice "45" (
+      pkgs.fetchurl {
+        url = "mirror://sourceforge/ngspice/ngspice-45.tar.gz";
+        hash = "sha256-8arYq6woKKe3HaZkEd6OQGUk518wZuRnVUOcSQRC1zQ=";
+      }
+    );
+    xyce7 = basePkgs.xyce.overrideAttrs (_old: {
+      version = "7.10.0";
+    });
+    qucs-s25 = pinnedOverride basePkgs.qucs-s "25.2.0" (githubSource {
+      owner = "ra3xdh";
+      repo = "qucs_s";
+      rev = "refs/tags/25.2.0";
+      hash = "sha256-U5XLjWKOXNjgYtlccNsPT1nUnEGi3NhkJ36jan2OSAw=";
+    });
+    qucs-s = branchOverride basePkgs.qucs-s "unstable-2026-06-30" (githubSource {
+      owner = "ra3xdh";
+      repo = "qucs_s";
+      rev = "0a9af4cccf5f171ef7010796c158bf80560808e9";
+      hash = "sha256-N+QT1oFB59c1VIgFv1JuIRMOJ/dSaojneakG5uCDXLA=";
+    });
+    xschem3 = callPackage ./xschem {
+      xschem = basePkgs.xschem;
+      version = "3.4.7";
+      hash = "sha256-ye97VJQ+2F2UbFLmGrZ8xSK9xFeF+Yies6fJKurPOD0=";
+    };
     xschem = callPackage ./xschem {
       xschem = basePkgs.xschem;
     };
 
     # ── Formal verification ────────────────────────────────────────────────────
-    sby0 = basePkgs.sby;
-    sby = sby0;
+    sby0 = pinnedOverride basePkgs.sby "0.61" (githubSource {
+      owner = "YosysHQ";
+      repo = "sby";
+      rev = "refs/tags/v0.61";
+      hash = "sha256-pFtSXg8DiN//jkZJyAIJ/jpVvu1OwwfAAXSrrmCZ3SQ=";
+    });
+    sby = branchOverride basePkgs.sby "unstable-2026-06-30" (githubSource {
+      owner = "YosysHQ";
+      repo = "sby";
+      rev = "d3e72d26e8634bca4ca16f3e4d84331481f06ab6";
+      hash = "sha256-VVnXRJLiGYId4BQX4WThwEkuWOMPwpaXFlkl1pbqkWs=";
+    });
     eqy0 = callPackage ./eqy {
       version = "0.66";
       hash = "sha256-a2wc0OCVyl7N01g9MV3rnSay5c0jy8YCDB0d4eCNTr4=";
     };
     eqy = callPackage ./eqy { };
-    mcy0 = basePkgs.mcy;
-    mcy = mcy0;
+    mcy0 = pinnedOverride basePkgs.mcy "2020.08.03" (githubSource {
+      owner = "YosysHQ";
+      repo = "mcy";
+      rev = "62048e69df13f8e03670424626755ae8ef4c36ff";
+      hash = "15xxgzx1zxzx5kshqyrxnfx33cz6cjzxcdcn6z98jhs9bwyvf96f";
+    });
 
-    yices2 = basePkgs.yices;
-    yices = yices2;
-    boolector3 = basePkgs.boolector;
-    boolector = boolector3;
-    bitwuzla0 = basePkgs.bitwuzla;
-    bitwuzla = bitwuzla0;
-    cadical3 = basePkgs.cadical;
-    cadical = cadical3;
-    cryptominisat5 = basePkgs.cryptominisat;
-    cryptominisat = cryptominisat5;
-    z3-4 = basePkgs.z3;
-    z3 = z3-4;
-    cvc5-1 = basePkgs.cvc5;
-    cvc5 = cvc5-1;
+    yices2 = pinnedOverride basePkgs.yices "2.7.0" (githubSource {
+      owner = "SRI-CSL";
+      repo = "yices2";
+      rev = "refs/tags/yices-2.7.0";
+      hash = "sha256-siyepgxqKWRyO4+SB95lmhJ98iDubk0R0ErEJdSsM8o=";
+    });
+    boolector3 = pinnedOverride basePkgs.boolector "3.2.4" (githubSource {
+      owner = "boolector";
+      repo = "boolector";
+      rev = "refs/tags/3.2.4";
+      hash = "sha256-CKhaPaWUB6Fz0LfnCl81LVmTebCWzTvZLKeC0KH3by4=";
+    });
+    bitwuzla0 = pinnedOverride basePkgs.bitwuzla "0.9.1" (githubSource {
+      owner = "bitwuzla";
+      repo = "bitwuzla";
+      rev = "refs/tags/0.9.1";
+      hash = "sha256-3uStLdDFhXVgqzremUPRbxPUcl0IqVg5MRLltgm8rCA=";
+    });
+    cadical3 = pinnedOverride basePkgs.cadical "3.0.0" (githubSource {
+      owner = "arminbiere";
+      repo = "cadical";
+      rev = "rel-3.0.0";
+      hash = "sha256-pymbSC6bwQQ0YCtJd3xWZiC22UEkFiKSLObSOnoQj9I=";
+    });
+    cryptominisat5 = pinnedOverride basePkgs.cryptominisat "5.11.21" (githubSource {
+      owner = "msoos";
+      repo = "cryptominisat";
+      rev = "5.11.21";
+      hash = "sha256-8oH9moMjQEWnQXKmKcqmXuXcYkEyvr4hwC1bC4l26mo=";
+    });
+    z3_4 = pinnedOverride basePkgs.z3 "4.16.0" (githubSource {
+      owner = "Z3Prover";
+      repo = "z3";
+      rev = "z3-4.16.0";
+      hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
+    });
+    z3_ = branchOverride basePkgs.z3 "unstable-2026-06-30" (githubSource {
+      owner = "Z3Prover";
+      repo = "z3";
+      rev = "32d806d500c8c1be4aacdd1541226a5b9bce7c77";
+      hash = "sha256-EmfZMjLdCmQOrJcDOxB5SBLSHIt79THhFrBLZHE0BYM=";
+    });
+    cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
+      owner = "cvc5";
+      repo = "cvc5";
+      rev = "refs/tags/cvc5-1.3.4";
+      hash = "sha256-PZcOArSTyJzyd2DKT8K0aFC4RlVXgTCnkoU0f08KPfY=";
+    });
+    cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-06-30" (githubSource {
+      owner = "cvc5";
+      repo = "cvc5";
+      rev = "f88851967fbfde8c1815f0bc641af5d48b8a8a87";
+      hash = "sha256-Eg3kOKAXUkdAqy+mB4U6Q1uUVrCs1TW4Bt+tcKO291s=";
+    });
 
-    aiger1 = basePkgs.aiger;
+    aiger1 = callPackage ./aiger {
+      aiger = basePkgs.aiger;
+      version = "1.9.20";
+      hash = "sha256-ggkxITuD8phq3VF6tGc/JWQGBhTfPxBdnRobKswYVa4=";
+    };
     aiger = callPackage ./aiger {
       aiger = basePkgs.aiger;
     };
-    btor2tools0 = basePkgs.btor2tools;
-    btor2tools = btor2tools0;
+    btor2tools0 = pinnedOverride basePkgs.btor2tools "unstable-2025-09-18" (githubSource {
+      owner = "boolector";
+      repo = "btor2tools";
+      rev = "d33c73ff1d173f1bfac8ba6b1c6d68ba62c55f8e";
+      hash = "sha256-RVjZ5HM2yQ3eAICFuzwvNeQDXzWzzSiCCslIWMJi6U8=";
+    });
 
     # ── Microarchitecture modeling ─────────────────────────────────────────────
     flexfloat = callPackage ./flexfloat { };
@@ -387,7 +653,12 @@ let
         license = lib.licenses.asl20;
       };
       riscv-llvm = callPackage ./pulp/riscv-llvm {
-        inherit (basePkgs) llvmPackages cmake python3 ninja;
+        inherit (basePkgs)
+          llvmPackages
+          cmake
+          python3
+          ninja
+          ;
       };
       riscv-gcc = callPackage ./pulp/riscv-gcc {
         inherit (basePkgs)
@@ -441,15 +712,27 @@ let
         matplotlib
         ;
     };
-    cocotb2 = basePkgs.python3Packages.cocotb;
+    cocotb2 = callPackage ./cocotb {
+      cocotb = basePkgs.python3Packages.cocotb;
+      version = "2.0.1";
+      hash = "sha256-LXQNqFlvP+WBaDGWPs5+BXBtW2dhDu+v+7lR/AMG21M=";
+    };
     cocotb = callPackage ./cocotb {
       cocotb = basePkgs.python3Packages.cocotb;
     };
-    edalize0 = basePkgs.python3Packages.edalize;
+    edalize0 = callPackage ./edalize {
+      edalize = basePkgs.python3Packages.edalize;
+      version = "0.6.1";
+      hash = "sha256-5c3Szq0tXQdlyzFTFCla44qB/O6RK8vezVOaFOv8sw4=";
+    };
     edalize = callPackage ./edalize {
       edalize = basePkgs.python3Packages.edalize;
     };
-    amaranth0 = basePkgs.python3Packages.amaranth;
+    amaranth0 = callPackage ./amaranth {
+      amaranth = basePkgs.python3Packages.amaranth;
+      version = "0.5.8";
+      hash = "sha256-hqMgyQJRz1/5C9KB3nAI2RKPZXZUl3zhfZbk9M1hTxs=";
+    };
     amaranth = callPackage ./amaranth {
       amaranth = basePkgs.python3Packages.amaranth;
     };
@@ -463,7 +746,7 @@ let
         chisel
         systemc
         ghdl
-        nvc
+        nvc1
         iverilog
         gtkwave
         surfer
@@ -479,17 +762,17 @@ let
         yosys-full
         sby
         eqy
-        yices
-        boolector
-        bitwuzla
-        cadical
-        cryptominisat
-        cvc5
-        z3
+        yices2
+        boolector3
+        bitwuzla0
+        cadical3
+        cryptominisat5
+        cvc5_
+        z3_
         abc
         aiger
-        btor2tools
-        mcy
+        btor2tools0
+        mcy0
       ];
     };
 
@@ -499,15 +782,14 @@ let
         yosys-full
         yosys-slang
         nextpnr
-        icestorm
-        trellis
+        icestorm0
+        trellis0
         openfpgaloader
         sv2v
         vtr
         fusesoc
-        openocd
+        openocd0
       ]
-      ++ optionalPackage "sby"
       ++ optionalPackage "symbiyosys";
     };
 
@@ -518,21 +800,20 @@ let
         openroad-flow-scripts
         openroad-flow-scripts-wrapper
         yosys-full
-        circt
+        circt1
         firrtl
         klayout
         magic-vlsi
-        netgen-vlsi
+        netgen-vlsi1
       ]
-      ++ optionalUnfreePackage "espresso"
-      ++ optionalPackage "surelog";
+      ++ optionalUnfreePackage "espresso";
     };
 
     analog-tools = pkgs.symlinkJoin {
       name = "nixchip-analog-tools";
       paths = [
-        ngspice
-        xyce
+        ngspice45
+        xyce7
         qucs-s
         xschem
       ];

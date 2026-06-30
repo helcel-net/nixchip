@@ -1,9 +1,10 @@
 {
+  lib,
   fetchFromGitHub,
   cocotb,
   nix-update-script,
   version ? "unstable-2026-06-26",
-  rev ? "869c45921d7595668acafe44922e3bb5257d649d",
+  rev ? if lib.hasPrefix "unstable-" version then "869c45921d7595668acafe44922e3bb5257d649d" else "refs/tags/v${version}",
   hash ? "sha256-G0rsGw//7SUh6ahFMZds8ymKf7fMDt1bIbJrjFW5rjU=",
   ...
 }:
