@@ -161,7 +161,6 @@
                 sv-lang11
                 # Synthesis
                 yosys0
-                yosys-full0
                 # CACTI memory model generations
                 cacti6
                 cacti7
