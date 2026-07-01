@@ -77,7 +77,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          scripts/open-update-pr.sh             "update/package-pins/${{ matrix.package }}"             "Update ${{ matrix.package }} package pin"             "${{ github.event.repository.default_branch }}" <<BODY
+          scripts/open-update-pr.sh \
+            "update-package-pins-${{ matrix.package }}" \
+            "Update ${{ matrix.package }} package pin" \
+            "${{ github.event.repository.default_branch }}" <<BODY
           Automated update of the `${{ matrix.package }}` package version and source hash.
 
           The workflow updates one package attr per PR, then evaluates `nix flake check --no-build`.
