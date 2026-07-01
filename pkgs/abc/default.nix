@@ -3,8 +3,8 @@
   abc-verifier,
   nix-update-script,
   version ? "unstable-2026-07-01",
-  rev ? "b4ca3e7f520fcb8f21553f20b7fd6dec8321490d",
-  hash ? "sha256-rMWqDRdJt6SeQh4QMzJzeYaerxBZqEJfoCI1kmFj7A4=",
+  rev ? "a01df4b82cb4ff6847296d69891f87f95af52c67",
+  hash ? "sha256-6L5mRaUdF/aoV/7FyIdyHt7/njWp9C19U3bTw/ZwQFs=",
   ...
 }:
 
