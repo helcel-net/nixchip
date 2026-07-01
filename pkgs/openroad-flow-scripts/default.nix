@@ -5,8 +5,8 @@
   gnumake,
   nix-update-script,
   version ? "unstable-2026-07-01",
-  rev ? "adeb389e7fbf06ef6a939a895c014f69e6f7aa00",
-  hash ? "sha256-IHJlyD4aZdmy/wakGcEvfSLqvmGM+Iwd/9rN7Kd/ric=",
+  rev ? "fb65d5b487d2afd443fc1892330f622c776a57ac",
+  hash ? "sha256-hu34SgmPevA/i16DRfuucWQNQevcdK7g33fFgOkO/zE=",
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "openroad-flow-scripts";
