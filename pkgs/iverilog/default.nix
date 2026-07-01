@@ -4,9 +4,9 @@
   iverilog,
   nix-update-script,
   version ? "unstable-2026-07-01",
-  rev ? if lib.hasPrefix "unstable-" version then "a1c333ea6e0d32a7e2655dc5bf5d354d0f03970e" else "v${lib.replaceStrings [ "." ] [ "_" ] version}",
+  rev ? if lib.hasPrefix "unstable-" version then "5a99d0e449468630f8386d5488e9f70bbaf3bbf5" else "v${lib.replaceStrings [ "." ] [ "_" ] version}",
  
-  hash ? "sha256-+Y5GiUePyZ/UGYMpjmvi5UB7Gph3cpWTE1SRGrBRQfE=",
+  hash ? "sha256-MeaJzd35h1wcBEwJ8HNCQwsc2xyMY2jJZwOSznLvDfI=",
   ...
 }:
 
