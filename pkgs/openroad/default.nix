@@ -4,7 +4,7 @@
   nix-update-script,
   version ? "unstable-2026-07-01",
   rev ? "a9147cf3aebe65e058bb3fa89c1f9e524488dbb8",
-  hash ? "sha256-BapgE3mJIwhfFKQpY3b5VWw4N7lgNVouBMLKlE+GmXs=",
+  hash ? "sha256-jElAb8mM2lhGwa8wTONfQgs7esL9p1beAReJXAWns9o=",
   patches ? [ ],
   ...
 }:

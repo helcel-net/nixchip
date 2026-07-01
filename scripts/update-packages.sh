@@ -214,15 +214,13 @@ for package in "${packages[@]}"; do
   if [[ "$branch_update" == true ]]; then
     # nix-update --version=branch resolves to the nearest tag commit rather than
     # actual HEAD. Bypass it entirely: fetch HEAD directly and patch the nix file.
-    # Use src.gitRepoUrl / src.url rather than reconstructing a github.com URL:
+    # Use src.gitRepoUrl rather than reconstructing a github.com URL:
     # fetchFromGitLab sources (e.g. surfer) also expose owner/repo, but their
-    # actual host is gitlab.com, and their archive URL format differs from
-    # GitHub's. Derive the new archive URL by substituting the new rev into
-    # the current archive URL, so this works for either host.
+    # actual host is gitlab.com.
     pkg_src_info="$(nix eval --raw ".#packages.${system}.${package}" --apply '
-      p: "${p.src.gitRepoUrl or ""}\t${p.src.rev or ""}\t${p.src.outputHash or ""}\t${p.src.url or ""}\t${if p.src.fetchSubmodules or false then "1" else "0"}"
+      p: "${p.src.gitRepoUrl or ""}\t${p.src.rev or ""}\t${p.src.outputHash or ""}"
     ' 2>/dev/null)" || pkg_src_info=""
-    IFS=$'\t' read -r src_repo_url current_rev current_hash current_src_url fetch_submodules <<< "$pkg_src_info"
+    IFS=$'\t' read -r src_repo_url current_rev current_hash <<< "$pkg_src_info"
 
     if [[ -z "$src_repo_url" || -z "$current_rev" ]]; then
       echo "error: cannot determine repo URL/rev for $package" >&2
@@ -238,25 +236,28 @@ for package in "${packages[@]}"; do
     today="$(date -u +%Y-%m-%d)"
 
     if [[ "$head_rev" == "$current_rev" ]]; then
-      # No upstream movement — skip hash computation entirely rather than
-      # re-deriving it (submodule-fetching sources in particular can't be
-      # hashed via a simple archive-URL fetch; see below).
       echo "unchanged $package"
       echo "::endgroup::"; continue
     fi
 
-    if [[ "$fetch_submodules" == "1" ]]; then
-      # fetchFromGitHub/GitLab fall back to the git-clone fetcher (fetchgit)
-      # when fetchSubmodules is set, so there is no tarball archive URL to
-      # substitute the rev into — use nix-prefetch-git instead.
-      new_hash="$(nix run nixpkgs#nix-prefetch-git -- --url "$src_repo_url" --rev "$head_rev" --fetch-submodules --quiet 2>/dev/null | jq -r '.hash // empty')" || new_hash=""
-    else
-      archive_url="${current_src_url//$current_rev/$head_rev}"
-      raw_hash="$(nix-prefetch-url --type sha256 --unpack "$archive_url" 2>/dev/null)" || raw_hash=""
-      new_hash="$(nix hash to-sri --type sha256 "$raw_hash" 2>/dev/null)" || new_hash=""
-    fi
+    # Compute the hash for the new rev by asking Nix to actually build the
+    # source with a deliberately wrong hash and reading the correct one back
+    # out of the resulting error. This goes through the exact same fetcher
+    # nixpkgs will use later (fetchFromGitHub/fetchFromGitLab, with or without
+    # submodules), so it can't diverge from what a real build will fetch —
+    # unlike reconstructing an archive URL and hashing it with nix-prefetch-url,
+    # which silently produced a wrong hash for at least one package (sv-lang).
+    fake_hash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    build_output="$(nix build --impure --no-link --print-out-paths --expr '
+      let
+        flake = builtins.getFlake "'"${repo_root}"'";
+        p = flake.packages."'"${system}"'"."'"${package}"'";
+      in p.src.override { rev = "'"${head_rev}"'"; hash = "'"${fake_hash}"'"; }
+    ' 2>&1)" || true
+    new_hash="$(grep -oP 'got:\s+\K\S+' <<< "$build_output" | tail -1)"
     if [[ -z "$new_hash" ]]; then
       echo "error: cannot compute hash for ${package}@${head_rev}" >&2
+      echo "$build_output" >&2
       failed+=("$package"); echo "::endgroup::"; continue
     fi
 

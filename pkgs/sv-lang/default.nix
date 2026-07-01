@@ -5,8 +5,8 @@
   tomlplusplus,
   nix-update-script,
   version ? "unstable-2026-07-01",
-  rev ? "d680681fa76d0c4744b3daa9a31ec396b57a1291",
-  hash ? "sha256-e6fpICDVW4nTeUSqXdu9MralojFGJ3vKDPm2oX3by7I=",
+  rev ? "88c0826084519c93acacd5f681a647b77f1f0b81",
+  hash ? "sha256-fgFVZbC7n0IhzbO0STt34FhXmZymAheHn0/3wi0jMiM=",
   ...
 }:
 

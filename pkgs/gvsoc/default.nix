@@ -12,7 +12,7 @@
   nix-update-script,
   version ? "unstable-2026-07-01",
   rev ? "4a97a61275a7e26260c0103e0059422177ac6432",
-  hash ? "sha256-WnwVvTTuESm8rvS2+C3jVZIy30+qIDXUTvsdfEbbFcI=",
+  hash ? "sha256-4A3Q0qwP0IBqo7vRmk8X0PuSCo4gG/RPPfvwEBGCDys=",
 }:
 
 let
