@@ -2,9 +2,9 @@
   fetchFromGitHub,
   openroad,
   nix-update-script,
-  version ? "unstable-2026-06-26",
-  rev ? "42735125d521989ee7097c2cb6242ee98c50f8bb",
-  hash ? "sha256-Vk2Jygke4+fYRoFABfJLP6ryT+zz2z03u0VjOvHwAbw=",
+  version ? "unstable-2026-07-01",
+  rev ? "a9147cf3aebe65e058bb3fa89c1f9e524488dbb8",
+  hash ? "sha256-BapgE3mJIwhfFKQpY3b5VWw4N7lgNVouBMLKlE+GmXs=",
   patches ? [ ],
   ...
 }:

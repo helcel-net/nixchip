@@ -19,12 +19,48 @@ permissions:
   pull-requests: write
 
 jobs:
-  update:
-    name: Update package versions and hashes
+  generate-matrix:
+    name: Discover packages
     runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.packages.outputs.packages }}
+      has-packages: ${{ steps.packages.outputs.has-packages }}
     env:
       NIX_SYSTEM: x86_64-linux
       NIXCHIP_UPDATE_HISTORICAL: ${{ inputs.include-historical == 'true' && '1' || '0' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+      - run: chmod +x scripts/*.sh
+      - id: packages
+        run: |
+          packages=$(NIXCHIP_UPDATE_LIST=1 scripts/update-packages.sh | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+          if [ "$(jq 'length' <<< "$packages")" = "0" ]; then
+            echo "has-packages=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-packages=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  update:
+    name: Update ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    needs: generate-matrix
+    if: needs.generate-matrix.outputs.has-packages == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.generate-matrix.outputs.packages) }}
+    env:
+      NIX_SYSTEM: x86_64-linux
+      NIXCHIP_UPDATE_HISTORICAL: ${{ inputs.include-historical == 'true' && '1' || '0' }}
+      NIXCHIP_UPDATE_PACKAGES: ${{ matrix.package }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -41,11 +77,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          scripts/open-update-pr.sh \
-            update/package-pins \
-            "Update package pins" \
-            "${{ github.event.repository.default_branch }}" <<'BODY'
-          Automated update of custom hardware package versions and source hashes.
+          scripts/open-update-pr.sh             "update/package-pins/${{ matrix.package }}"             "Update ${{ matrix.package }} package pin"             "${{ github.event.repository.default_branch }}" <<BODY
+          Automated update of the `${{ matrix.package }}` package version and source hash.
 
-          The workflow uses `nix-update -F` for package attrs maintained in `pkgs/`, then evaluates `nix flake check --no-build`.
+          The workflow updates one package attr per PR, then evaluates `nix flake check --no-build`.
           BODY

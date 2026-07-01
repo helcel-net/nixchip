@@ -64,6 +64,33 @@ for entry in "${raw_lines[@]}"; do
   package_versions["$pkg"]="$version"
 done
 
+if [ -n "${NIXCHIP_UPDATE_PACKAGES:-}" ]; then
+  declare -A discovered=()
+  for package in "${packages[@]}"; do
+    discovered["$package"]=1
+  done
+
+  selected=()
+  read -r -a requested <<< "${NIXCHIP_UPDATE_PACKAGES//,/ }"
+  for package in "${requested[@]}"; do
+    if [[ -z "$package" ]]; then
+      continue
+    fi
+    if [[ ! -v "discovered[$package]" ]]; then
+      echo "error: requested package '$package' is not enrolled for updates" >&2
+      exit 1
+    fi
+    selected+=("$package")
+  done
+  packages=("${selected[@]}")
+fi
+
+if [ "${NIXCHIP_UPDATE_LIST:-0}" = "1" ]; then
+  printf '%s
+' "${packages[@]}"
+  exit 0
+fi
+
 # Extract the version series from a package name:
 #   "dramsim3-1"           → "1"   (trailing -N is the version major)
 #   "ghdl6"                → "6"   (trailing digits in the name)
@@ -91,7 +118,7 @@ get_version_flags() {
   if [[ -z "$major" ]]; then
     echo "--version=branch"
   else
-    echo "--version-regex=^(?:[vr]|.*[-_])?(${major}([Q._-][0-9.]+[a-z]?)?)$"
+    echo "--version-regex=^(?:[vr]|.*[-_])?(${major}(?:[Q._-][0-9.]+[a-z]?)?)$"
   fi
 }
 
@@ -128,15 +155,18 @@ validate_package_selection
 
 verify_branch_head() {
   local package="$1"
-  local info owner repo rev version remote
+  local info repo_url rev version remote
 
+  # Use src.gitRepoUrl rather than reconstructing a github.com URL from
+  # owner/repo: fetchFromGitLab sources (e.g. surfer) also expose owner/repo,
+  # but their actual host is gitlab.com, not github.com.
   info="$(nix eval --raw ".#packages.${system}.${package}" --apply '
-    p: "${p.src.owner or ""}\t${p.src.repo or ""}\t${p.src.rev or ""}\t${p.version or ""}"
+    p: "${p.src.gitRepoUrl or ""}\t${p.src.rev or ""}\t${p.version or ""}"
   ')"
-  IFS=$'\t' read -r owner repo rev version <<< "$info"
+  IFS=$'\t' read -r repo_url rev version <<< "$info"
 
-  if [[ -z "$owner" || -z "$repo" || -z "$rev" ]]; then
-    echo "warning: cannot verify branch HEAD for $package; src owner/repo/rev unavailable" >&2
+  if [[ -z "$repo_url" || -z "$rev" ]]; then
+    echo "warning: cannot verify branch HEAD for $package; src repo URL/rev unavailable" >&2
     return 0
   fi
 
@@ -145,9 +175,9 @@ verify_branch_head() {
     return 1
   fi
 
-  remote="$(git ls-remote "https://github.com/${owner}/${repo}.git" HEAD | awk 'NR == 1 { print $1; exit }')"
+  remote="$(git ls-remote "$repo_url" HEAD | awk 'NR == 1 { print $1; exit }')"
   if [[ -z "$remote" ]]; then
-    echo "error: failed to resolve upstream HEAD for $package (${owner}/${repo})" >&2
+    echo "error: failed to resolve upstream HEAD for $package (${repo_url})" >&2
     return 1
   fi
 
@@ -184,27 +214,47 @@ for package in "${packages[@]}"; do
   if [[ "$branch_update" == true ]]; then
     # nix-update --version=branch resolves to the nearest tag commit rather than
     # actual HEAD. Bypass it entirely: fetch HEAD directly and patch the nix file.
+    # Use src.gitRepoUrl / src.url rather than reconstructing a github.com URL:
+    # fetchFromGitLab sources (e.g. surfer) also expose owner/repo, but their
+    # actual host is gitlab.com, and their archive URL format differs from
+    # GitHub's. Derive the new archive URL by substituting the new rev into
+    # the current archive URL, so this works for either host.
     pkg_src_info="$(nix eval --raw ".#packages.${system}.${package}" --apply '
-      p: "${p.src.owner or ""}\t${p.src.repo or ""}"
-    ' 2>/dev/null || printf '\t')"
-    IFS=$'\t' read -r src_owner src_repo <<< "$pkg_src_info"
+      p: "${p.src.gitRepoUrl or ""}\t${p.src.rev or ""}\t${p.src.outputHash or ""}\t${p.src.url or ""}\t${if p.src.fetchSubmodules or false then "1" else "0"}"
+    ' 2>/dev/null)" || pkg_src_info=""
+    IFS=$'\t' read -r src_repo_url current_rev current_hash current_src_url fetch_submodules <<< "$pkg_src_info"
 
-    if [[ -z "$src_owner" || -z "$src_repo" ]]; then
-      echo "error: cannot determine owner/repo for $package" >&2
+    if [[ -z "$src_repo_url" || -z "$current_rev" ]]; then
+      echo "error: cannot determine repo URL/rev for $package" >&2
       failed+=("$package"); echo "::endgroup::"; continue
     fi
 
-    head_rev="$(git ls-remote "https://github.com/${src_owner}/${src_repo}.git" HEAD | awk 'NR == 1 { print $1; exit }')"
+    head_rev="$(git ls-remote "$src_repo_url" HEAD | awk 'NR == 1 { print $1; exit }')"
     if [[ -z "$head_rev" ]]; then
-      echo "error: cannot resolve HEAD for ${src_owner}/${src_repo}" >&2
+      echo "error: cannot resolve HEAD for ${src_repo_url}" >&2
       failed+=("$package"); echo "::endgroup::"; continue
     fi
 
     today="$(date -u +%Y-%m-%d)"
 
-    raw_hash="$(nix-prefetch-url --type sha256 --unpack \
-      "https://github.com/${src_owner}/${src_repo}/archive/${head_rev}.tar.gz" 2>/dev/null)"
-    new_hash="$(nix hash to-sri --type sha256 "$raw_hash" 2>/dev/null)"
+    if [[ "$head_rev" == "$current_rev" ]]; then
+      # No upstream movement — skip hash computation entirely rather than
+      # re-deriving it (submodule-fetching sources in particular can't be
+      # hashed via a simple archive-URL fetch; see below).
+      echo "unchanged $package"
+      echo "::endgroup::"; continue
+    fi
+
+    if [[ "$fetch_submodules" == "1" ]]; then
+      # fetchFromGitHub/GitLab fall back to the git-clone fetcher (fetchgit)
+      # when fetchSubmodules is set, so there is no tarball archive URL to
+      # substitute the rev into — use nix-prefetch-git instead.
+      new_hash="$(nix run nixpkgs#nix-prefetch-git -- --url "$src_repo_url" --rev "$head_rev" --fetch-submodules --quiet 2>/dev/null | jq -r '.hash // empty')" || new_hash=""
+    else
+      archive_url="${current_src_url//$current_rev/$head_rev}"
+      raw_hash="$(nix-prefetch-url --type sha256 --unpack "$archive_url" 2>/dev/null)" || raw_hash=""
+      new_hash="$(nix hash to-sri --type sha256 "$raw_hash" 2>/dev/null)" || new_hash=""
+    fi
     if [[ -z "$new_hash" ]]; then
       echo "error: cannot compute hash for ${package}@${head_rev}" >&2
       failed+=("$package"); echo "::endgroup::"; continue
@@ -213,15 +263,32 @@ for package in "${packages[@]}"; do
     # Locate the nix file: convention is pkgs/<attribute>/default.nix.
     # Fall back to meta.position for any package that doesn't follow the convention.
     nix_file="${repo_root}/pkgs/${package}/default.nix"
+    default_nix="${repo_root}/pkgs/default.nix"
+    block_start=""
+    block_end=""
     if [[ ! -f "$nix_file" ]]; then
       # Try stripping a trailing underscore (e.g. dramsim3_ → dramsim3).
       pkg_base="${package%_}"
       if [[ "$pkg_base" != "$package" && -f "${repo_root}/pkgs/${pkg_base}/default.nix" ]]; then
         nix_file="${repo_root}/pkgs/${pkg_base}/default.nix"
       else
-        pos="$(nix eval --raw ".#packages.${system}.${package}" \
-          --apply 'p: p.meta.position or ""' 2>/dev/null | sed 's/:[0-9]*$//')"
-        [[ -f "$pos" ]] && nix_file="$pos"
+        # Attr-block overrides (e.g. `cvc5_ = branchOverride basePkgs.cvc5 "unstable-..." (...);`)
+        # live inline in pkgs/default.nix. meta.position for these points into the
+        # nixpkgs store (inherited from the base derivation), which previously caused
+        # a fallback to `nix-update -F`; that tool then edited pkgs/default.nix
+        # unscoped and could clobber sibling `unstable-*` entries. Detect this shape
+        # directly and restrict edits to just this attribute's block.
+        block_start="$(grep -n -m1 -E "^[[:space:]]*${package}[[:space:]]*=[[:space:]]*branchOverride" "$default_nix" | cut -d: -f1)"
+        if [[ -n "$block_start" ]]; then
+          block_end="$(awk -v s="$block_start" 'NR>=s && /^[[:space:]]*\}\);[[:space:]]*$/ { print NR; exit }' "$default_nix")"
+        fi
+        if [[ -n "$block_start" && -n "$block_end" ]]; then
+          nix_file="$default_nix"
+        else
+          pos="$(nix eval --raw ".#packages.${system}.${package}" \
+            --apply 'p: p.meta.position or ""' 2>/dev/null | sed 's/:[0-9]*$//')"
+          [[ -f "$pos" ]] && nix_file="$pos"
+        fi
       fi
     fi
     if [[ ! -f "$nix_file" ]]; then
@@ -243,11 +310,19 @@ for package in "${packages[@]}"; do
       echo "::endgroup::"; continue
     fi
 
-    sed -Ei "s/version ([?=]) \"[^\"]*\"/version \\1 \"unstable-${today}\"/" "$nix_file"
-    sed -Ei "s/\"[a-f0-9]{40}\"/\"${head_rev}\"/" "$nix_file"
-    sed -Ei "s|hash ([?=]) \"[^\"]*\"|hash \\1 \"${new_hash}\"|" "$nix_file"
+    if [[ -n "$block_start" && -n "$block_end" ]]; then
+      sed -Ei "${block_start},${block_end}s/\"unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}\"/\"unstable-${today}\"/" "$nix_file"
+      sed -Ei "${block_start},${block_end}s/\"[a-f0-9]{40}\"/\"${head_rev}\"/" "$nix_file"
+      sed -Ei "${block_start},${block_end}s|hash = \"[^\"]*\"|hash = \"${new_hash}\"|" "$nix_file"
+    else
+      sed -Ei "0,/version ([?=]) \"[^\"]*\"/s//version \1 \"unstable-${today}\"/" "$nix_file"
+      sed -Ei "0,/\"[a-f0-9]{40}\"/s//\"${head_rev}\"/" "$nix_file"
+      sed -Ei "0,/hash ([?=]) \"[^\"]*\"/s|hash ([?=]) \"[^\"]*\"|hash \1 \"${new_hash}\"|" "$nix_file"
+    fi
 
-    verify_branch_head "$package"
+    if ! verify_branch_head "$package"; then
+      failed+=("$package"); echo "::endgroup::"; continue
+    fi
     echo "updated $package"
   else
     # shellcheck disable=SC2086

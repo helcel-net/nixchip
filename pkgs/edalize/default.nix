@@ -3,13 +3,13 @@
   edalize,
   lib,
   nix-update-script,
-  version ? "unstable-2026-06-26",
+  version ? "unstable-2026-07-01",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "5a4dc8c9cac28b6920ee5734b97409d379ffd382"
+      "f8f66da85ca99a2eb1e8acd29cb0ec8718896699"
     else
       "refs/tags/v${version}",
-  hash ? "sha256-ddvoq8FcSCPaaEw/eY6NemrF7RZrGnM4ZumpDbyCwPI=",
+  hash ? "sha256-z4duSUfSeZYiQI3Mq6OE0XmFAS0m3+cI9mvbxQ6LlVk=",
   ...
 }:
 

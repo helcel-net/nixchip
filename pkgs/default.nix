@@ -129,11 +129,11 @@ let
     ghdl = callPackage ./ghdl {
       ghdl = basePkgs.ghdl;
     };
-    nvc1 = pinnedOverride basePkgs.nvc "1.21.0" (githubSource {
+    nvc1 = pinnedOverride basePkgs.nvc "1.21.1" (githubSource {
       owner = "nickg";
       repo = "nvc";
-      rev = "refs/tags/r1.21.0";
-      hash = "sha256-aGRN12QL+ODcCpxRXK8RtjT7Zk+rd1ld1gjxlubPFgI=";
+      rev = "r1.21.1";
+      hash = "sha256-l4eGEDZrAXOhN5hPQLy2TcQEsQ+TTSNZVBFVwNsoQCo=";
     });
     iverilog12 = callPackage ./iverilog {
       iverilog = basePkgs.iverilog;
@@ -239,11 +239,11 @@ let
     });
     sv2v = callPackage ./sv2v { };
 
-    circt1 = pinnedOverride basePkgs.circt "1.147.0" (githubSource {
+    circt1 = pinnedOverride basePkgs.circt "1.151.0" (githubSource {
       owner = "llvm";
       repo = "circt";
-      rev = "refs/tags/firtool-1.147.0";
-      hash = "sha256-rtnvahI7EzUJXE80X3XPWjjDD/6f9BPmZ7S97Lstuhw=";
+      rev = "firtool-1.151.0";
+      hash = "sha256-2OF/VjTRXef3Pm25l7BrM/d5NBI1h0ocgoyIWHTu8K0=";
     });
     firrtl1 = callPackage ./firrtl {
       firrtl = basePkgs.firrtl;
@@ -308,11 +308,11 @@ let
       rev = "refs/tags/v1.86";
       hash = "sha256-EEhaYimyzOgQB7dxbbTfsa7APC6SlFkz9ah9BLcKDq4=";
     });
-    surelog = branchOverride basePkgs.surelog "unstable-2026-06-30" (githubSource {
+    surelog = branchOverride basePkgs.surelog "unstable-2026-07-01" (githubSource {
       owner = "chipsalliance";
       repo = "surelog";
-      rev = "42d50ad5de3b9be659e925f057851726c0456456";
-      hash = "sha256-o6EOjchU9KJPFOXJ1/PpTfho3w01eCYwbZHT/ZC12As=";
+      rev = "d3492266357fb49fc4ee75f5e9268088c70096ec";
+      hash = "sha256-CIozphxpZ0omcPx3bpI1MpDG6+TkLe6T/v8NnR1OIxk=";
     });
     uhdm1 = pinnedOverride basePkgs.uhdm "1.86" (githubSource {
       owner = "chipsalliance";
@@ -320,11 +320,11 @@ let
       rev = "refs/tags/v1.86";
       hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
     });
-    uhdm = branchOverride basePkgs.uhdm "unstable-2026-06-30" (githubSource {
+    uhdm = branchOverride basePkgs.uhdm "unstable-2026-07-01" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
-      rev = "885cf7ca90085a612c18c1f0e08645ad3c35bfd2";
-      hash = "sha256-r9rUNpDaq/jtnJl+tjg24QBNKU8RyxV7wiMP7Q6cd8s=";
+      rev = "fc89c272c34b7cbc294c9cd4e3373657eb51e0ef";
+      hash = "sha256-2KTDC/z2E4SNvdO7FmoJ92gVMvDnU+Grvd7PBQvPSVk=";
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
@@ -430,7 +430,7 @@ let
       hash = "sha256-K/w2El2jkXN8qIa0kWvN8rCKWzjd8DcM3O6hb5UVQnw=";
     };
     magic-vlsi = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
-    netgen-vlsi1 = pinnedOverride basePkgs.netgen-vlsi "1.5.321" (githubSource {
+    netgen-vlsi1 = pinnedOverride basePkgs.netgen-vlsi "1.5.322" (githubSource {
       owner = "RTimothyEdwards";
       repo = "netgen";
       rev = "refs/tags/1.5.321";
@@ -453,11 +453,11 @@ let
       rev = "refs/tags/25.2.0";
       hash = "sha256-U5XLjWKOXNjgYtlccNsPT1nUnEGi3NhkJ36jan2OSAw=";
     });
-    qucs-s = branchOverride basePkgs.qucs-s "unstable-2026-06-30" (githubSource {
+    qucs-s = branchOverride basePkgs.qucs-s "unstable-2026-07-01" (githubSource {
       owner = "ra3xdh";
       repo = "qucs_s";
-      rev = "0a9af4cccf5f171ef7010796c158bf80560808e9";
-      hash = "sha256-N+QT1oFB59c1VIgFv1JuIRMOJ/dSaojneakG5uCDXLA=";
+      rev = "1239336192adee7593ded74db844db0f88f0f03b";
+      hash = "sha256-Syti/maOCYi/JwUkOhGwCvluhz7BFRuQcnVs1lmC0X8=";
     });
     xschem3 = callPackage ./xschem {
       xschem = basePkgs.xschem;
@@ -486,17 +486,17 @@ let
       hash = "sha256-a2wc0OCVyl7N01g9MV3rnSay5c0jy8YCDB0d4eCNTr4=";
     };
     eqy = callPackage ./eqy { };
-    mcy0 = pinnedOverride basePkgs.mcy "2020.08.03" (githubSource {
+    mcy0 = pinnedOverride basePkgs.mcy "0.66" (githubSource {
       owner = "YosysHQ";
       repo = "mcy";
-      rev = "62048e69df13f8e03670424626755ae8ef4c36ff";
-      hash = "sha256-ziS3PV9JQ4nSN5Y11r9k5rMxurM9ewz1LP33H/p/vZc=";
+      rev = "v0.66";
+      hash = "sha256-ieexePa/QLN/ej/+JO1TB0YUo5CD+K+EtrGqKdayDoo=";
     });
 
     yices2 = pinnedOverride basePkgs.yices "2.7.0" (githubSource {
       owner = "SRI-CSL";
       repo = "yices2";
-      rev = "refs/tags/yices-2.7.0";
+      rev = "yices-2.7.0";
       hash = "sha256-siyepgxqKWRyO4+SB95lmhJ98iDubk0R0ErEJdSsM8o=";
     });
     boolector3 = pinnedOverride basePkgs.boolector "3.2.4" (githubSource {
@@ -529,11 +529,11 @@ let
       rev = "z3-4.16.0";
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
-    z3_ = branchOverride basePkgs.z3 "unstable-2026-06-30" (githubSource {
+    z3_ = branchOverride basePkgs.z3 "unstable-2026-07-01" (githubSource {
       owner = "Z3Prover";
       repo = "z3";
-      rev = "32d806d500c8c1be4aacdd1541226a5b9bce7c77";
-      hash = "sha256-EmfZMjLdCmQOrJcDOxB5SBLSHIt79THhFrBLZHE0BYM=";
+      rev = "652402fa1f39b7b8ad06c78c10c0b4a5cf2f016a";
+      hash = "sha256-OJOnu5cYFj5z+L5hzVV3ZuOWRUgSp/spRoDZnXv7PnM=";
     });
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
       owner = "cvc5";
@@ -541,11 +541,11 @@ let
       rev = "refs/tags/cvc5-1.3.4";
       hash = "sha256-PZcOArSTyJzyd2DKT8K0aFC4RlVXgTCnkoU0f08KPfY=";
     });
-    cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-06-30" (githubSource {
+    cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-07-01" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
-      rev = "f88851967fbfde8c1815f0bc641af5d48b8a8a87";
-      hash = "sha256-Eg3kOKAXUkdAqy+mB4U6Q1uUVrCs1TW4Bt+tcKO291s=";
+      rev = "073f335e7282295f5b7e0dede1791a9c33d69236";
+      hash = "sha256-KFf5xxYOL0HND1JignzrHPX4lWmyR11NgdpbsXFW2Ko=";
     });
 
     aiger1 = callPackage ./aiger {
