@@ -108,8 +108,9 @@ pkg_major() {
 # Emit nix-update version flags for a package.
 #
 # Packages with a trailing version number N get a release-series regex.
-# Accept bare versions, v/r-prefixed tags, and tool-prefixed tags such as
-# firtool-1.147.0, rel-3.0.0, z3-4.16.0, cvc5-1.3.4, and ngspice-45.
+# Accept bare versions, v/r-prefixed tags, tool-prefixed tags such as
+# firtool-1.147.0, rel-3.0.0, z3-4.16.0, cvc5-1.3.4, ngspice-45, and
+# release/v-prefixed tags such as release/v5.14.7.
 #
 # Packages without a version number fall back to --version=branch.
 get_version_flags() {
@@ -119,8 +120,30 @@ get_version_flags() {
   if [[ -z "$major" ]]; then
     echo "--version=branch"
   else
-    echo "--version-regex=^(?:[vr]|.*[-_])?(${major}(?:[Q._-][0-9.]+[a-z]?)?)$"
+    echo "--version-regex=^(?:[vr]|.*[-_/]v?)?(${major}(?:[Q._-][0-9.]+[a-z]?)?)$"
   fi
+}
+
+nix_update_changed=false
+run_nix_update() {
+  local package="$1"
+  shift
+  local output
+
+  nix_update_changed=false
+  if output="$(nix run nixpkgs#nix-update -- -F "$package" "$@" 2>&1)"; then
+    printf '%s\n' "$output"
+    nix_update_changed=true
+    return 0
+  fi
+
+  if grep -q "No version matched the regex" <<< "$output"; then
+    echo "unchanged $package; no upstream version matched its update constraint"
+    return 0
+  fi
+
+  printf '%s\n' "$output"
+  return 1
 }
 
 find_default_nix_override_block() {
@@ -396,12 +419,14 @@ for package in "${packages[@]}"; do
       # major-version constraint so the slot tracks its own version series.
       ver_flags="$(get_version_flags "$package")"
       # shellcheck disable=SC2086
-      if nix run nixpkgs#nix-update -- -F "$package" $ver_flags "${build_flag[@]}"; then
-        if ! verify_source_fetch "$package"; then
+      if run_nix_update "$package" $ver_flags "${build_flag[@]}"; then
+        if [[ "$nix_update_changed" == true ]] && ! verify_source_fetch "$package"; then
           failed+=("$package")
           echo "::endgroup::"; continue
         fi
-        echo "updated $package"
+        if [[ "$nix_update_changed" == true ]]; then
+          echo "updated $package"
+        fi
       else
         failed+=("$package")
         echo "failed to update $package" >&2
@@ -438,8 +463,8 @@ for package in "${packages[@]}"; do
     fi
 
     # shellcheck disable=SC2086
-    if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then
-      if [[ -n "$before_default_nix" ]]; then
+    if run_nix_update "$package" $extra_flags "${build_flag[@]}"; then
+      if [[ "$nix_update_changed" == true && -n "$before_default_nix" ]]; then
         if ! restore_default_nix_attr_scope "$package" "$before_default_nix" "$inline_block_start" "$inline_block_end"; then
           failed+=("$package")
           echo "failed to scope update for $package" >&2
@@ -447,12 +472,14 @@ for package in "${packages[@]}"; do
           echo "::endgroup::"; continue
         fi
       fi
-      if ! verify_source_fetch "$package"; then
+      if [[ "$nix_update_changed" == true ]] && ! verify_source_fetch "$package"; then
         failed+=("$package")
         rm -f "$before_default_nix"
         echo "::endgroup::"; continue
       fi
-      echo "updated $package"
+      if [[ "$nix_update_changed" == true ]]; then
+        echo "updated $package"
+      fi
     else
       if [[ -n "$before_default_nix" ]]; then
         cp "$before_default_nix" "$default_nix"
