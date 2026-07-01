@@ -193,7 +193,7 @@ let
     sv-lang9 = pinnedOverride basePkgs.sv-lang_9 "9.1" (githubSource {
       owner = "MikePopoloski";
       repo = "slang";
-      rev = "refs/tags/v9.1";
+      rev = "v9.1";
       hash = "sha256-IfRh6F6vA+nFa+diPKD2aMv9kRbvVIY80IqX0d+d5JA=";
     });
     sv-lang10 = pinnedOverride basePkgs.sv-lang_10 "10.0" (githubSource {
