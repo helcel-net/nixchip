@@ -331,8 +331,8 @@ let
     nextpnr0 = pinnedOverride basePkgs.nextpnr "0.10" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
-      rev = "refs/tags/nextpnr-0.10";
-      hash = "sha256-goHHEvkBw+9s3RHGfQtRaueXRBnoI14TmfGmb+1WPAY=";
+      rev = "nextpnr-0.10";
+      hash = "sha256-7Y56I0VjAyuutwHjK2ckxUXOaiiHIiX/ArFivlMaZJg=";
     });
     nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-06-30" (taggedGithubSource {
       owner = "YosysHQ";
