@@ -79,9 +79,9 @@ pkg_major() {
 
 # Emit nix-update version flags for a package.
 #
-# Packages with a trailing version number N get:
-#   --version-regex=^v?(N[Q._][0-9.]+[a-z]?)$
-# Covers semver (6.1.2), quarterly (26Q1), underscore (13_0), letter suffix (2.3.4a).
+# Packages with a trailing version number N get a release-series regex.
+# Accept bare versions, v/r-prefixed tags, and tool-prefixed tags such as
+# firtool-1.147.0, rel-3.0.0, z3-4.16.0, cvc5-1.3.4, and ngspice-45.
 #
 # Packages without a version number fall back to --version=branch.
 get_version_flags() {
@@ -91,7 +91,7 @@ get_version_flags() {
   if [[ -z "$major" ]]; then
     echo "--version=branch"
   else
-    echo "--version-regex=^v?(${major}[Q._][0-9.]+[a-z]?)$"
+    echo "--version-regex=^(?:[vr]|.*[-_])?(${major}([Q._-][0-9.]+[a-z]?)?)$"
   fi
 }
 
@@ -145,7 +145,7 @@ verify_branch_head() {
     return 1
   fi
 
-  remote="$(git ls-remote "https://github.com/${owner}/${repo}.git" HEAD | awk '{print $1}')"
+  remote="$(git ls-remote "https://github.com/${owner}/${repo}.git" HEAD | awk 'NR == 1 { print $1; exit }')"
   if [[ -z "$remote" ]]; then
     echo "error: failed to resolve upstream HEAD for $package (${owner}/${repo})" >&2
     return 1
@@ -194,7 +194,7 @@ for package in "${packages[@]}"; do
       failed+=("$package"); echo "::endgroup::"; continue
     fi
 
-    head_rev="$(git ls-remote "https://github.com/${src_owner}/${src_repo}.git" HEAD | awk '{print $1}')"
+    head_rev="$(git ls-remote "https://github.com/${src_owner}/${src_repo}.git" HEAD | awk 'NR == 1 { print $1; exit }')"
     if [[ -z "$head_rev" ]]; then
       echo "error: cannot resolve HEAD for ${src_owner}/${src_repo}" >&2
       failed+=("$package"); echo "::endgroup::"; continue

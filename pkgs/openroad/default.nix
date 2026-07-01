@@ -25,6 +25,10 @@ openroad.overrideAttrs (old: {
       chmod +x src/web/src/embed_web_assets.py
       patchShebangs src/web/src/embed_web_assets.py
     fi
+    if [ -f src/web/src/embed_report_assets.py ]; then
+      chmod +x src/web/src/embed_report_assets.py
+      patchShebangs src/web/src/embed_report_assets.py
+    fi
   '';
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
