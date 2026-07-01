@@ -519,11 +519,11 @@ let
       rev = "rel-3.0.0";
       hash = "sha256-pymbSC6bwQQ0YCtJd3xWZiC22UEkFiKSLObSOnoQj9I=";
     });
-    cryptominisat5 = pinnedOverride basePkgs.cryptominisat "5.11.21" (githubSource {
+    cryptominisat5 = pinnedOverride basePkgs.cryptominisat "release/v5.14.7" (githubSource {
       owner = "msoos";
       repo = "cryptominisat";
-      rev = "5.11.21";
-      hash = "sha256-8oH9moMjQEWnQXKmKcqmXuXcYkEyvr4hwC1bC4l26mo=";
+      rev = "release/v5.14.7";
+      hash = "sha256-nyAoAQ5k+C1M1pK71SAA2eUnCuD0mM8ImSKNxbxRKQs=";
     });
     z3_4 = pinnedOverride basePkgs.z3 "4.16.0" (githubSource {
       owner = "Z3Prover";
