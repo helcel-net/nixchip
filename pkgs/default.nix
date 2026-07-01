@@ -534,8 +534,8 @@ let
     z3_ = branchOverride basePkgs.z3 "unstable-2026-07-01" (githubSource {
       owner = "Z3Prover";
       repo = "z3";
-      rev = "652402fa1f39b7b8ad06c78c10c0b4a5cf2f016a";
-      hash = "sha256-OJOnu5cYFj5z+L5hzVV3ZuOWRUgSp/spRoDZnXv7PnM=";
+      rev = "69444de05b225628019b88d46794e76c328acd5f";
+      hash = "sha256-r7GuZV/eqrOkI7vpMdhewRPvMzkwFgkj6UTNRqH/U2M=";
     });
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
       owner = "cvc5";
