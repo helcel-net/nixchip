@@ -32,7 +32,7 @@ jobs:
         name: Collect buildable packages
         # Default CI builds branch-tracking package attrs only and skips heavyweight
         # LLVM/GCC toolchains. Pull requests additionally build exact attrs whose
-        # package version changed, including pinned release slots.
+        # package version or source pin changed, including pinned release slots.
         run: |
           package_meta() {
             nix eval --json "$1#packages.x86_64-linux" --apply '
@@ -46,12 +46,22 @@ jobs:
                 isPinned = n:
                   let version = pkgs.${n}.version or "";
                   in builtins.match ".*unstable.*" version == null;
-                mk = n: {
-                  name = n;
-                  version = pkgs.${n}.version or "";
-                  pname = pkgs.${n}.pname or n;
-                  default = !isPinned n;
-                };
+                mk = n:
+                  let
+                    p = pkgs.${n};
+                    src = p.src or {};
+                  in
+                  {
+                    name = n;
+                    version = p.version or "";
+                    pname = p.pname or n;
+                    source = {
+                      rev = src.rev or "";
+                      hash = src.outputHash or (src.hash or "");
+                      url = src.url or "";
+                    };
+                    default = !isPinned n;
+                  };
               in
               builtins.sort (a: b: builtins.lessThan a.name b.name)
                 (builtins.map mk (builtins.filter (n: isCiPackage n && !isSkipped n) allNames))
@@ -63,12 +73,15 @@ jobs:
 
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             base_meta=$(package_meta "github:${{ github.repository }}/${{ github.event.pull_request.base.sha }}")
-            version_changed=$(jq -n -c \
+            metadata_changed=$(jq -n -c \
               --argjson base "$base_meta" \
               --argjson current "$current_meta" '
-                ($base | map({key: .name, value: .version}) | from_entries) as $baseVersions |
+                ($base | map({key: .name, value: { version: .version, source: .source }}) | from_entries) as $basePackages |
                 $current
-                | map(select(.version != ($baseVersions[.name] // null)) | .name)
+                | map(select(
+                    .version != ($basePackages[.name].version // null)
+                    or .source != ($basePackages[.name].source // null)
+                  ) | .name)
               ')
             changed_dirs=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} \
               | awk -F/ '/^pkgs\// { print $2 }' \
@@ -79,7 +92,7 @@ jobs:
               '[.[] | select(. as $p | $c | any(. == $p))]')
             packages=$(jq -n -c \
               --argjson touched "$touched_default" \
-              --argjson changed "$version_changed" \
+              --argjson changed "$metadata_changed" \
               '($touched + $changed) | unique')
           else
             packages="$default_packages"

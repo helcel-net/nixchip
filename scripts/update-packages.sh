@@ -5,6 +5,7 @@ repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
 system="${NIX_SYSTEM:-x86_64-linux}"
+default_nix="${repo_root}/pkgs/default.nix"
 
 # Auto-discover packages to update from the flake.
 # Enrollment: add `passthru.nixchipUpdate = true;` to a package's own derivation file.
@@ -119,6 +120,100 @@ get_version_flags() {
     echo "--version=branch"
   else
     echo "--version-regex=^(?:[vr]|.*[-_])?(${major}(?:[Q._-][0-9.]+[a-z]?)?)$"
+  fi
+}
+
+find_default_nix_override_block() {
+  local package="$1"
+  local file="${2:-$default_nix}"
+  local start end
+
+  start="$(awk -v pkg="$package" '
+    $1 == pkg && $2 == "=" && ($3 == "branchOverride" || $3 == "pinnedOverride") {
+      print NR
+      exit
+    }
+  ' "$file")"
+  if [[ -n "$start" ]]; then
+    end="$(awk -v s="$start" 'NR>=s && /^[[:space:]]*\}\);[[:space:]]*$/ { print NR; exit }' "$file")"
+  fi
+  if [[ -n "$start" && -n "$end" ]]; then
+    printf '%s\t%s\n' "$start" "$end"
+  fi
+}
+
+find_default_nix_attr_block() {
+  local package="$1"
+  local file="${2:-$default_nix}"
+
+  awk -v pkg="$package" '
+    $1 == pkg && $2 == "=" {
+      start = NR
+      indent = match($0, /[^[:space:]]/) - 1
+      if ($0 ~ /;[[:space:]]*$/ && $0 !~ /\{[[:space:]]*$/) {
+        print start "\t" start
+        exit
+      }
+    }
+    start && NR > start {
+      currentIndent = match($0, /[^[:space:]]/) - 1
+      if (currentIndent == indent && $0 ~ /^[[:space:]]*(\}\);|\};|.*;)[[:space:]]*$/) {
+        print start "\t" NR
+        exit
+      }
+    }
+  ' "$file"
+}
+
+restore_default_nix_attr_scope() {
+  local package="$1"
+  local before_file="$2"
+  local old_start="$3"
+  local old_end="$4"
+  local block_info new_start new_end block_file merged_file
+
+  block_info="$(find_default_nix_attr_block "$package")"
+  if [[ -z "$block_info" ]]; then
+    echo "error: cannot find updated pkgs/default.nix attr block for $package" >&2
+    return 1
+  fi
+  IFS=$'\t' read -r new_start new_end <<< "$block_info"
+
+  block_file="$(mktemp)"
+  merged_file="$(mktemp)"
+  sed -n "${new_start},${new_end}p" "$default_nix" > "$block_file"
+  awk -v s="$old_start" -v e="$old_end" -v block="$block_file" '
+    NR == s {
+      while ((getline line < block) > 0) {
+        print line
+      }
+    }
+    NR < s || NR > e {
+      print
+    }
+  ' "$before_file" > "$merged_file"
+  mv "$merged_file" "$default_nix"
+  rm -f "$block_file"
+}
+
+verify_source_fetch() {
+  local package="$1"
+  local has_src
+
+  has_src="$(nix eval --raw ".#packages.${system}.${package}" \
+    --apply 'p: if p ? src then "1" else ""' 2>/dev/null || true)"
+  if [[ "$has_src" != "1" ]]; then
+    echo "warning: cannot verify source fetch for $package; package has no src" >&2
+    return 0
+  fi
+
+  if ! nix build --impure --no-link --print-build-logs --expr '
+    let
+      flake = builtins.getFlake "'"${repo_root}"'";
+    in flake.packages."'"${system}"'"."'"${package}"'".src
+  '; then
+    echo "error: source fetch failed for $package after update" >&2
+    return 1
   fi
 }
 
@@ -264,7 +359,6 @@ for package in "${packages[@]}"; do
     # Locate the nix file: convention is pkgs/<attribute>/default.nix.
     # Fall back to meta.position for any package that doesn't follow the convention.
     nix_file="${repo_root}/pkgs/${package}/default.nix"
-    default_nix="${repo_root}/pkgs/default.nix"
     block_start=""
     block_end=""
     if [[ ! -f "$nix_file" ]]; then
@@ -277,11 +371,11 @@ for package in "${packages[@]}"; do
         # live inline in pkgs/default.nix. meta.position for these points into the
         # nixpkgs store (inherited from the base derivation), which previously caused
         # a fallback to `nix-update -F`; that tool then edited pkgs/default.nix
-        # unscoped and could clobber sibling `unstable-*` entries. Detect this shape
+        # unscoped and could clobber sibling entries. Detect this shape
         # directly and restrict edits to just this attribute's block.
-        block_start="$(grep -n -m1 -E "^[[:space:]]*${package}[[:space:]]*=[[:space:]]*branchOverride" "$default_nix" | cut -d: -f1)"
-        if [[ -n "$block_start" ]]; then
-          block_end="$(awk -v s="$block_start" 'NR>=s && /^[[:space:]]*\}\);[[:space:]]*$/ { print NR; exit }' "$default_nix")"
+        block_info="$(find_default_nix_override_block "$package")"
+        if [[ -n "$block_info" ]]; then
+          IFS=$'\t' read -r block_start block_end <<< "$block_info"
         fi
         if [[ -n "$block_start" && -n "$block_end" ]]; then
           nix_file="$default_nix"
@@ -303,6 +397,10 @@ for package in "${packages[@]}"; do
       ver_flags="$(get_version_flags "$package")"
       # shellcheck disable=SC2086
       if nix run nixpkgs#nix-update -- -F "$package" $ver_flags "${build_flag[@]}"; then
+        if ! verify_source_fetch "$package"; then
+          failed+=("$package")
+          echo "::endgroup::"; continue
+        fi
         echo "updated $package"
       else
         failed+=("$package")
@@ -324,15 +422,45 @@ for package in "${packages[@]}"; do
     if ! verify_branch_head "$package"; then
       failed+=("$package"); echo "::endgroup::"; continue
     fi
+    if ! verify_source_fetch "$package"; then
+      failed+=("$package"); echo "::endgroup::"; continue
+    fi
     echo "updated $package"
   else
+    inline_block_info="$(find_default_nix_attr_block "$package")"
+    before_default_nix=""
+    inline_block_start=""
+    inline_block_end=""
+    if [[ -n "$inline_block_info" ]]; then
+      IFS=$'\t' read -r inline_block_start inline_block_end <<< "$inline_block_info"
+      before_default_nix="$(mktemp)"
+      cp "$default_nix" "$before_default_nix"
+    fi
+
     # shellcheck disable=SC2086
     if nix run nixpkgs#nix-update -- -F "$package" $extra_flags "${build_flag[@]}"; then
+      if [[ -n "$before_default_nix" ]]; then
+        if ! restore_default_nix_attr_scope "$package" "$before_default_nix" "$inline_block_start" "$inline_block_end"; then
+          failed+=("$package")
+          echo "failed to scope update for $package" >&2
+          rm -f "$before_default_nix"
+          echo "::endgroup::"; continue
+        fi
+      fi
+      if ! verify_source_fetch "$package"; then
+        failed+=("$package")
+        rm -f "$before_default_nix"
+        echo "::endgroup::"; continue
+      fi
       echo "updated $package"
     else
+      if [[ -n "$before_default_nix" ]]; then
+        cp "$before_default_nix" "$default_nix"
+      fi
       failed+=("$package")
       echo "failed to update $package" >&2
     fi
+    rm -f "$before_default_nix"
   fi
   echo "::endgroup::"
 done

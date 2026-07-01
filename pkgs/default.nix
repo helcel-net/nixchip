@@ -73,6 +73,7 @@ let
     pkg.overrideAttrs (old: {
       inherit version src;
       passthru = (old.passthru or { }) // {
+        nixchipCI = true;
         nixchipUpdate = true;
       };
     });
@@ -82,6 +83,7 @@ let
     pkg.overrideAttrs (old: {
       inherit version src;
       passthru = (old.passthru or { }) // {
+        nixchipCI = true;
         nixchipUpdate = true;
       };
     });
@@ -349,7 +351,7 @@ let
     trellis0 = basePkgs.trellis.overrideAttrs (_old: {
       version = "unstable-2025-01-30";
     });
-    openfpgaloader0 = pinnedOverride basePkgs.openfpgaloader "1.1.1" (githubSource {
+    openfpgaloader1 = pinnedOverride basePkgs.openfpgaloader "1.1.1" (githubSource {
       owner = "trabucayre";
       repo = "openFPGALoader";
       rev = "v1.1.1";
