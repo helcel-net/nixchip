@@ -544,8 +544,8 @@ let
     cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-07-01" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
-      rev = "073f335e7282295f5b7e0dede1791a9c33d69236";
-      hash = "sha256-KFf5xxYOL0HND1JignzrHPX4lWmyR11NgdpbsXFW2Ko=";
+      rev = "890a27ee882a247a8d9b13460ffe20f50fa01426";
+      hash = "sha256-bBD9zuR/GFRM1AEAsjNLCzaZG0+DZjhbL914jg3c5pA=";
     });
 
     aiger1 = callPackage ./aiger {
