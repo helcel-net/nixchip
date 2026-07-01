@@ -3,8 +3,8 @@
   openroad,
   nix-update-script,
   version ? "unstable-2026-07-01",
-  rev ? "a9147cf3aebe65e058bb3fa89c1f9e524488dbb8",
-  hash ? "sha256-jElAb8mM2lhGwa8wTONfQgs7esL9p1beAReJXAWns9o=",
+  rev ? "b65c274cadefe2151aa7eee32e1be9026e8ff14a",
+  hash ? "sha256-vL1AH+eQislAs2yZkxGj8FoPZbt5+T/m3qt76ymlJQ8=",
   patches ? [ ],
   ...
 }:
