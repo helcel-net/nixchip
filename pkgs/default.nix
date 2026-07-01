@@ -323,8 +323,8 @@ let
     uhdm = branchOverride basePkgs.uhdm "unstable-2026-07-01" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
-      rev = "fc89c272c34b7cbc294c9cd4e3373657eb51e0ef";
-      hash = "sha256-2KTDC/z2E4SNvdO7FmoJ92gVMvDnU+Grvd7PBQvPSVk=";
+      rev = "b05fe17a928d3343116476d649299846e497ba66";
+      hash = "sha256-Xkb9eTxKXJw/V1Ligy9DUZH36rJEQndKKHK5GNrJFcg=";
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
