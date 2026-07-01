@@ -6,10 +6,10 @@
   version ? "unstable-2026-07-01",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "8866ab4184eb074757fa3f2d1c9a56023a392931"
+      "2a7575d591a3be474288f5236a06538a55b5f21f"
     else
       "refs/tags/v${version}",
-  hash ? "sha256-bpDLjuprdwAFy3mBCj3u3Y6KA1ljieu9nTQzRcG0g4s=",
+  hash ? "sha256-zdGusYRXKX2m0BZjR6ePNiSwiAK9M4NnjraA3xRHjNQ=",
   ...
 }:
 
