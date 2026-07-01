@@ -305,7 +305,7 @@ let
     surelog1 = pinnedOverride basePkgs.surelog "1.86" (githubSource {
       owner = "chipsalliance";
       repo = "surelog";
-      rev = "refs/tags/v1.86";
+      rev = "v1.86";
       hash = "sha256-EEhaYimyzOgQB7dxbbTfsa7APC6SlFkz9ah9BLcKDq4=";
     });
     surelog = branchOverride basePkgs.surelog "unstable-2026-07-01" (githubSource {
@@ -317,7 +317,7 @@ let
     uhdm1 = pinnedOverride basePkgs.uhdm "1.86" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
-      rev = "refs/tags/v1.86";
+      rev = "v1.86";
       hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
     });
     uhdm = branchOverride basePkgs.uhdm "unstable-2026-07-01" (githubSource {
