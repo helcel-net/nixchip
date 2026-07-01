@@ -538,7 +538,7 @@ let
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
-      rev = "refs/tags/cvc5-1.3.4";
+      rev = "cvc5-1.3.4";
       hash = "sha256-PZcOArSTyJzyd2DKT8K0aFC4RlVXgTCnkoU0f08KPfY=";
     });
     cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-07-01" (githubSource {
