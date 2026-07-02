@@ -5,11 +5,23 @@
   tomlplusplus,
   nix-update-script,
   version ? "unstable-2026-07-01",
-  rev ? "88c0826084519c93acacd5f681a647b77f1f0b81",
-  hash ? "sha256-xnGSFN4S48vs3Y+BYvt2zUsf1MumTyikA9sAtqmq10s=",
+  rev ? "b60d729d66b9cdeec158b800f898461a138d505e",
+  hash ? "sha256-a1FnvQqroofPPTg0G6SanH7/FwCphq/KWRYCOX5Lr00=",
   ...
 }:
 
+let
+  # nixpkgs' fmt_12 is 12.1.0; newer slang requires >= 12.2 via
+  # FIND_PACKAGE_ARGS, so FetchContent would fall back to a network git clone
+  # that fails in the Nix sandbox. Vendor the exact tag slang asks for and
+  # point FetchContent at it directly instead.
+  fmt = fetchFromGitHub {
+    owner = "fmtlib";
+    repo = "fmt";
+    tag = "12.2.0";
+    hash = "sha256-Tc7PmNxUv7ajw6GaHPGEEtrD/fl6is7RB8TPestJa1o=";
+  };
+in
 sv_lang.overrideAttrs (old: {
   inherit version;
   src = fetchFromGitHub {
@@ -17,6 +29,12 @@ sv_lang.overrideAttrs (old: {
     repo = "slang";
     inherit rev hash;
   };
+  postPatch = (old.postPatch or "") + ''
+    substituteInPlace external/CMakeLists.txt \
+      --replace-fail "GIT_REPOSITORY https://github.com/fmtlib/fmt.git" "SOURCE_DIR ${fmt}" \
+      --replace-fail "GIT_TAG 12.2.0" "" \
+      --replace-fail "GIT_SHALLOW ON" ""
+  '';
   # nixpkgs sv-lang 9.1 didn't use tomlplusplus; newer slang fetches it via
   # FetchContent with FIND_PACKAGE_ARGS 3.4, which requires it in buildInputs.
   buildInputs = (old.buildInputs or [ ]) ++ [ tomlplusplus ];

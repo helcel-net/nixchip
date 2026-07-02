@@ -519,24 +519,33 @@ let
       rev = "rel-3.0.0";
       hash = "sha256-pymbSC6bwQQ0YCtJd3xWZiC22UEkFiKSLObSOnoQj9I=";
     });
-    cryptominisat5 = pinnedOverride basePkgs.cryptominisat "5.11.21" (githubSource {
+    cryptominisat5 = (pinnedOverride basePkgs.cryptominisat "5.14.7" (githubSource {
       owner = "msoos";
       repo = "cryptominisat";
-      rev = "5.11.21";
-      hash = "sha256-8oH9moMjQEWnQXKmKcqmXuXcYkEyvr4hwC1bC4l26mo=";
-    });
+      rev = "release/v5.14.7";
+      hash = "sha256-nyAoAQ5k+C1M1pK71SAA2eUnCuD0mM8ImSKNxbxRKQs=";
+    })).overrideAttrs {
+      # Upstream renamed src/picosat -> src/mpicosat and already uses plain
+      # <unistd.h>, so the musl sys/unistd.h compat patch no longer applies.
+      postPatch = "";
+    };
     z3_4 = pinnedOverride basePkgs.z3 "4.16.0" (githubSource {
       owner = "Z3Prover";
       repo = "z3";
       rev = "z3-4.16.0";
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
-    z3_ = branchOverride basePkgs.z3 "unstable-2026-07-01" (githubSource {
+    z3_ = (branchOverride basePkgs.z3 "unstable-2026-07-01" (githubSource {
       owner = "Z3Prover";
       repo = "z3";
-      rev = "652402fa1f39b7b8ad06c78c10c0b4a5cf2f016a";
-      hash = "sha256-OJOnu5cYFj5z+L5hzVV3ZuOWRUgSp/spRoDZnXv7PnM=";
-    });
+      rev = "69444de05b225628019b88d46794e76c328acd5f";
+      hash = "sha256-r7GuZV/eqrOkI7vpMdhewRPvMzkwFgkj6UTNRqH/U2M=";
+    })).overrideAttrs {
+      # z3's own build embeds its CMake project version (e.g. "4.17.0") in
+      # `z3 --version`, unrelated to our "unstable-YYYY-MM-DD" tracking
+      # version, so versionCheckHook can never match it for this attr.
+      doInstallCheck = false;
+    };
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
