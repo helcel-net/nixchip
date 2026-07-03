@@ -3,13 +3,13 @@
   fetchFromGitHub,
   cocotb,
   nix-update-script,
-  version ? "unstable-2026-07-01",
+  version ? "unstable-2026-07-03",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "2a7575d591a3be474288f5236a06538a55b5f21f"
+      "0ed808ff78b1117277b0f769f56504f233c55614"
     else
       "refs/tags/v${version}",
-  hash ? "sha256-zdGusYRXKX2m0BZjR6ePNiSwiAK9M4NnjraA3xRHjNQ=",
+  hash ? "sha256-H2HZDmEVLgFewQBlIwy58ZsGFegBTTKeRnFSi94YWBs=",
   ...
 }:
 

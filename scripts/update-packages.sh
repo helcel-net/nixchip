@@ -332,6 +332,137 @@ refresh_cargo_lock() {
   fi
 }
 
+# nix-update has no SourceForge backend at all (see nix_update/version/__init__.py:
+# it only knows codeberg/crates.io/gitea/github/gitlab/pypi/savannah/sourcehut/
+# rubygems/npm), so it can never auto-detect a new version for a
+# `mirror://sourceforge/...` fetchurl package — it fails with "Please specify
+# the version" every single time, regardless of whether a newer release
+# exists upstream. Bypass nix-update entirely for these: list the project's
+# recent files via SourceForge's own RSS feed, apply the package's existing
+# major-version regex (the same one get_version_flags() already computes for
+# every numbered slot) to find the newest matching sibling filename, then
+# fetch the real hash the same way the branch-tracking bypass does (build
+# with a deliberately wrong hash and read the real one back out of the error).
+is_sourceforge_package() {
+  local package="$1"
+  local block_info block_s block_e
+  block_info="$(find_default_nix_override_block "$package")"
+  [[ -n "$block_info" ]] || return 1
+  IFS=$'\t' read -r block_s block_e <<< "$block_info"
+  sed -n "${block_s},${block_e}p" "$default_nix" | grep -q 'mirror://sourceforge/'
+}
+
+update_sourceforge_package() {
+  local package="$1"
+  local block_info block_s block_e block_text
+  block_info="$(find_default_nix_override_block "$package")"
+  if [[ -z "$block_info" ]]; then
+    echo "error: cannot locate pkgs/default.nix block for $package" >&2
+    return 1
+  fi
+  IFS=$'\t' read -r block_s block_e <<< "$block_info"
+  block_text="$(sed -n "${block_s},${block_e}p" "$default_nix")"
+
+  local old_version old_url old_hash
+  old_version="$(nix eval --raw ".#packages.${system}.${package}" --apply 'p: p.version' 2>/dev/null)" || old_version=""
+  old_url="$(grep -oP 'url = "\K[^"]+' <<< "$block_text" | head -1)"
+  old_hash="$(grep -oP 'hash = "\K[^"]+' <<< "$block_text" | head -1)"
+  if [[ -z "$old_version" || -z "$old_url" || -z "$old_hash" ]]; then
+    echo "error: cannot find version/url/hash for sourceforge package $package" >&2
+    return 1
+  fi
+
+  # mirror://sourceforge/<project>/<...>/<filename>, with a legacy
+  # `mirror://sourceforge/project/<project>/...` form some packages use.
+  local sf_path project filename
+  sf_path="${old_url#mirror://sourceforge/}"
+  [[ "$sf_path" == project/* ]] && sf_path="${sf_path#project/}"
+  project="${sf_path%%/*}"
+  filename="${sf_path##*/}"
+
+  local ver_regex
+  ver_regex="$(get_version_flags "$package")"
+  ver_regex="${ver_regex#--version-regex=}"
+
+  local rss_file
+  rss_file="$(mktemp)"
+  if ! curl -fsSL "https://sourceforge.net/projects/${project}/rss" -o "$rss_file"; then
+    echo "error: failed to fetch SourceForge RSS feed for project $project" >&2
+    rm -f "$rss_file"
+    return 1
+  fi
+
+  local best
+  best="$(python3 -c '
+import re, sys
+
+filename, old_version, ver_regex, rss_path = sys.argv[1:5]
+if old_version not in filename:
+    sys.exit(0)
+prefix, suffix = filename.split(old_version, 1)
+name_re = re.compile("^" + re.escape(prefix) + "(.+?)" + re.escape(suffix) + "$")
+ver_re = re.compile(ver_regex)
+
+def version_key(v):
+    return tuple(int(x) if x.isdigit() else x for x in re.split(r"(\d+)", v) if x != "")
+
+with open(rss_path, encoding="utf-8", errors="replace") as f:
+    rss = f.read()
+
+best = None
+for title in re.findall(r"<title><!\[CDATA\[([^\]]*)\]\]></title>", rss):
+    base = title.rsplit("/", 1)[-1]
+    m = name_re.match(base)
+    if not m:
+        continue
+    vm = ver_re.match(m.group(1))
+    if not vm:
+        continue
+    groups = [g for g in vm.groups() if g]
+    v = ".".join(groups) if groups else m.group(1)
+    if best is None or version_key(v) > version_key(best):
+        best = v
+print(best or "")
+' "$filename" "$old_version" "$ver_regex" "$rss_file")"
+  rm -f "$rss_file"
+
+  if [[ -z "$best" || "$best" == "$old_version" ]]; then
+    echo "unchanged $package"
+    return 0
+  fi
+
+  local new_url new_filename
+  new_filename="${filename/$old_version/$best}"
+  new_url="${old_url/$filename/$new_filename}"
+
+  local fake_hash new_hash build_output
+  fake_hash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  build_output="$(nix build --impure --no-link --print-out-paths --expr '
+    let
+      flake = builtins.getFlake "'"${repo_root}"'";
+    in (import flake.inputs.nixpkgs { system = "'"${system}"'"; }).fetchurl {
+      url = "'"${new_url}"'";
+      hash = "'"${fake_hash}"'";
+    }
+  ' 2>&1)" || true
+  new_hash="$(grep -oP 'got:\s+\K\S+' <<< "$build_output" | tail -1)"
+  if [[ -z "$new_hash" ]]; then
+    echo "error: cannot compute hash for ${package}@${best} (${new_url})" >&2
+    echo "$build_output" >&2
+    return 1
+  fi
+
+  local escaped_old_version
+  escaped_old_version="$(printf '%s' "$old_version" | sed -e 's/[.[\*^$/]/\\&/g')"
+  sed -Ei "${block_s}s/\"${escaped_old_version}\"/\"${best}\"/" "$default_nix"
+  sed -Ei "${block_s},${block_e}s|url = \"[^\"]*\"|url = \"${new_url}\"|" "$default_nix"
+  sed -Ei "${block_s},${block_e}s|hash = \"[^\"]*\"|hash = \"${new_hash}\"|" "$default_nix"
+
+  if ! verify_source_fetch "$package"; then
+    return 1
+  fi
+  echo "updated $package"
+}
 
 validate_package_selection() {
   local package extra_flags version
@@ -408,6 +539,17 @@ failed=()
 
 for package in "${packages[@]}"; do
   echo "::group::nix-update $package"
+
+  if is_sourceforge_package "$package"; then
+    if update_sourceforge_package "$package"; then
+      :
+    else
+      failed+=("$package")
+      echo "failed to update $package" >&2
+    fi
+    echo "::endgroup::"; continue
+  fi
+
   extra_flags="${nixchip_flags[$package]:-}"
   if [[ " $extra_flags " != *" --version"* ]]; then
     if [[ -v "version_hints[$package]" ]] && [[ "${version_hints[$package]}" == "branch" ]]; then
@@ -531,9 +673,9 @@ for package in "${packages[@]}"; do
       sed -Ei "${block_start},${block_end}s/\"[a-f0-9]{40}\"/\"${head_rev}\"/" "$nix_file"
       sed -Ei "${block_start},${block_end}s|hash = \"[^\"]*\"|hash = \"${new_hash}\"|" "$nix_file"
     else
-      sed -Ei "0,/version ([?=]) \"[^\"]*\"/s//version \1 \"unstable-${today}\"/" "$nix_file"
+      sed -Ei "0,/version[[:space:]]+([?=]) \"[^\"]*\"/s//version \1 \"unstable-${today}\"/" "$nix_file"
       sed -Ei "0,/\"[a-f0-9]{40}\"/s//\"${head_rev}\"/" "$nix_file"
-      sed -Ei "0,/hash ([?=]) \"[^\"]*\"/s|hash ([?=]) \"[^\"]*\"|hash \1 \"${new_hash}\"|" "$nix_file"
+      sed -Ei "0,/hash[[:space:]]+([?=]) \"[^\"]*\"/s|hash[[:space:]]+([?=]) \"[^\"]*\"|hash \1 \"${new_hash}\"|" "$nix_file"
     fi
 
     if ! refresh_cargo_lock "$package" "$src_repo_url" "$head_rev" "$nix_file"; then
