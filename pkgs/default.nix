@@ -322,7 +322,7 @@ let
       rev = "v1.86";
       hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
     });
-    uhdm = branchOverride basePkgs.uhdm "Nightly-unstable-2026-07-02" (githubSource {
+    uhdm = branchOverride basePkgs.uhdm "Nightly-unstable-2026-08-10" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
       rev = "b05fe17a928d3343116476d649299846e497ba66";
@@ -455,7 +455,7 @@ let
       rev = "refs/tags/25.2.0";
       hash = "sha256-U5XLjWKOXNjgYtlccNsPT1nUnEGi3NhkJ36jan2OSAw=";
     });
-    qucs-s = branchOverride basePkgs.qucs-s "Nightly-unstable-2026-07-02" (githubSource {
+    qucs-s = branchOverride basePkgs.qucs-s "Nightly-unstable-2026-08-10" (githubSource {
       owner = "ra3xdh";
       repo = "qucs_s";
       rev = "1239336192adee7593ded74db844db0f88f0f03b";
@@ -535,11 +535,11 @@ let
       rev = "z3-4.16.0";
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
-    z3_ = (branchOverride basePkgs.z3 "Nightly-unstable-2026-07-02" (githubSource {
+    z3_ = (branchOverride basePkgs.z3 "Nightly-unstable-2026-08-10" (githubSource {
       owner = "Z3Prover";
       repo = "z3";
-      rev = "f15584cdae319a44ae70854a319aa3aee715dd21";
-      hash = "sha256-5YhIvFfez7QsI04D0zHVNw2NjwqH03N1gC9vZvfEJxA=";
+      rev = "0bd679a404bee551393fd94ca813ccc7eb034973";
+      hash = "sha256-AKu5a5ZfI1rCTlJOdev8hg8qlKLUxmfU0CZC/HEhONw=";
     })).overrideAttrs {
       # z3's own build embeds its CMake project version (e.g. "4.17.0") in
       # `z3 --version`, unrelated to our "unstable-YYYY-MM-DD" tracking
