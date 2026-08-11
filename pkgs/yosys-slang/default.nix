@@ -6,9 +6,9 @@
   python3,
   nix-update-script,
   yosys,
-  version ? "unstable-2026-07-01",
-  rev ? "b08e87ca0de19490f98f5c2937fd933c55cbfc30",
-  hash ? "sha256-lQaMyl5wD1jg2WvJnwiMYhvLAK70M7UINcXtR2XnmLU=",
+  version ? "unstable-2026-08-11",
+  rev ? "e2829839afc62961d704123f30ed46e75477f33c",
+  hash ? "sha256-yDsMiZo7lBLqER0mgEN1zG1i1CpHXlHSJEhYizaKRww=",
 }:
 
 stdenv.mkDerivation (finalAttrs: {
