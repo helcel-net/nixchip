@@ -513,11 +513,11 @@ let
       rev = "refs/tags/0.9.1";
       hash = "sha256-3uStLdDFhXVgqzremUPRbxPUcl0IqVg5MRLltgm8rCA=";
     });
-    cadical3 = pinnedOverride basePkgs.cadical "3.0.0" (githubSource {
+    cadical3 = pinnedOverride basePkgs.cadical "3.0.1" (githubSource {
       owner = "arminbiere";
       repo = "cadical";
-      rev = "rel-3.0.0";
-      hash = "sha256-pymbSC6bwQQ0YCtJd3xWZiC22UEkFiKSLObSOnoQj9I=";
+      rev = "rel-3.0.1";
+      hash = "sha256-oHebG9VBtEnxmBpfP6A/f/UNIx2AXbLPs0NHPoNlZfY=";
     });
     cryptominisat5 = (pinnedOverride basePkgs.cryptominisat "5.14.7" (githubSource {
       owner = "msoos";
