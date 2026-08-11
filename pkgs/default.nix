@@ -432,7 +432,7 @@ let
       hash = "sha256-K/w2El2jkXN8qIa0kWvN8rCKWzjd8DcM3O6hb5UVQnw=";
     };
     magic-vlsi = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
-    netgen-vlsi1 = pinnedOverride basePkgs.netgen-vlsi "1.5.322" (githubSource {
+    netgen-vlsi1 = pinnedOverride basePkgs.netgen-vlsi "1.5.321" (githubSource {
       owner = "RTimothyEdwards";
       repo = "netgen";
       rev = "refs/tags/1.5.321";
