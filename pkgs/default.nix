@@ -131,11 +131,11 @@ let
     ghdl = callPackage ./ghdl {
       ghdl = basePkgs.ghdl;
     };
-    nvc1 = pinnedOverride basePkgs.nvc "1.21.1" (githubSource {
+    nvc1 = pinnedOverride basePkgs.nvc "1.22.1" (githubSource {
       owner = "nickg";
       repo = "nvc";
-      rev = "r1.21.1";
-      hash = "sha256-l4eGEDZrAXOhN5hPQLy2TcQEsQ+TTSNZVBFVwNsoQCo=";
+      rev = "r1.22.1";
+      hash = "sha256-FA9GzfwsQRI3OOJQ54H8+JbgVtIz2F4xncVDUHRzgRA=";
     });
     iverilog12 = callPackage ./iverilog {
       iverilog = basePkgs.iverilog;
