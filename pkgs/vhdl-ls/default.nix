@@ -10,7 +10,7 @@
     else
       "v${version}",
   hash ? "sha256-ymlCm9Vj1vbqWdKkeEQPgvYR3m01lBa26M4896+bNIc=",
-  cargoHash ? "sha256-smBLfa/u6HYdJoMfNaycL6rAVppjVrugA4RlS7EtCdM=",
+  cargoHash ? "sha256-NAi/YY6bu/yHHPWfgv5fimS3Ac4PL12T/U1Jknj/Zc8=",
   ...
 }:
 
