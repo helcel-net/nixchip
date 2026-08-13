@@ -209,15 +209,31 @@ find_default_nix_override_block() {
   # otherwise the wrapped package falls through to the meta.position path, which
   # points into the nixpkgs store and lands on the unscoped `nix-update -F`
   # fallback that can clobber sibling entries.
+  # Entries also appear parenthesised so a trailing .overrideAttrs can be chained
+  # (e.g. `z3_ = (branchOverride ...)).overrideAttrs { ... };`). Those were
+  # previously invisible here, which sent them to the meta.position fallback too.
+  # nixfmt breaks long entries as `pkg =` / newline / `(branchOverride ...`, so
+  # the opener is accepted on the attr line or the one after it. Without the
+  # second case a reformat would silently send these to the meta.position path.
   start="$(awk -v pkg="$package" '
-    $1 == pkg && $2 == "=" && ($3 == "branchOverride" || $3 == "pinnedOverride" || $3 == "cargoVendorOverride") {
-      print NR
-      exit
+    function is_opener(tok) {
+      sub(/^\(/, "", tok)
+      return (tok == "branchOverride" || tok == "pinnedOverride" || tok == "cargoVendorOverride")
+    }
+    {
+      if (pending) {
+        if (is_opener($1)) { print pending; exit }
+        pending = 0
+      }
+      if ($1 == pkg && $2 == "=") {
+        if (is_opener($3)) { print NR; exit }
+        if (NF == 2) { pending = NR }
+      }
     }
   ' "$file")"
   if [[ -n "$start" ]]; then
-    # A plain override block closes on `});`; a wrapped one closes on `);`.
-    end="$(awk -v s="$start" 'NR>=s && /^[[:space:]]*\}?\);[[:space:]]*$/ { print NR; exit }' "$file")"
+    # Closers, by shape: `});` plain, `);` wrapper-call, `};` chained overrideAttrs.
+    end="$(awk -v s="$start" 'NR>=s && /^[[:space:]]*(\}?\);|\};)[[:space:]]*$/ { print NR; exit }' "$file")"
   fi
   if [[ -n "$start" && -n "$end" ]]; then
     printf '%s\t%s\n' "$start" "$end"

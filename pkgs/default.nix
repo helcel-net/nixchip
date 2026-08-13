@@ -40,6 +40,7 @@ let
       repo,
       rev,
       hash,
+      fetchSubmodules ? false,
     }:
     pkgs.fetchFromGitHub {
       inherit
@@ -47,6 +48,7 @@ let
         repo
         rev
         hash
+        fetchSubmodules
         ;
     };
 
@@ -472,12 +474,26 @@ let
       rev = "refs/tags/25.2.0";
       hash = "sha256-U5XLjWKOXNjgYtlccNsPT1nUnEGi3NhkJ36jan2OSAw=";
     });
-    qucs-s = branchOverride basePkgs.qucs-s "Nightly-unstable-2026-07-02" (githubSource {
+    # Upstream moved qucs-s-spar-viewer into a git submodule. Without
+    # fetchSubmodules its directory is empty, which both drops the s-parameter
+    # viewer from the build and makes nixpkgs' postPatch abort on the missing
+    # qucs-s-spar-viewer/CMakeLists.txt.
+    qucs-s = (branchOverride basePkgs.qucs-s "Nightly-unstable-2026-07-02" (githubSource {
       owner = "ra3xdh";
       repo = "qucs_s";
       rev = "1239336192adee7593ded74db844db0f88f0f03b";
-      hash = "sha256-Syti/maOCYi/JwUkOhGwCvluhz7BFRuQcnVs1lmC0X8=";
-    });
+      hash = "sha256-2YgfdHRjtvwTz+rA43djbb35gzyAQBMZu00S4bT9UQ8=";
+      fetchSubmodules = true;
+    })).overrideAttrs
+      (old: {
+        # qucsator_rf looks for bison with NO_DEFAULT_PATH against a hardcoded
+        # FHS path list, so having it in nativeBuildInputs is not enough --
+        # BISON_DIR is the only way to point it at the store.
+        cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DBISON_DIR=${pkgs.bison}/bin" ];
+        # qucsator_rf's gperf hash generation shells out to dos2unix, which
+        # nixpkgs does not carry for this package.
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.dos2unix ];
+      });
     xschem3 = callPackage ./xschem {
       xschem = basePkgs.xschem;
       version = "3.4.7";
