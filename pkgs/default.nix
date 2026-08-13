@@ -347,11 +347,11 @@ let
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
-    nextpnr0 = pinnedOverride basePkgs.nextpnr "0.10" (taggedGithubSource {
+    nextpnr0 = pinnedOverride basePkgs.nextpnr "0.11.1" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
-      rev = "nextpnr-0.10";
-      hash = "sha256-7Y56I0VjAyuutwHjK2ckxUXOaiiHIiX/ArFivlMaZJg=";
+      rev = "nextpnr-0.11.1";
+      hash = "sha256-khZwiivbQtYZHR0TCXVtsE2ap0dpNYOQClvQJ7Fd6tM=";
     });
     nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-06-30" (taggedGithubSource {
       owner = "YosysHQ";
