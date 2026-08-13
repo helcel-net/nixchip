@@ -204,14 +204,20 @@ find_default_nix_override_block() {
   local file="${2:-$default_nix}"
   local start end
 
+  # cargoVendorOverride wraps a branchOverride/pinnedOverride to re-point a Rust
+  # package's vendored-crates hash, so accept it as a block opener too --
+  # otherwise the wrapped package falls through to the meta.position path, which
+  # points into the nixpkgs store and lands on the unscoped `nix-update -F`
+  # fallback that can clobber sibling entries.
   start="$(awk -v pkg="$package" '
-    $1 == pkg && $2 == "=" && ($3 == "branchOverride" || $3 == "pinnedOverride") {
+    $1 == pkg && $2 == "=" && ($3 == "branchOverride" || $3 == "pinnedOverride" || $3 == "cargoVendorOverride") {
       print NR
       exit
     }
   ' "$file")"
   if [[ -n "$start" ]]; then
-    end="$(awk -v s="$start" 'NR>=s && /^[[:space:]]*\}\);[[:space:]]*$/ { print NR; exit }' "$file")"
+    # A plain override block closes on `});`; a wrapped one closes on `);`.
+    end="$(awk -v s="$start" 'NR>=s && /^[[:space:]]*\}?\);[[:space:]]*$/ { print NR; exit }' "$file")"
   fi
   if [[ -n "$start" && -n "$end" ]]; then
     printf '%s\t%s\n' "$start" "$end"
@@ -330,6 +336,56 @@ refresh_cargo_lock() {
     mv "$new_lock" "$lock_file"
     echo "refreshed Cargo.lock for $package"
   fi
+}
+
+# Refreshes the vendored-crates hash for Rust packages built through
+# rustPlatform.buildRustPackage's `cargoHash`. Unlike refresh_cargo_lock above,
+# these vendor from crates.io at build time rather than from an in-repo
+# Cargo.lock, so there is no file to copy -- only a hash to recompute.
+#
+# buildRustPackage reads cargoHash from its *original* args, so overrideAttrs
+# cannot reach it; the effective value lives on the vendor FOD's outputHash
+# (see cargoVendorOverride in pkgs/default.nix). The vendor derivation does take
+# `src` from finalAttrs, so bumping a rev re-vendors against the new source
+# while still checking it against the stale hash -- a guaranteed mismatch until
+# this runs. Must be called *after* the rev/hash edits land, since the hash it
+# computes is the one for the new source.
+#
+# Only needed on the branch-tracking path, which bypasses nix-update entirely;
+# nix-update refreshes cargoHash itself on the paths where it does run. No-ops
+# for packages that don't vendor this way.
+refresh_cargo_hash() {
+  local package="$1" nix_file="$2" block_start="$3" block_end="$4"
+  local has_vendor
+  has_vendor="$(nix eval --raw ".#packages.${system}.${package}" \
+    --apply 'p: if (p.cargoDeps.vendorStaging or null) != null then "1" else ""' 2>/dev/null || true)"
+  [[ "$has_vendor" == "1" ]] || return 0
+
+  # Same deliberately-wrong-hash trick used for the source hash above: let the
+  # real fetcher run and read the correct hash back out of the mismatch error.
+  local fake_hash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+  local build_output new_hash
+  build_output="$(nix build --impure --no-link --print-out-paths --expr '
+    let
+      flake = builtins.getFlake "'"${repo_root}"'";
+      p = flake.packages."'"${system}"'"."'"${package}"'";
+    in p.cargoDeps.vendorStaging.overrideAttrs { outputHash = "'"${fake_hash}"'"; }
+  ' 2>&1)" || true
+  new_hash="$(grep -oP 'got:\s+\K\S+' <<< "$build_output" | tail -1)"
+  if [[ -z "$new_hash" ]]; then
+    echo "error: cannot compute cargoHash for $package" >&2
+    echo "$build_output" >&2
+    return 1
+  fi
+
+  # `hash = "` never matches `cargoHash = "` (capital H), so the source-hash sed
+  # above and this one stay disjoint.
+  if [[ -n "$block_start" && -n "$block_end" ]]; then
+    sed -Ei "${block_start},${block_end}s|cargoHash = \"[^\"]*\"|cargoHash = \"${new_hash}\"|" "$nix_file"
+  else
+    sed -Ei "0,/cargoHash[[:space:]]+([?=]) \"[^\"]*\"/s|cargoHash[[:space:]]+([?=]) \"[^\"]*\"|cargoHash \1 \"${new_hash}\"|" "$nix_file"
+  fi
+  echo "refreshed cargoHash for $package"
 }
 
 # nix-update has no SourceForge backend at all (see nix_update/version/__init__.py:
@@ -679,6 +735,9 @@ for package in "${packages[@]}"; do
     fi
 
     if ! refresh_cargo_lock "$package" "$src_repo_url" "$head_rev" "$nix_file"; then
+      failed+=("$package"); echo "::endgroup::"; continue
+    fi
+    if ! refresh_cargo_hash "$package" "$nix_file" "$block_start" "$block_end"; then
       failed+=("$package"); echo "::endgroup::"; continue
     fi
     if ! verify_branch_head "$package"; then

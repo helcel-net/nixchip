@@ -82,8 +82,11 @@ let
   # cannot reach it. src, however, comes from finalAttrs and does follow an
   # override -- so bumping a rev re-vendors against the new source while still
   # checking against the stale hash. Re-point the vendor FOD's hash instead.
+  # cargoHash is passed as a named attr so scripts/update-packages.sh can find
+  # and rewrite it with the same block-scoped sed it uses for rev and hash.
   cargoVendorOverride =
-    cargoHash: pkg:
+    { cargoHash }:
+    pkg:
     pkg.overrideAttrs (old: {
       cargoDeps = old.cargoDeps.overrideAttrs (o: {
         vendorStaging = o.vendorStaging.overrideAttrs { outputHash = cargoHash; };
@@ -282,7 +285,7 @@ let
       rev = "v0.7.0";
       hash = "sha256-WO0TWmUaKqUh+Cr75Hrxa2x4V9xZhzHY5PzlIRNUzZA=";
     });
-    surfer = cargoVendorOverride "sha256-vw7bm/ihpsYMM4Lh8nMxPumN/QSO+XWHiE04IiLMdLY=" (
+    surfer = cargoVendorOverride { cargoHash = "sha256-vw7bm/ihpsYMM4Lh8nMxPumN/QSO+XWHiE04IiLMdLY="; } (
       branchOverride basePkgs.surfer "unstable-2026-08-11" (gitlabSource {
         owner = "surfer-project";
         repo = "surfer";
