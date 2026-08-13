@@ -272,10 +272,10 @@ let
     };
 
     # ── Waveform & debug ───────────────────────────────────────────────────────
-    gtkwave3 = pinnedOverride basePkgs.gtkwave "3.3.127" (
+    gtkwave3 = pinnedOverride basePkgs.gtkwave "3.3.128" (
       pkgs.fetchurl {
-        url = "mirror://sourceforge/gtkwave/gtkwave-gtk3-3.3.127.tar.gz";
-        hash = "sha256-8Z2i20Oye7zGaXJYQ0UZRaaMOkziMlYuNB1vY7gLVeQ=";
+        url = "mirror://sourceforge/gtkwave/gtkwave-gtk3-3.3.128.tar.gz";
+        hash = "sha256-gX4Zf8GAj4qsNUPCwvloPLATaMkRkrjq5a9YBw7x0fg=";
       }
     );
     gtkwave = callPackage ./gtkwave { };
