@@ -353,11 +353,11 @@ let
       rev = "nextpnr-0.10";
       hash = "sha256-7Y56I0VjAyuutwHjK2ckxUXOaiiHIiX/ArFivlMaZJg=";
     });
-    nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-06-30" (taggedGithubSource {
+    nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-08-13" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
-      rev = "2b560ad0ccc6e7e93ad8bd6cb0f88f925bbb314b";
-      hash = "sha256-NOAj3/OCmybEnbhdL+pzVD/JBmnXZ0UyqVaEc4q6R0A=";
+      rev = "4d235150266df2fa5c2c6102c67aa16ff34e6469";
+      hash = "sha256-Fu6AwjAVKINpqhVy5Pl8MmRpvG26Zf2Cu0zeuDHcjsU=";
     });
     icestorm0 = pinnedOverride basePkgs.icestorm "unstable-2025-06-03" (githubSource {
       owner = "YosysHQ";
