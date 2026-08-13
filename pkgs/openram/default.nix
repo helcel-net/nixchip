@@ -9,9 +9,9 @@
   matplotlib,
   scikit-learn,
   coverage,
-  version ? "unstable-2026-06-24",
-  rev ? "ed369f1af468110a230ffbde17e9159f2f021a4e",
-  hash ? "sha256-AaVIqIDhzs76Or0BR65KK6G4cGLoIP1rnva5xW/5vKE=",
+  version ? "unstable-2026-08-13",
+  rev ? "744cb98c2a5082b5ad889cc7ab5917a042209e24",
+  hash ? "sha256-V3oZUPa/SPZe4UidGlefb+hfvzhXtlGzE1u86wt3vdk=",
 }:
 
 buildPythonPackage {
