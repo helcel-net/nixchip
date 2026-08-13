@@ -78,6 +78,18 @@ let
       };
     });
 
+  # buildRustPackage reads cargoHash from its original args, so overrideAttrs
+  # cannot reach it. src, however, comes from finalAttrs and does follow an
+  # override -- so bumping a rev re-vendors against the new source while still
+  # checking against the stale hash. Re-point the vendor FOD's hash instead.
+  cargoVendorOverride =
+    cargoHash: pkg:
+    pkg.overrideAttrs (old: {
+      cargoDeps = old.cargoDeps.overrideAttrs (o: {
+        vendorStaging = o.vendorStaging.overrideAttrs { outputHash = cargoHash; };
+      });
+    });
+
   branchOverride =
     pkg: version: src:
     pkg.overrideAttrs (old: {
@@ -270,12 +282,14 @@ let
       rev = "v0.7.0";
       hash = "sha256-WO0TWmUaKqUh+Cr75Hrxa2x4V9xZhzHY5PzlIRNUzZA=";
     });
-    surfer = branchOverride basePkgs.surfer "unstable-2026-07-03" (gitlabSource {
-      owner = "surfer-project";
-      repo = "surfer";
-      rev = "4d4b8b2f34cde581e5e2336510fbe91f04fcb84b";
-      hash = "sha256-Hk5Jq7fXjwxhRLrHAeQUOKFlL5f6ui9tB0sqQBpmMNU=";
-    });
+    surfer = cargoVendorOverride "sha256-vw7bm/ihpsYMM4Lh8nMxPumN/QSO+XWHiE04IiLMdLY=" (
+      branchOverride basePkgs.surfer "unstable-2026-08-11" (gitlabSource {
+        owner = "surfer-project";
+        repo = "surfer";
+        rev = "22b28c6a1bf9cbf009235dba5fe170f7167519fd";
+        hash = "sha256-c8JBCLqBmsPGm0W4M5nRTd0KXI7mbgu8YKnFaeHX4fg=";
+      })
+    );
     openocd0 = pinnedOverride basePkgs.openocd "0.12.0" (
       pkgs.fetchurl {
         url = "mirror://sourceforge/project/openocd/openocd/0.12.0/openocd-0.12.0.tar.bz2";
