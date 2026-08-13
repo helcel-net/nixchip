@@ -238,11 +238,11 @@ let
     };
     chisel = callPackage ./chisel { };
 
-    abc0 = pinnedOverride basePkgs.abc-verifier "0.66" (githubSource {
+    abc0 = pinnedOverride basePkgs.abc-verifier "0.68" (githubSource {
       owner = "yosyshq";
       repo = "abc";
-      rev = "v0.66";
-      hash = "sha256-KkhVz68txghYwaljC55laaVsZXsr6sKzkcySWaEoueA=";
+      rev = "v0.68";
+      hash = "sha256-3jX46vmAIgyUd1vFvW1Jn9knombXZ+/hOgQD93RSgv0=";
     });
     abc = callPackage ./abc {
       abc-verifier = basePkgs.abc-verifier;
