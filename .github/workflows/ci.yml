@@ -83,17 +83,29 @@ jobs:
                     or .source != ($basePackages[.name].source // null)
                   ) | .name)
               ')
-            changed_dirs=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }} \
+            changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }})
+            changed_dirs=$(echo "$changed_files" \
               | awk -F/ '/^pkgs\// { print $2 }' \
               | sort -u \
               | jq -R . \
               | jq -sc .)
             touched_default=$(echo "$default_packages" | jq -c --argjson c "$changed_dirs" \
               '[.[] | select(. as $p | $c | any(. == $p))]')
-            packages=$(jq -n -c \
-              --argjson touched "$touched_default" \
-              --argjson changed "$metadata_changed" \
-              '($touched + $changed) | unique')
+            # A flake.lock bump swaps the whole nixpkgs closure but leaves every
+            # nixchip version/source pin untouched, so metadata_changed is empty and
+            # the PR would go green without building anything. Fall back to the full
+            # default set to actually exercise the new closure.
+            if echo "$changed_files" | grep -qx 'flake.lock'; then
+              packages=$(jq -n -c \
+                --argjson defaults "$default_packages" \
+                --argjson changed "$metadata_changed" \
+                '($defaults + $changed) | unique')
+            else
+              packages=$(jq -n -c \
+                --argjson touched "$touched_default" \
+                --argjson changed "$metadata_changed" \
+                '($touched + $changed) | unique')
+            fi
           else
             packages="$default_packages"
           fi
