@@ -28,6 +28,12 @@ stdenv.mkDerivation {
       --replace-quiet "CC  = gcc -m32" "CC  = ${stdenv.cc.targetPrefix}cc" \
       --replace-quiet "CXX = g++ -m64" "CXX = ${stdenv.cc.targetPrefix}c++" \
       --replace-quiet "CC  = gcc -m64" "CC  = ${stdenv.cc.targetPrefix}cc"
+
+    substituteInPlace parameter.cc \
+      --replace-fail "\"tech_params/" "\"$out/share/cacti/tech_params/"
+
+    substituteInPlace nuca.cc \
+      --replace-fail "\"contention.dat\"" "\"$out/share/cacti/contention.dat\""
   '';
 
   enableParallelBuilding = true;
@@ -50,6 +56,8 @@ stdenv.mkDerivation {
     install -Dm755 cacti "$out/bin/cacti"
     install -Dm644 cache.cfg "$out/share/cacti/cache.cfg"
     install -Dm644 dram.cfg "$out/share/cacti/dram.cfg"
+    install -Dm644 contention.dat "$out/share/cacti/contention.dat"
+    cp -r tech_params "$out/share/cacti/tech_params"
     install -Dm644 README "$out/share/doc/cacti/README"
     runHook postInstall
   '';
