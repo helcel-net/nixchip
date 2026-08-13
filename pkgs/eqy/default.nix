@@ -5,9 +5,9 @@
   python3,
   yosys,
   nix-update-script,
-  version ? "unstable-2026-06-26",
-  rev ? if lib.hasPrefix "unstable-" version then "8770b67d0bc802f17dbc9f2393d2dbc1f14c39ee" else "v${version}",
-  hash ? "sha256-YMTWXLb9PMxps42ppkCvabPp+dDu6j+DlhQ7NQ73IoQ=",
+  version ? "unstable-2026-08-11",
+  rev ? if lib.hasPrefix "unstable-" version then "3bee46be95fa148275f023abd524fb8358da0b17" else "v${version}",
+  hash ? "sha256-9N5hztnCziHiIt7fEjTiM3lWZy27TkHCLxqmfQzQiwg=",
 }:
 
 let
