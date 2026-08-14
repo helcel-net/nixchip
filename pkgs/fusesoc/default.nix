@@ -4,10 +4,10 @@
   lib,
   pydantic,
   nix-update-script,
-  version ? "unstable-2026-07-03",
+  version ? "unstable-2026-08-11",
   rev ?
-    if lib.hasPrefix "unstable-" version then "d7490780e7435abc00b9f9a63351c7ea530c64e5" else version,
-  hash ? "sha256-VGLe6Bu/5uGmjI9EROOcQbOIpnS4wE9MBXg7HV5OJWk=",
+    if lib.hasPrefix "unstable-" version then "318ab3acf0b16fbc5d70de5d8750af312ffb2acd" else version,
+  hash ? "sha256-1R02UVhgkp01mCO2lrGzhJS9m113kVHkx6+xPQ2L33Q=",
   ...
 }:
 
