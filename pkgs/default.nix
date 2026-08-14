@@ -415,6 +415,7 @@ let
     fusesoc = callPackage ./fusesoc {
       fusesoc = basePkgs.fusesoc;
       pydantic = basePkgs.python3Packages.pydantic;
+      inherit edalize;
     };
 
     # ── Physical design ────────────────────────────────────────────────────────
