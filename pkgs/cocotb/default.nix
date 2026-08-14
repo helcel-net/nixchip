@@ -9,7 +9,7 @@
       "0ed808ff78b1117277b0f769f56504f233c55614"
     else
       "refs/tags/v${version}",
-  hash ? "sha256-H2HZDmEVLgFewQBlIwy58ZsGFegBTTKeRnFSi94YWBs=",
+  hash ? "sha256-wk1WqIrNDTH39Wrgc5OjrZp/8bbTZkNWGIbm4dZkPZc=",
   ...
 }:
 
@@ -19,6 +19,10 @@ cocotb.overrideAttrs (old: {
     owner = "cocotb";
     repo = "cocotb";
     inherit rev hash;
+    # .git_archival.txt is export-subst, so GitHub rewrites it when generating
+    # the tarball and its hash drifts as refs change -- even for a pinned rev.
+    # Fetch over git instead so the tree is stable.
+    forceFetchGit = true;
   };
   pytestFlagsArray = (old.pytestFlagsArray or [ ]) ++ [
     "--ignore=tests/pytest/test_ipython_support.py"
