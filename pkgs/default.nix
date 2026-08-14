@@ -360,11 +360,14 @@ let
       rev = "nextpnr-0.10";
       hash = "sha256-7Y56I0VjAyuutwHjK2ckxUXOaiiHIiX/ArFivlMaZJg=";
     });
+    # 3rdparty/googletest and tests/gui are submodules; without fetchSubmodules
+    # their directories are empty and CMake aborts on the missing subdirectories.
     nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-08-11" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
       rev = "62e659ed6748e9f60b2a4aa25dd4fe79a9605881";
-      hash = "sha256-khZwiivbQtYZHR0TCXVtsE2ap0dpNYOQClvQJ7Fd6tM=";
+      hash = "sha256-QUE19KWr26n5q8C7Byjg+pLdsKf50Fr/FqU9srlvYtU=";
+      fetchSubmodules = true;
     });
     icestorm0 = pinnedOverride basePkgs.icestorm "unstable-2025-06-03" (githubSource {
       owner = "YosysHQ";
