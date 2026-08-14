@@ -6,7 +6,8 @@
   patchelf,
   nix-update-script,
   version ? "unstable-2026-06-26",
-  rev ? if lib.hasPrefix "unstable-" version then "29817593b3389f1337235d63cac515024ab8fd6e" else version,
+  rev ?
+    if lib.hasPrefix "unstable-" version then "29817593b3389f1337235d63cac515024ab8fd6e" else version,
   hash ? "sha256-uErpWJEn6C9oKR6Bv1NOAC3ij3ne3A6BPtjtX7D8ZwE=",
 }:
 
@@ -49,7 +50,6 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  
   passthru = {
     updateScript = nix-update-script {
       attrPath = "dramsim3_";

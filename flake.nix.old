@@ -1,0 +1,497 @@
+{
+  description = "Dev shell with overrides";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixunstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
+
+  outputs = { self, nixpkgs, nixunstable }:
+    let
+        system = "x86_64-linux";
+        pkgs_unstable = import nixunstable { inherit system; };
+        pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+            overlays = [
+            (final: prev: rec{
+                unstable = pkgs_unstable;
+                
+                gvsocSrc = prev.fetchFromGitHub  {
+                    owner = "gvsoc";
+                    repo = "gvsoc";
+                    rev = "111f5a6b2f94b5f569635a5565e8c21e4111f286"; # 06/10/25 version
+                    sha256 = "qRmcbS5F3mgyHH88S5uLQ063O5HCPkwfi4ROPIrKLpY=";
+                    fetchSubmodules = true;
+                };
+                gvsoc = prev.stdenv.mkDerivation {
+                    name = "gvsoc";
+                    version = gvsocSrc.rev;
+                    src = gvsocSrc;
+                    buildInputs = with prev; [ cmake ninja
+                    (python3.withPackages (ps: with ps; [
+                        pip sphinx
+                        beautifulsoup4 hjson html2text Mako marko
+                        matplotlib mistune pandas pexpect prettytable
+                        pyelftools pytablewriter pyyaml rich setuptools
+                        six sphinx_rtd_theme breathe tabulate
+                    ]))
+                    lz4 ccache zlib-ng SDL2 SDL2_ttf SDL2_image wget2 doxygen ];
+                    configurePhase = ''echo skip'';
+
+                    buildPhase = ''
+                    make build
+                    '';
+                };
+                flexfloatSrc = prev.fetchFromGitHub {
+                    owner = "oprecomp";
+                    repo = "flexfloat";
+                    rev = "675e97b0958f3b142594c3d0cec3e79114e751a3";
+                    sha256 = "A7t1Dd+qZXq/dgzY5b7EaD4wiyLy9wWXqWwk/LRk/80=";
+                };
+                pyflexfloatSrc = prev.fetchFromGitHub {
+                    owner = "colluca";
+                    repo = "pyflexfloat";
+                    rev = "0.1.2";
+                    sha256 = "MYgIRpOpJfCbIJ4HtAVeLrTXZ7wRhH6hHlOhCRkWTbE=";
+                };
+                flexfloat = prev.stdenv.mkDerivation {
+                    name = "flexfloat";
+                    version = flexfloatSrc.rev;
+                    src = flexfloatSrc;
+                    buildInputs = with prev; [ cmake ];
+                    cmakeFlags = [ "-DBUILD_TESTS=OFF" "-DBUILD_EXAMPLES=OFF" ];
+                    installPhase = ''
+                    mkdir -p $out/include
+                    mkdir -p $out/src
+                    mkdir -p $out/lib
+                    cp -r ../include/* $out/include/
+                    cp -r ../src/* $out/src/
+                    cp libflexfloat.a $out/lib/libflexfloat.a
+                    '';
+                };
+                pyflexfloat = prev.python3Packages.buildPythonPackage {
+                    pname = "pyflexfloat";
+                    version = pyflexfloatSrc.rev;
+                    src = pyflexfloatSrc;
+                    format = "pyproject";
+                    nativeBuildInputs = with prev; [ flexfloat ];
+                    propagatedBuildInputs = with prev.python3Packages; [ numpy cffi];
+
+                    postUnpack = ''
+                    cp -r ${flexfloat}/* $sourceRoot/flexfloat
+                    '';
+                    postPatch = ''
+                    substituteInPlace setup.py --replace-warn "['cmake', '..']" "['echo', '1']"
+                    '';
+                };
+                floonocSrc = prev.fetchFromGitHub {
+                    owner = "pulp-platform";
+                    repo = "FlooNoC";
+                    rev = "v0.6.1";
+                    sha256 = "EVh6Js+6nxMqyFImEoCyxiO1XJHxCEvjo8BFyRX5/3Q=";
+                };
+                pyflooNoC = prev.python3Packages.buildPythonPackage {
+                    pname = "flooNoC";
+                    version = floonocSrc.rev;
+                    src = floonocSrc;
+                    nativeBuildInputs = with prev.python3Packages; [
+                    setuptools wheel
+                    mako hjson jsonref pylint pytest pygame
+                    ];
+                    propagatedBuildInputs = with prev.python3Packages; [
+                    pydantic ruamel-yaml click networkx matplotlib
+                    ];
+                    format = "pyproject";
+                };
+
+                verilator4 = unstable.verilator.overrideAttrs (old: rec {
+                    version = "4.228";
+                    src = prev.fetchFromGitHub {
+                    owner = "verilator";
+                    repo = "verilator";
+                    rev = "v${version}";
+                    hash = "sha256-ToYad8cvBF3Mio5fuT4Ce4zXbWxFxd6smqB1TxvlHao=";
+                    };
+                    patches= [];
+                    postPatch = "";
+                    doCheck = false;
+                });
+                systemc2 =   unstable.systemc.overrideAttrs (old: rec {
+                    version = "2.3.3";
+                    src = prev.fetchFromGitHub {
+                    owner = "accellera-official";
+                    repo = "systemc";
+                    rev = "${version}";
+                    hash = "sha256-EyVTUBoYK0SyUZSbWFQR3bkhmoA257XmKOTrztcs8HU=";
+                    };
+                    cmakeFlags = (old.cmakeFlags or []) ++ [
+                    "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+                    ];
+                    doCheck = false;
+                });
+
+                yosys-slang-plugin = prev.stdenv.mkDerivation rec {
+                        plugin = "slang";
+                        name = "yosys-slang";
+                        version = "744ed3b96eaa88dd2ef1fbbf5647f5740f3bb9b4";
+                        src = prev.fetchFromGitHub {
+                        owner = "povik";
+                        repo = "yosys-slang";
+                        rev = "${version}";
+                        hash = "sha256-DjcEDSA/aZIUr9CqkECsMqBeCvPMyk/CmUj7Lr1Sloo=";
+                        fetchSubmodules  = true;
+                        };
+                        nativeBuildInputs = with prev; [
+                        unstable.yosys cmake jq fmt
+                        ];
+                        installPhase = ''
+                        mkdir -p $out/share/yosys/plugins
+                        cp slang.so $out/share/yosys/plugins/slang.so
+                        '';
+                };
+                yosys-slang = unstable.yosys.overrideAttrs (old: rec {
+                    version = "0.62";
+
+                    src = prev.fetchFromGitHub {
+                    owner = "YosysHQ";
+                    repo = "yosys";
+                    tag = "v${version}";
+                    hash = "sha256-FzvdjdAURB5iCkGwsYY6A2wP/Je/IW4AOd4kVOEOeVc=";
+                    fetchSubmodules = true;
+                    };
+
+                    postInstall = ''
+                    mkdir -p $out/share/yosys/plugins
+                    cp ${yosys-slang-plugin}/share/yosys/plugins/slang.so $out/share/yosys/plugins/slang.so
+                    '';
+                });
+
+
+                orfs = let toolPath = prev.lib.makeBinPath  (with prev;[
+                        yosys-slang
+                        openroad
+                        klayout
+                        tcl
+                        ]);
+                    in prev.stdenv.mkDerivation rec {
+                    name = "orfs";
+                    version = "26Q1";
+                    src = prev.fetchFromGitHub {
+                    owner = "The-OpenROAD-Project";
+                    repo = "OpenROAD-flow-scripts";
+                    rev = "${version}";
+                    hash = "sha256-h81V6xA7TkxCV/W7q77WEKd9YzhjSNWbuZZ1rJgAkQc=";
+                    };
+                    postPatch = ''
+                    patchShebangs .
+                    '';
+                    buildInputs = [ pythonEnv ];
+                    dontBuild = true;
+                    installPhase = ''
+                    mkdir -p $out/bin
+                    mkdir -p $out/share/orfs
+                    cp -r $src/* $out/share/orfs
+
+                    cat > $out/bin/orfs <<EOF
+                    #!/usr/bin/env bash
+                    set -e
+
+                    export FLOW_HOME=$out/share/orfs/flow
+                    export PATH="${toolPath}:\$PATH"
+
+                    exec ${prev.gnumake}/bin/make -f "\$FLOW_HOME/Makefile" "\$@"
+                    EOF
+                    chmod +x $out/bin/orfs
+                    '';
+                };
+
+                openroad = (unstable.openroad.override {
+                    #boost = unstable.boost186;
+                    yosys = yosys-slang;
+                }).overrideAttrs (old: rec {
+                    doCheck = false;
+                    version = "26Q1";
+                    src = prev.fetchFromGitHub {
+                    owner = "The-OpenROAD-Project";
+                    repo = "OpenROAD";
+                    rev = "${version}";
+                    fetchSubmodules = true;
+                    hash = "sha256-DMyoqDse9W6ahOajEINzFpgLsSKam/I1mQkRSSKepI8=";
+                    };
+                });
+
+                cacti = prev.stdenv.mkDerivation rec {
+                    name = "cacti";
+                    version = "7.0";
+                    src = prev.fetchFromGitHub {
+                    owner = "HewlettPackard";
+                    repo = "cacti";
+                    rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
+                    hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
+                    };
+                    postPatch = ''
+                    substituteInPlace cacti.mk --replace "-gstabs+" "-g"
+                    '';
+                    # makeFlags = ["CXX=clang++" "CC=clang"];
+                    env = {
+                    NIX_CFLAGS_COMPILE = "-Wno-reserved-user-defined-literal -DNTHREADS=8";
+                    };
+                    buildInputs = with prev; [gnumake];
+                    installPhase = ''
+                    mkdir -p $out/bin
+                    cp cacti $out/bin/
+                    '';
+
+                };
+
+                ciel = prev.python3Packages.buildPythonPackage rec {
+                    name = "ciel";
+                    version = "2.4.0";
+                    src = prev.fetchFromGitHub {
+                    owner = "fossi-foundation";
+                    repo = "ciel";
+                    rev = "${version}";
+                    hash = "sha256-AWbkHL0zO3tD0mE3dZIcj8mVND7o3imTxOpEfOtlRDI=";
+                    };
+                    propagatedBuildInputs = with prev.python3Packages; [
+                    click pyyaml rich httpx pcpp zstandard poetry-core
+                    ];
+                    pyproject = true;
+                };
+
+                openram = prev.python3Packages.buildPythonPackage rec {
+                    name = "openram";
+                    version = "1.2.48";
+                    src = prev.fetchFromGitHub {
+                    owner = "VLSIDA";
+                    repo = "openram";
+                    rev = "v${version}";
+                    hash = "sha256-fy6ixDahvUIRcymmeR6SE66kitkAORLrXhZa9+S5D6o=";
+                    };
+                    patchPhase = ''
+                    substituteInPlace compiler/options.py --replace-fail 'use_conda = True' 'use_conda = False'
+                    patchShebangs .
+                    '';
+                    propagatedBuildInputs = with prev.python3Packages; [
+                    numpy scipy matplotlib setuptools
+                    scikit-learn ciel coverage 
+                    ];
+                    pythonRemoveDeps = ["python-subunit" "unittest2" "volare"];
+                    pyproject = true;
+                    doCheck = false;
+                    postInstall = ''
+                    mkdir -p $out/share/openram
+                    cp -r $src/* $out/share/openram
+
+                    rm $out/share/openram/install_conda.sh
+                    substituteInPlace $out/share/openram/compiler/options.py --replace-fail 'use_conda = True' 'use_conda = False'
+                    substituteInPlace $out/share/openram/compiler/sram_config.py --replace-fail 'tentative_num_rows < 16' 'tentative_num_rows < 4'
+                    '';
+                };
+
+                openram-wrapper = prev.stdenv.mkDerivation {
+                    name = "openram-wrapper";
+                    version = openram.version;
+                    dontUnpack = true;
+                    nativeBuildInputs = [ prev.makeWrapper ];
+                    postBuild = ''
+                    makeWrapper ${pythonEnv}/bin/python3 $out/bin/openram-ram \
+                        --add-flag "${openram}/share/openram/sram_compiler.py" \
+                        --set CACTI_EXECUTABLE "${cacti}/bin/cacti" \
+                        --set OPENRAM_HOME "${openram}/share/openram/compiler" \
+                        --set OPENRAM_TECH "${openram}/share/openram/technology"
+
+                    makeWrapper ${pythonEnv}/bin/python3 $out/bin/openram-rom \
+                        --add-flag "${openram}/share/openram/rom_compiler.py" \
+                        --set CACTI_EXECUTABLE "${cacti}/bin/cacti" \
+                        --set OPENRAM_HOME "${openram}/share/openram/compiler" \
+                        --set OPENRAM_TECH "${openram}/share/openram/technology"
+                    '';
+                };
+
+                riscv = {
+                    pulp = {
+                    llvm = prev.llvmPackages.stdenv.mkDerivation {
+                        name = "riscv-pulp-llvm";
+                        version = "b494f2d8dde88723026db8ec16ac6c7ee1e140ca"; #Mempool-Spatz
+                        src = prev.fetchFromGitHub  {
+                        owner = "pulp-platform";
+                        repo = "llvm-project";
+                        rev = "b494f2d8dde88723026db8ec16ac6c7ee1e140ca"; #Mempool-Spatz
+                        hash = "sha256-BT6X8F0OKsSv4CyjiYuu7ZJVrZTiB38uaa0Id3BX/co="; #Mempool-Spatz
+                        };
+                        buildInputs = with prev; [ cmake python3 ninja ];
+                        cmakeFlags = [
+                        "-DCMAKE_BUILD_TYPE=Release"
+                        "-DLLVM_ENABLE_PROJECTS=clang"
+                        "-DLLVM_TARGETS_TO_BUILD=RISCV;host"
+                        "-DLLVM_BUILD_DOCS=0"
+                        "-DLLVM_ENABLE_BINDINGS=0"
+                        "-DLLVM_ENABLE_TERMINFO=0"
+                        "-DLLVM_ENABLE_ASSERTIONS=ON"
+                        "-DLLVM_ENABLE_LIBPFM=OFF"
+                        ];
+                        cmakeDir = "../llvm";
+                    };
+                    gcc = prev.stdenv.mkDerivation {
+                        name = "riscv-pulp-gcc";
+                        version = "70acebe256fc49114b5f068fa79f03eb9affed09"; #Mempool-Spatz
+                        src = prev.fetchFromGitHub  {
+                        owner = "pulp-platform";
+                        repo = "pulp-riscv-gnu-toolchain";
+                        rev = "70acebe256fc49114b5f068fa79f03eb9affed09"; #Mempool-Spatz
+                        hash = "sha256-Rb29pIiDq+kzUEe58QO/vLWFtp4xwTPGysiZ2PnY86E="; #Mempool-Spatz
+                        fetchSubmodules  = true;
+                        };
+
+                        buildInputs = with prev; [
+                        gmp mpfr libmpc isl zlib flex perl
+                        texinfo bison python3 curl
+                        ];
+                        NIX_CFLAGS_COMPILE = "-Wno-format-security -Wno-implicit-function-declaration";
+                        NIX_CXXFLAGS_COMPILE = "-Wno-format-security -Wno-implicit-function-declaration";
+                        postPatch = ''
+                        sed -i '1i#include <isl/space.h>' riscv-gcc/gcc/graphite.h
+                        sed -i '2i#include <isl/id.h>' riscv-gcc/gcc/graphite.h
+                        sed -i '1i#include <dlfcn.h>' riscv-gcc/gcc/plugin.c
+                        '';
+                        configurePhase = ''
+                        ./configure \
+                            --prefix=$out \
+                            --with-arch=rv32im \
+                            --with-cmodel=medlow \
+                            --enable-multilib
+                        '';
+
+                        buildPhase = ''
+                        make MAKEINFO=true -j64
+                        '';
+
+                        installPhase = ''
+                        make install
+                        mkdir -p $out/riscv32-unknown-elf/lib
+                        cp $src/riscv.ld $out/riscv32-unknown-elf/lib/
+                        cp $src/riscv.ld $out/lib/
+                        '';
+                    };
+                    spike = prev.stdenv.mkDerivation {
+                        name = "riscv-pulp-spike";
+                        version = "904336ace4c656fea0307ab7a1c5e424efd40b33";
+                        src = prev.fetchFromGitHub  {
+                        owner = "pulp-platform";
+                        repo = "mempool";
+                        rev = "904336ace4c656fea0307ab7a1c5e424efd40b33";
+                        hash = "sha256-PuqB4ezgCT+ctQgDut0/18OUoes7DIYww4LlT1Va38Q=";
+                        };
+                        sourceRoot = "source/toolchain/riscv-isa-sim";
+                        postPatch = ''
+                        patchShebangs scripts/*.sh
+                        sed -i '/#define _DEVICE_H/a #include <stdint.h>' fesvr/device.h
+                        '';
+                        buildInputs = with prev; [ dtc ];
+                    };
+                    bender = prev.rustPlatform.buildRustPackage {
+                        name = "riscv-pulp-bender";
+                        version = "v0.28.2";
+                        src = prev.fetchFromGitHub  {
+                        owner = "pulp-platform";
+                        repo = "bender";
+                        rev = "v0.28.2";
+                        hash = "sha256-OJWYhs5QmfUC1I5OkEJAeLTpklEQyQ6024wmhv1sSnA=";
+                        };
+                        cargoHash = "sha256-nZ2gchifWSmDlVJIsPcvrnUxzhyXYoA1kE9f2pZDJzs=";
+                    };
+                    };
+                };
+
+                pythonEnv = prev.python3.withPackages (ps: with ps; [
+                    # Data Science & Analysis
+                    numpy pandas scipy sympy
+
+                    # Machine Learning & AI
+                    scikit-learn tensorflow tianshou torch torchrl
+
+                    # Visualization & Reporting
+                    matplotlib python-pptx seaborn
+
+                    # Data Serialization & Validation
+                    hjson jsonref jsonschema pyyaml python-pptx
+
+                    # Systems, Hardware & Solvers
+                    ciel cxxheaderparser openram z3-solver capstone
+
+                    # Development & Infrastructure
+                    click mako progressbar2 pybind11 setuptools wheel
+                ]);
+            })
+            ];
+        };
+    in {
+        devShells.${system}.default = pkgs.mkShell {
+            buildInputs = with pkgs; [
+                git pre-commit
+                surfer cacti openram-wrapper
+                openroad orfs yosys-slang
+                klayout netlistsvg verilator verible systemc
+                qemu
+                riscv.pulp.bender
+                stdenv.cc llvmPackages.clang libelf zlib cmake scons gnum4 protobuf capstone libpng gperftools
+                pythonEnv
+
+                claude-code
+            ];
+
+                
+            shellHook = with pkgs;''
+                echo "Welcome to the dev environment!"
+                export SHELLENVTYPE="dev"
+                export SYSTEMC2_INSTALL_DIR="${systemc2}"
+                export SYSTEMC3_INSTALL_DIR="${systemc}"
+                export VERILATOR4_INSTALL_DIR="${verilator4}"
+                export VERILATOR5_INSTALL_DIR="${verilator}"
+
+                export ISA_SIM_INSTALL_DIR="${riscv.pulp.spike}"
+                export SPIKE_INSTALL_DIR="${riscv.pulp.spike}"
+                export GCC_INSTALL_DIR="${riscv.pulp.gcc}"
+                export LLVM_INSTALL_DIR="${riscv.pulp.llvm}"
+                export BENDER_INSTALL_DIR="${riscv.pulp.bender}"
+
+                export ORFS_INSTALL_DIR="${orfs}"
+                export OPENROAD_INSTALL_DIR="${openroad}"
+                export OPENSTA_INSTALL_DIR="${openroad}"
+                export YOSYS_INSTALL_DIR="${yosys-slang}"
+                export KLAYOUT_INSTALL_DIR="${klayout}"
+                export SURFER_INSTALL_DIR="${unstable.surfer}"
+                export GTKWAVE_INSTALL_DIR="${gtkwave}"
+                export SYSTEMC_INSTALL_DIR="${systemc}"
+                export CACTI_INSTALL_DIR="${cacti}"
+                export OPENRAM_INSTALL_DIR="${openram}"
+
+                export PYTHON_INSTALL_DIR=${pythonEnv}
+                export PYTHON="$PYTHON_INSTALL_DIR/bin/python3"
+                export python="$PYTHON"
+                export BENDER="$BENDER_INSTALL_DIR/bin/bender"
+                export bender="$BENDER"
+
+                export SYSTEMC_INSTALL_DIR=$SYSTEMC3_INSTALL_DIR
+                export SYSTEMC_INCLUDE=$SYSTEMC_INSTALL_DIR/include
+                export SYSTEMC_LIB=$SYSTEMC_INSTALL_DIR/lib
+                export SYSTEMC_LIBDIR=$SYSTEMC_INSTALL_DIR/lib
+                export VERILATOR_INSTALL_DIR=$VERILATOR4_INSTALL_DIR
+                export VERILATOR=$VERILATOR_INSTALL_DIR/bin/verilator
+                export verilator=$VERILATOR
+                export OPENROAD_EXE=$OPENROAD_INSTALL_DIR/bin/openroad
+                export OPENSTA_EXE=$OPENROAD_INSTALL_DIR/bin/opensta
+                export YOSYS_EXE=$YOSYS_INSTALL_DIR/bin/yosys
+                export KLAYOUT_EXE=$KLAYOUT_INSTALL_DIR/bin/klayout
+                export PYTHON_EXE=$PYTHON_INSTALL_DIR/bin/python3
+                export CODE_HOME=$HOME
+
+                surfer() {
+                    nix run --impure github:nix-community/nixGL -- "${unstable.surfer}/bin/surfer" "$@"
+                }
+            '';
+        };
+    };
+}

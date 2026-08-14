@@ -85,7 +85,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
   meta = {
     description = "Dependency management tool for hardware projects";
     homepage = "https://github.com/pulp-platform/bender";
-    license = with lib.licenses; [ asl20 mit ];
+    license = with lib.licenses; [
+      asl20
+      mit
+    ];
     mainProgram = "bender";
     platforms = lib.platforms.all;
   };

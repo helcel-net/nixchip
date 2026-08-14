@@ -6,7 +6,11 @@
   yosys,
   nix-update-script,
   version ? "unstable-2026-08-11",
-  rev ? if lib.hasPrefix "unstable-" version then "3bee46be95fa148275f023abd524fb8358da0b17" else "v${version}",
+  rev ?
+    if lib.hasPrefix "unstable-" version then
+      "3bee46be95fa148275f023abd524fb8358da0b17"
+    else
+      "v${version}",
   hash ? "sha256-9N5hztnCziHiIt7fEjTiM3lWZy27TkHCLxqmfQzQiwg=",
 }:
 

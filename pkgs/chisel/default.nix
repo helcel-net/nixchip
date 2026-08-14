@@ -7,7 +7,11 @@
   scala-cli,
   nix-update-script,
   version ? "unstable-2026-07-02",
-  rev ? if lib.hasPrefix "unstable-" version then "42e927a59c28a504bab5db1560c64ab68d936658" else "v${version}",
+  rev ?
+    if lib.hasPrefix "unstable-" version then
+      "42e927a59c28a504bab5db1560c64ab68d936658"
+    else
+      "v${version}",
   hash ? "sha256-MUxgSOxgrft64kIbHW0Jw+JbJEFlsSZCr3OMD3oKMqg=",
 }:
 

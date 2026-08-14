@@ -16,24 +16,26 @@
 }:
 
 let
-  pythonEnv = python3.withPackages (ps: with ps; [
-    pyelftools
-    prettytable
-    pexpect
-    lz4
-    rich
-    psutil
-    pyyaml
-    pytablewriter
-    pandas
-    matplotlib
-    tabulate
-    mako
-    setuptools
-    hjson
-    typing-extensions
-    six
-  ]);
+  pythonEnv = python3.withPackages (
+    ps: with ps; [
+      pyelftools
+      prettytable
+      pexpect
+      lz4
+      rich
+      psutil
+      pyyaml
+      pytablewriter
+      pandas
+      matplotlib
+      tabulate
+      mako
+      setuptools
+      hjson
+      typing-extensions
+      six
+    ]
+  );
 in
 stdenv.mkDerivation {
   pname = "gvsoc";

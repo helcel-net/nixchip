@@ -28,13 +28,15 @@ stdenvNoCC.mkDerivation {
       --add-flag "-f" \
       --add-flag "${openroad-flow-scripts}/share/openroad-flow-scripts/flow/Makefile" \
       --set FLOW_HOME "${openroad-flow-scripts}/share/openroad-flow-scripts/flow" \
-      --prefix PATH : ${lib.makeBinPath [
-        yosys-full
-        yosys-slang
-        openroad
-        klayout
-        tcl
-      ]}
+      --prefix PATH : ${
+        lib.makeBinPath [
+          yosys-full
+          yosys-slang
+          openroad
+          klayout
+          tcl
+        ]
+      }
 
     runHook postInstall
   '';
