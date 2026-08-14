@@ -346,7 +346,7 @@ let
       rev = "v1.86";
       hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
     });
-    uhdm = branchOverride basePkgs.uhdm "Nightly-unstable-2026-08-10" (githubSource {
+    uhdm = branchOverride basePkgs.uhdm "Nightly-unstable-2026-08-13" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
       rev = "b05fe17a928d3343116476d649299846e497ba66";
@@ -362,11 +362,11 @@ let
     });
     # 3rdparty/googletest and tests/gui are submodules; without fetchSubmodules
     # their directories are empty and CMake aborts on the missing subdirectories.
-    nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-08-11" (taggedGithubSource {
+    nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-08-13" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
-      rev = "62e659ed6748e9f60b2a4aa25dd4fe79a9605881";
-      hash = "sha256-QUE19KWr26n5q8C7Byjg+pLdsKf50Fr/FqU9srlvYtU=";
+      rev = "4d235150266df2fa5c2c6102c67aa16ff34e6469";
+      hash = "sha256-toREltExA0FLq9CsTOi62+XG8BkqE/W8BoB2fJbtSs4=";
       fetchSubmodules = true;
     });
     icestorm0 = pinnedOverride basePkgs.icestorm "unstable-2025-06-03" (githubSource {
@@ -488,7 +488,7 @@ let
     # viewer from the build and makes nixpkgs' postPatch abort on the missing
     # qucs-s-spar-viewer/CMakeLists.txt.
     qucs-s =
-      (branchOverride basePkgs.qucs-s "Nightly-unstable-2026-08-10" (githubSource {
+      (branchOverride basePkgs.qucs-s "Nightly-unstable-2026-08-13" (githubSource {
         owner = "ra3xdh";
         repo = "qucs_s";
         rev = "1239336192adee7593ded74db844db0f88f0f03b";
@@ -581,11 +581,11 @@ let
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
     z3_ =
-      (branchOverride basePkgs.z3 "Nightly-unstable-2026-08-10" (githubSource {
+      (branchOverride basePkgs.z3 "Nightly-unstable-2026-08-13" (githubSource {
         owner = "Z3Prover";
         repo = "z3";
-        rev = "0bd679a404bee551393fd94ca813ccc7eb034973";
-        hash = "sha256-AKu5a5ZfI1rCTlJOdev8hg8qlKLUxmfU0CZC/HEhONw=";
+        rev = "4979d5ce03d7d1b8fdd0ef77428e48fe5865ec01";
+        hash = "sha256-P5SdUEXEDgZlQ/mFCl5mKJcP7cI77/2KKkkO+VFS9/U=";
       })).overrideAttrs
         (old: {
           # z3's own build embeds its CMake project version (e.g. "4.17.0") in
