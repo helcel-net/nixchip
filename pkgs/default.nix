@@ -311,11 +311,17 @@ let
       rev = "refs/tags/v0.0-4023-gc1271a00";
       hash = "sha256-N+yjRcVxFI56kP3zq+qFHNXZLTtVnQaVnseZS13YN0s=";
     });
-    verible = branchOverride basePkgs.verible "unstable-2026-06-30" (githubSource {
+    # Held one MODULE.bazel generation back deliberately. From 083a3689 onwards
+    # verible requires bazel modules (rules_cc 0.2.16, rules_shell 0.8.0, ...)
+    # that exist only in bazel-8-era registry snapshots, and nixpkgs'
+    # buildBazelPackage can only drive bazel 7. This is the last rev whose
+    # dependencies are all satisfied by the registry nixpkgs pins -- still four
+    # months ahead of nixpkgs' own verible. Revisit when nixpkgs gains bazel 8.
+    verible = branchOverride basePkgs.verible "unstable-2025-12-21" (githubSource {
       owner = "chipsalliance";
       repo = "verible";
-      rev = "b33cc90019824a8a157f2d5a042912a4b7d67391";
-      hash = "sha256-r++v5wD0+FBAlPV0/sUomqO4BIxUPAqFS2p26d0iFzo=";
+      rev = "67f7038305d628fce9f6420772bf0365c0276f1e";
+      hash = "sha256-rEG5G9lcpIlzEI/jYo0jeHdsyjXatBJUTbNNvGvseWo=";
     });
     vhdl-ls0 = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
