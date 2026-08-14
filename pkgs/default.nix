@@ -346,7 +346,7 @@ let
       rev = "v1.86";
       hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
     });
-    uhdm = branchOverride basePkgs.uhdm "Nightly-unstable-2026-07-02" (githubSource {
+    uhdm = branchOverride basePkgs.uhdm "Nightly-unstable-2026-08-10" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
       rev = "b05fe17a928d3343116476d649299846e497ba66";
@@ -487,7 +487,7 @@ let
     # viewer from the build and makes nixpkgs' postPatch abort on the missing
     # qucs-s-spar-viewer/CMakeLists.txt.
     qucs-s =
-      (branchOverride basePkgs.qucs-s "Nightly-unstable-2026-07-02" (githubSource {
+      (branchOverride basePkgs.qucs-s "Nightly-unstable-2026-08-10" (githubSource {
         owner = "ra3xdh";
         repo = "qucs_s";
         rev = "1239336192adee7593ded74db844db0f88f0f03b";
@@ -580,18 +580,36 @@ let
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
     z3_ =
-      (branchOverride basePkgs.z3 "Nightly-unstable-2026-07-02" (githubSource {
+      (branchOverride basePkgs.z3 "Nightly-unstable-2026-08-10" (githubSource {
         owner = "Z3Prover";
         repo = "z3";
-        rev = "f15584cdae319a44ae70854a319aa3aee715dd21";
-        hash = "sha256-5YhIvFfez7QsI04D0zHVNw2NjwqH03N1gC9vZvfEJxA=";
+        rev = "0bd679a404bee551393fd94ca813ccc7eb034973";
+        hash = "sha256-AKu5a5ZfI1rCTlJOdev8hg8qlKLUxmfU0CZC/HEhONw=";
       })).overrideAttrs
-        {
+        (old: {
           # z3's own build embeds its CMake project version (e.g. "4.17.0") in
           # `z3 --version`, unrelated to our "unstable-YYYY-MM-DD" tracking
           # version, so versionCheckHook can never match it for this attr.
           doInstallCheck = false;
-        };
+          # Newer z3 installs a libz3.so.* symlink beside the python bindings
+          # pointing at the absolute build directory, which dangles in the
+          # store. nixpkgs' postInstall only redirects the z3/lib subdirectory.
+          # Repoint it before noBrokenSymlinks runs in postFixupHooks.
+          # Newer z3 leaves a libz3.so symlink beside the python bindings pointing
+          # at the absolute build directory. It still resolves inside the sandbox,
+          # so it is not a broken link at fixup time -- noBrokenSymlinks rejects it
+          # for pointing into /build, which is where it will dangle afterwards.
+          # Match on the target rather than on brokenness, and repoint into $lib.
+          postFixup = ''
+            for o in $outputs; do
+              for l in $(find "''${!o}" -type l 2>/dev/null); do
+                case "$(readlink "$l")" in
+                  /build/*) ln -sf "$lib/lib/$(basename "$(readlink "$l")")" "$l" ;;
+                esac
+              done
+            done
+          '' + (old.postFixup or "");
+        });
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
