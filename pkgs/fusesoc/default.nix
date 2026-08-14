@@ -3,11 +3,14 @@
   fusesoc,
   lib,
   pydantic,
+  # Optional newer edalize, supplied only by the branch-tracking attr; the
+  # pinned fusesoc2 slot keeps nixpkgs' edalize untouched.
+  edalize ? null,
   nix-update-script,
-  version ? "unstable-2026-07-03",
+  version ? "unstable-2026-08-11",
   rev ?
-    if lib.hasPrefix "unstable-" version then "d7490780e7435abc00b9f9a63351c7ea530c64e5" else version,
-  hash ? "sha256-VGLe6Bu/5uGmjI9EROOcQbOIpnS4wE9MBXg7HV5OJWk=",
+    if lib.hasPrefix "unstable-" version then "318ab3acf0b16fbc5d70de5d8750af312ffb2acd" else version,
+  hash ? "sha256-1R02UVhgkp01mCO2lrGzhJS9m113kVHkx6+xPQ2L33Q=",
   ...
 }:
 
@@ -27,7 +30,18 @@ fusesoc.overrideAttrs (old: {
     repo = "fusesoc";
     inherit rev hash;
   };
-  propagatedBuildInputs = (old.propagatedBuildInputs or [ ]) ++ [ pydantic ];
+  # Newer fusesoc imports ToolResolutionError/get_edatool, which nixpkgs'
+  # edalize 0.6.1 does not expose. Swap in the supplied edalize rather than
+  # carrying two versions on PYTHONPATH.
+  propagatedBuildInputs =
+    (
+      if edalize == null then
+        (old.propagatedBuildInputs or [ ])
+      else
+        lib.filter (p: (p.pname or "") != "edalize") (old.propagatedBuildInputs or [ ])
+    )
+    ++ [ pydantic ]
+    ++ lib.optional (edalize != null) edalize;
   postPatch = (old.postPatch or "") + ''
     substituteInPlace pyproject.toml \
       --replace-quiet 'pydantic>=2.13.3' 'pydantic>=2.0'

@@ -4,13 +4,25 @@
   fetchFromGitHub,
   cmake,
   python3,
+  tomlplusplus,
   nix-update-script,
   yosys,
-  version ? "unstable-2026-07-01",
-  rev ? "b08e87ca0de19490f98f5c2937fd933c55cbfc30",
-  hash ? "sha256-lQaMyl5wD1jg2WvJnwiMYhvLAK70M7UINcXtR2XnmLU=",
+  version ? "unstable-2026-08-11",
+  rev ? "e2829839afc62961d704123f30ed46e75477f33c",
+  hash ? "sha256-yDsMiZo7lBLqER0mgEN1zG1i1CpHXlHSJEhYizaKRww=",
 }:
 
+let
+  # The bundled slang fetches boost::regex over the network via FetchContent,
+  # which the Nix sandbox blocks. Vendor the exact tag it asks for and point
+  # FetchContent at it instead.
+  boostRegex = fetchFromGitHub {
+    owner = "MikePopoloski";
+    repo = "regex";
+    tag = "boost-1.91.0";
+    hash = "sha256-/a3wW6hMQwxrxs7pX3KKZGKFTm78HALaquBAwDMJfq4=";
+  };
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "yosys-slang";
   inherit version;
@@ -22,10 +34,20 @@ stdenv.mkDerivation (finalAttrs: {
     fetchSubmodules = true;
   };
 
+  postPatch = ''
+    substituteInPlace third_party/slang/external/CMakeLists.txt \
+      --replace-fail "GIT_REPOSITORY https://github.com/MikePopoloski/regex.git" "SOURCE_DIR ${boostRegex}" \
+      --replace-fail "GIT_TAG boost-1.91.0" ""
+  '';
+
   nativeBuildInputs = [
     cmake
     python3
   ];
+
+  # slang's bundled CMake fetches tomlplusplus unless find_package satisfies
+  # its FIND_PACKAGE_ARGS 3.4, which the sandbox cannot do over the network.
+  buildInputs = [ tomlplusplus ];
 
   cmakeFlags = [
     "-DYOSYS_CONFIG=${yosys}/bin/yosys-config"
