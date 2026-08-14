@@ -609,7 +609,8 @@ let
                 esac
               done
             done
-          '' + (old.postFixup or "");
+          ''
+          + (old.postFixup or "");
         });
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
       owner = "cvc5";
