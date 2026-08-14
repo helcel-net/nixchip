@@ -287,14 +287,16 @@ let
       rev = "v0.7.0";
       hash = "sha256-WO0TWmUaKqUh+Cr75Hrxa2x4V9xZhzHY5PzlIRNUzZA=";
     });
-    surfer = cargoVendorOverride { cargoHash = "sha256-vw7bm/ihpsYMM4Lh8nMxPumN/QSO+XWHiE04IiLMdLY="; } (
-      branchOverride basePkgs.surfer "unstable-2026-08-11" (gitlabSource {
-        owner = "surfer-project";
-        repo = "surfer";
-        rev = "22b28c6a1bf9cbf009235dba5fe170f7167519fd";
-        hash = "sha256-c8JBCLqBmsPGm0W4M5nRTd0KXI7mbgu8YKnFaeHX4fg=";
-      })
-    );
+    surfer =
+      cargoVendorOverride { cargoHash = "sha256-vw7bm/ihpsYMM4Lh8nMxPumN/QSO+XWHiE04IiLMdLY="; }
+        (
+          branchOverride basePkgs.surfer "unstable-2026-08-11" (gitlabSource {
+            owner = "surfer-project";
+            repo = "surfer";
+            rev = "22b28c6a1bf9cbf009235dba5fe170f7167519fd";
+            hash = "sha256-c8JBCLqBmsPGm0W4M5nRTd0KXI7mbgu8YKnFaeHX4fg=";
+          })
+        );
     openocd0 = pinnedOverride basePkgs.openocd "0.12.0" (
       pkgs.fetchurl {
         url = "mirror://sourceforge/project/openocd/openocd/0.12.0/openocd-0.12.0.tar.bz2";
@@ -478,22 +480,23 @@ let
     # fetchSubmodules its directory is empty, which both drops the s-parameter
     # viewer from the build and makes nixpkgs' postPatch abort on the missing
     # qucs-s-spar-viewer/CMakeLists.txt.
-    qucs-s = (branchOverride basePkgs.qucs-s "Nightly-unstable-2026-07-02" (githubSource {
-      owner = "ra3xdh";
-      repo = "qucs_s";
-      rev = "1239336192adee7593ded74db844db0f88f0f03b";
-      hash = "sha256-2YgfdHRjtvwTz+rA43djbb35gzyAQBMZu00S4bT9UQ8=";
-      fetchSubmodules = true;
-    })).overrideAttrs
-      (old: {
-        # qucsator_rf looks for bison with NO_DEFAULT_PATH against a hardcoded
-        # FHS path list, so having it in nativeBuildInputs is not enough --
-        # BISON_DIR is the only way to point it at the store.
-        cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DBISON_DIR=${pkgs.bison}/bin" ];
-        # qucsator_rf's gperf hash generation shells out to dos2unix, which
-        # nixpkgs does not carry for this package.
-        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.dos2unix ];
-      });
+    qucs-s =
+      (branchOverride basePkgs.qucs-s "Nightly-unstable-2026-07-02" (githubSource {
+        owner = "ra3xdh";
+        repo = "qucs_s";
+        rev = "1239336192adee7593ded74db844db0f88f0f03b";
+        hash = "sha256-2YgfdHRjtvwTz+rA43djbb35gzyAQBMZu00S4bT9UQ8=";
+        fetchSubmodules = true;
+      })).overrideAttrs
+        (old: {
+          # qucsator_rf looks for bison with NO_DEFAULT_PATH against a hardcoded
+          # FHS path list, so having it in nativeBuildInputs is not enough --
+          # BISON_DIR is the only way to point it at the store.
+          cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DBISON_DIR=${pkgs.bison}/bin" ];
+          # qucsator_rf's gperf hash generation shells out to dos2unix, which
+          # nixpkgs does not carry for this package.
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.dos2unix ];
+        });
     xschem3 = callPackage ./xschem {
       xschem = basePkgs.xschem;
       version = "3.4.7";
@@ -552,33 +555,37 @@ let
       rev = "rel-3.0.1";
       hash = "sha256-oHebG9VBtEnxmBpfP6A/f/UNIx2AXbLPs0NHPoNlZfY=";
     });
-    cryptominisat5 = (pinnedOverride basePkgs.cryptominisat "5.14.7" (githubSource {
-      owner = "msoos";
-      repo = "cryptominisat";
-      rev = "release/v5.14.7";
-      hash = "sha256-nyAoAQ5k+C1M1pK71SAA2eUnCuD0mM8ImSKNxbxRKQs=";
-    })).overrideAttrs {
-      # Upstream renamed src/picosat -> src/mpicosat and already uses plain
-      # <unistd.h>, so the musl sys/unistd.h compat patch no longer applies.
-      postPatch = "";
-    };
+    cryptominisat5 =
+      (pinnedOverride basePkgs.cryptominisat "5.14.7" (githubSource {
+        owner = "msoos";
+        repo = "cryptominisat";
+        rev = "release/v5.14.7";
+        hash = "sha256-nyAoAQ5k+C1M1pK71SAA2eUnCuD0mM8ImSKNxbxRKQs=";
+      })).overrideAttrs
+        {
+          # Upstream renamed src/picosat -> src/mpicosat and already uses plain
+          # <unistd.h>, so the musl sys/unistd.h compat patch no longer applies.
+          postPatch = "";
+        };
     z3_4 = pinnedOverride basePkgs.z3 "4.16.0" (githubSource {
       owner = "Z3Prover";
       repo = "z3";
       rev = "z3-4.16.0";
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
-    z3_ = (branchOverride basePkgs.z3 "Nightly-unstable-2026-07-02" (githubSource {
-      owner = "Z3Prover";
-      repo = "z3";
-      rev = "f15584cdae319a44ae70854a319aa3aee715dd21";
-      hash = "sha256-5YhIvFfez7QsI04D0zHVNw2NjwqH03N1gC9vZvfEJxA=";
-    })).overrideAttrs {
-      # z3's own build embeds its CMake project version (e.g. "4.17.0") in
-      # `z3 --version`, unrelated to our "unstable-YYYY-MM-DD" tracking
-      # version, so versionCheckHook can never match it for this attr.
-      doInstallCheck = false;
-    };
+    z3_ =
+      (branchOverride basePkgs.z3 "Nightly-unstable-2026-07-02" (githubSource {
+        owner = "Z3Prover";
+        repo = "z3";
+        rev = "f15584cdae319a44ae70854a319aa3aee715dd21";
+        hash = "sha256-5YhIvFfez7QsI04D0zHVNw2NjwqH03N1gC9vZvfEJxA=";
+      })).overrideAttrs
+        {
+          # z3's own build embeds its CMake project version (e.g. "4.17.0") in
+          # `z3 --version`, unrelated to our "unstable-YYYY-MM-DD" tracking
+          # version, so versionCheckHook can never match it for this attr.
+          doInstallCheck = false;
+        };
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
