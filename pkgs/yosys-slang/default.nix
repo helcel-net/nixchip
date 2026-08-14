@@ -7,9 +7,9 @@
   tomlplusplus,
   nix-update-script,
   yosys,
-  version ? "unstable-2026-08-11",
-  rev ? "e2829839afc62961d704123f30ed46e75477f33c",
-  hash ? "sha256-yDsMiZo7lBLqER0mgEN1zG1i1CpHXlHSJEhYizaKRww=",
+  version ? "unstable-2026-08-13",
+  rev ? "ce38835520fbdf422304a6f6a2f1c437c3ba98c2",
+  hash ? "sha256-SyIklQs2IfXhAIvUZN//B7vSmffS5HxVQAQlEVyfcxY=",
 }:
 
 let
@@ -36,7 +36,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   postPatch = ''
     substituteInPlace third_party/slang/external/CMakeLists.txt \
-      --replace-fail "GIT_REPOSITORY https://github.com/MikePopoloski/regex.git" "SOURCE_DIR ${boostRegex}" \
+      --replace-fail 'GIT_REPOSITORY ''${GITHUB_PREFIX}MikePopoloski/regex.git' "SOURCE_DIR ${boostRegex}" \
       --replace-fail "GIT_TAG boost-1.91.0" ""
   '';
 
