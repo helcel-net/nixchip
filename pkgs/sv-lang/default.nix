@@ -6,7 +6,7 @@
   nix-update-script,
   version ? "unstable-2026-07-01",
   rev ? "b60d729d66b9cdeec158b800f898461a138d505e",
-  hash ? "sha256-a1FnvQqroofPPTg0G6SanH7/FwCphq/KWRYCOX5Lr00=",
+  hash ? "sha256-Hmg0MU4kl58kIWIOlwIpwvDdYPoO8SVpyA7/OEMzLwE=",
   ...
 }:
 
@@ -28,6 +28,9 @@ sv_lang.overrideAttrs (old: {
     owner = "MikePopoloski";
     repo = "slang";
     inherit rev hash;
+    # .git_archival.txt is export-subst, so GitHub rewrites it per archive and
+    # the hash of a pinned rev drifts as refs move. Fetch over git instead.
+    forceFetchGit = true;
   };
   postPatch = (old.postPatch or "") + ''
     substituteInPlace external/CMakeLists.txt \
