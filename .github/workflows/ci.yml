@@ -118,15 +118,21 @@ jobs:
             echo "packages=$packages" >> "$GITHUB_OUTPUT"
           fi
 
+  # GitHub-hosted runners terminate any job at 6h, so timeout-minutes cannot be
+  # raised past 360. Building the whole default set serially in one job hits
+  # that ceiling, so the packages are sharded round-robin across parallel jobs.
+  # Round-robin rather than contiguous slices, so the handful of very heavy
+  # packages spread across shards instead of landing in one.
   build:
-    name: Build selected packages
+    name: Build shard ${{ matrix.shard }}
     runs-on: ubuntu-latest
     timeout-minutes: 360
     needs: generate-matrix
     if: needs.generate-matrix.outputs.has-packages == 'true'
-    outputs:
-      results: ${{ steps.build.outputs.results }}
-      has-failures: ${{ steps.build.outputs.has-failures }}
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
     steps:
       - uses: actions/checkout@v7
       - uses: cachix/install-nix-action@v31
@@ -138,34 +144,83 @@ jobs:
         name: Build
         env:
           PACKAGES: ${{ needs.generate-matrix.outputs.packages }}
+          SHARD: ${{ matrix.shard }}
+          SHARD_COUNT: 4
+          CI_RESULTS_FILE: ci-results/results-${{ matrix.shard }}.json
         run: |
-          mapfile -t packages < <(jq -r '.[]' <<< "$PACKAGES")
+          mapfile -t all < <(jq -r '.[]' <<< "$PACKAGES")
+          packages=()
+          for i in "${!all[@]}"; do
+            if [ "$(( i % SHARD_COUNT ))" -eq "$SHARD" ]; then
+              packages+=("${all[$i]}")
+            fi
+          done
+          if [ "${#packages[@]}" -eq 0 ]; then
+            echo "shard $SHARD has no packages"
+            mkdir -p ci-results
+            echo '[]' > "$CI_RESULTS_FILE"
+            exit 0
+          fi
+          echo "shard $SHARD builds: ${packages[*]}"
           scripts/ci-build.sh x86_64-linux "${packages[@]}"
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v5
         with:
-          name: ci-build-logs
+          name: ci-build-logs-${{ matrix.shard }}
           path: ci-logs/
           if-no-files-found: ignore
+      - name: Upload shard results
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: ci-results-${{ matrix.shard }}
+          path: ci-results/
+          if-no-files-found: ignore
+
+  collect:
+    name: Collect shard results
+    runs-on: ubuntu-latest
+    needs:
+      - generate-matrix
+      - build
+    if: always() && needs.generate-matrix.outputs.has-packages == 'true'
+    outputs:
+      results: ${{ steps.merge.outputs.results }}
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: ci-results-*
+          merge-multiple: true
+          path: ci-results
+      - id: merge
+        name: Merge
+        run: |
+          results=$(jq -s -c 'add // []' ci-results/*.json 2>/dev/null || echo '[]')
+          echo "merged $(jq 'length' <<< "$results") package results"
+          {
+            echo "results<<EOF"
+            echo "$results"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
   report:
     name: ${{ matrix.package }}
     runs-on: ubuntu-latest
     needs:
       - generate-matrix
-      - build
+      - collect
     if: always() && needs.generate-matrix.outputs.has-packages == 'true'
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.build.outputs.results || '[]') }}
+        include: ${{ fromJson(needs.collect.outputs.results || '[]') }}
     steps:
       - name: Report package result
         run: |
           if [ "${{ matrix.status }}" = "success" ]; then
             echo "${{ matrix.package }} built successfully."
           else
-            echo "::error title=${{ matrix.package }} failed::See ${{ matrix.log }} in the ci-build-logs artifact."
+            echo "::error title=${{ matrix.package }} failed::See ${{ matrix.log }} in the ci-build-logs-* artifacts."
             exit 1
           fi

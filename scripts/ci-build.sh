@@ -44,6 +44,14 @@ done
 
 results="$(jq -c . "$results_file")"
 
+# When the build is sharded across parallel jobs, matrix jobs cannot share
+# step outputs -- they overwrite each other. Emit the results to a file so each
+# shard can upload them as an artifact for a later job to merge.
+if [ -n "${CI_RESULTS_FILE:-}" ]; then
+  mkdir -p "$(dirname "$CI_RESULTS_FILE")"
+  printf '%s\n' "$results" > "$CI_RESULTS_FILE"
+fi
+
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
   {
     echo "results<<EOF"
