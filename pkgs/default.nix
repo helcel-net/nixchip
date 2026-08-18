@@ -258,11 +258,11 @@ let
     });
     sv2v = callPackage ./sv2v { };
 
-    circt1 = pinnedOverride basePkgs.circt "1.151.0" (githubSource {
+    circt1 = pinnedOverride basePkgs.circt "1.156.0" (githubSource {
       owner = "llvm";
       repo = "circt";
-      rev = "firtool-1.151.0";
-      hash = "sha256-2OF/VjTRXef3Pm25l7BrM/d5NBI1h0ocgoyIWHTu8K0=";
+      rev = "firtool-1.156.0";
+      hash = "sha256-hGBkv0cAgtwS2ZXfy9Hyeli03/mTiTPmXWMv2iA1J6I=";
     });
     firrtl1 = callPackage ./firrtl {
       firrtl = basePkgs.firrtl;
