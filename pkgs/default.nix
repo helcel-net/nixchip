@@ -317,11 +317,11 @@ let
     # buildBazelPackage can only drive bazel 7. This is the last rev whose
     # dependencies are all satisfied by the registry nixpkgs pins -- still four
     # months ahead of nixpkgs' own verible. Revisit when nixpkgs gains bazel 8.
-    verible = branchOverride basePkgs.verible "unstable-2025-12-21" (githubSource {
+    verible = branchOverride basePkgs.verible "unstable-2026-08-18" (githubSource {
       owner = "chipsalliance";
       repo = "verible";
-      rev = "67f7038305d628fce9f6420772bf0365c0276f1e";
-      hash = "sha256-rEG5G9lcpIlzEI/jYo0jeHdsyjXatBJUTbNNvGvseWo=";
+      rev = "1ea007ec87b468595f95b40d095d09551b058b40";
+      hash = "sha256-6mKnmIIGu7PX6dOelPW6/9dacpqFOtPEC/0wCraoEAQ=";
     });
     vhdl-ls0 = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
