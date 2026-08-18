@@ -624,11 +624,11 @@ let
       rev = "cvc5-1.3.4";
       hash = "sha256-PZcOArSTyJzyd2DKT8K0aFC4RlVXgTCnkoU0f08KPfY=";
     });
-    cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-07-03" (githubSource {
+    cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-08-18" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
-      rev = "5d75505697d28845bb0bdd5ede2d567627395f8b";
-      hash = "sha256-D/+j+obesyQAI8T2xkCoimoxx0z3hfpRp39XnuRjG4s=";
+      rev = "242ff48eb7c4302b544bf7657b9ff6be741e66dd";
+      hash = "sha256-PFuTGkP3q7GRIQKQc2Hg4RnIbE/FLc6znmBxFwtHRdo=";
     });
 
     aiger1 = callPackage ./aiger {
