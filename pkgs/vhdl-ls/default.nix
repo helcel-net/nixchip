@@ -3,13 +3,13 @@
   fetchFromGitHub,
   vhdl_ls,
   nix-update-script,
-  version ? "unstable-2026-08-11",
+  version ? "unstable-2026-08-18",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "638b5b72204451c9dd597558216c5c38be2c5cb6"
+      "e3e86b57585bd614247eef10a9d3aa6b549ad503"
     else
       "v${version}",
-  hash ? "sha256-ymlCm9Vj1vbqWdKkeEQPgvYR3m01lBa26M4896+bNIc=",
+  hash ? "sha256-XiiMN1Z7XQ6TYhdXK9kc//J7bqdt8EKzUx4s/19qxU8=",
   cargoHash ? "sha256-smBLfa/u6HYdJoMfNaycL6rAVppjVrugA4RlS7EtCdM=",
   ...
 }:
