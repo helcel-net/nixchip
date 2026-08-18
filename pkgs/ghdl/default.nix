@@ -2,9 +2,9 @@
   fetchFromGitHub,
   ghdl,
   nix-update-script,
-  version ? "unstable-2026-08-11",
-  rev ? "ea079441cff01f054727e9de583ec441b2cabb19",
-  hash ? "sha256-7Rc903keD3xxjSJ05EortxaoHOLTVJSqE7kEz/Hx6xg=",
+  version ? "unstable-2026-08-18",
+  rev ? "cfeebb0548c74fb40a96db8a807ca2a226ada384",
+  hash ? "sha256-3uOlGXu5zdR5qP41E928Fo+DOajazaumypBxpulYGeI=",
   ...
 }:
 
