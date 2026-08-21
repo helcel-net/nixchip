@@ -147,7 +147,7 @@ jobs:
       - uses: cachix/cachix-action@v16
         if: github.event_name == 'push'
         with:
-          name: nixchip${{ matrix.shard }}
+          name: nixchip0
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           pushFilter: '(-source$|\.tar\.[a-z0-9]+$|\.zip$)'
       - id: build
