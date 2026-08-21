@@ -6,15 +6,9 @@
   nixConfig = {
     extra-substituters = [
       "https://nixchip0.cachix.org"
-      "https://nixchip1.cachix.org"
-      "https://nixchip2.cachix.org"
-      "https://nixchip3.cachix.org"
     ];
     extra-trusted-public-keys = [
       "nixchip0.cachix.org-1:nT5gEHc4661JFHoDukEnF1NFQ0XvS0TE7P370HLm4Ng="
-      "nixchip1.cachix.org-1:d9dEkCC8YsJObR4wjCRQtGR8xmU5k3M+SpZSWx0AUdI="
-      "nixchip2.cachix.org-1:vVIId6kdy1gX4xFC8Qmx6kQOdKMojiV/slousLlDRP8="
-      "nixchip3.cachix.org-1:5XAIpBqg2BQkypNWzBhW/ziWfuqpeCMeQZ+w/NuuiUc="
     ];
   };
 
