@@ -352,7 +352,7 @@ let
       rev = "v1.86";
       hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
     });
-    uhdm = branchOverride basePkgs.uhdm "Nightly-unstable-2026-08-13" (githubSource {
+    uhdm = branchOverride basePkgs.uhdm "unstable-2026-08-13" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
       rev = "b05fe17a928d3343116476d649299846e497ba66";
@@ -494,7 +494,7 @@ let
     # viewer from the build and makes nixpkgs' postPatch abort on the missing
     # qucs-s-spar-viewer/CMakeLists.txt.
     qucs-s =
-      (branchOverride basePkgs.qucs-s "Nightly-unstable-2026-08-13" (githubSource {
+      (branchOverride basePkgs.qucs-s "unstable-2026-08-13" (githubSource {
         owner = "ra3xdh";
         repo = "qucs_s";
         rev = "1239336192adee7593ded74db844db0f88f0f03b";
@@ -587,7 +587,7 @@ let
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
     z3_ =
-      (branchOverride basePkgs.z3 "Nightly-unstable-2026-08-13" (githubSource {
+      (branchOverride basePkgs.z3 "unstable-2026-08-13" (githubSource {
         owner = "Z3Prover";
         repo = "z3";
         rev = "4979d5ce03d7d1b8fdd0ef77428e48fe5865ec01";

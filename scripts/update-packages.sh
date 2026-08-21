@@ -583,11 +583,8 @@ verify_branch_head() {
     return 0
   fi
 
-  # A few packages carry an upstream-derived prefix (e.g. uhdm, qucs-s and z3_
-  # use Nightly-unstable-YYYY-MM-DD). Accept that prefix rather than rejecting
-  # the package outright.
-  if [[ ! "$version" =~ ^([A-Za-z][A-Za-z0-9]*-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-    echo "error: $package branch version '$version' should look like [Prefix-]unstable-YYYY-MM-DD" >&2
+  if [[ ! "$version" =~ ^unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    echo "error: $package branch version '$version' should look like unstable-YYYY-MM-DD" >&2
     return 1
   fi
 
@@ -744,7 +741,10 @@ for package in "${packages[@]}"; do
     fi
 
     if [[ -n "$block_start" && -n "$block_end" ]]; then
-      sed -Ei "${block_start},${block_end}s/\"([A-Za-z][A-Za-z0-9]*-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}\"/\"\\1unstable-${today}\"/" "$nix_file"
+      # The optional prefix in the match strips upstream-derived prefixes
+      # (e.g. Nightly-unstable-..., once written by nix-update for repos whose
+      # latest release is a rolling "Nightly") down to plain unstable-YYYY-MM-DD.
+      sed -Ei "${block_start},${block_end}s/\"([A-Za-z][A-Za-z0-9]*-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}\"/\"unstable-${today}\"/" "$nix_file"
       sed -Ei "${block_start},${block_end}s/\"[a-f0-9]{40}\"/\"${head_rev}\"/" "$nix_file"
       sed -Ei "${block_start},${block_end}s|hash = \"[^\"]*\"|hash = \"${new_hash}\"|" "$nix_file"
     else
