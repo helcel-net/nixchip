@@ -108,8 +108,13 @@ let
   # nixpkgs marks or-tools broken under the default python3 (3.14: its pinned
   # pybind 2.13 has no 3.14 support), which blocks openroad from evaluating.
   # Build or-tools with python 3.13 until nixpkgs moves to pybind 3.
+  # With python 3.13, or-tools' own ctest still fails a python-contrib
+  # dependency check that openroad never touches (it links the C++ libraries
+  # only), so checks are skipped rather than fixed.
   openroadBase = basePkgs.openroad.override {
-    or-tools = basePkgs.or-tools.override { python3 = basePkgs.python313; };
+    or-tools = (basePkgs.or-tools.override { python3 = basePkgs.python313; }).overrideAttrs (_: {
+      doCheck = false;
+    });
   };
 
   # Naming convention:
@@ -172,6 +177,9 @@ let
       hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWF0RFS3dSUm4=";
     };
     iverilog = callPackage ./iverilog { iverilog = basePkgs.iverilog; };
+    # Plain nixpkgs forward (see the FPGA section note): prebuilt on
+    # cache.nixos.org, so no re-pin and no CI cost.
+    sail-riscv0 = basePkgs.sail-riscv;
     spike1 = callPackage ./spike {
       spike = basePkgs.spike;
       version = "unstable-2024-09-21";
@@ -367,6 +375,12 @@ let
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
+    # Plain nixpkgs forwards, deliberately NOT re-pinned: they are prebuilt on
+    # cache.nixos.org, so an unmodified alias costs nothing to provide, while a
+    # pinnedOverride would force our CI to rebuild and re-cache them for no
+    # gain.
+    bluespec2024 = basePkgs.bluespec;
+    migen0 = basePkgs.python3Packages.migen;
     nextpnr0 = pinnedOverride basePkgs.nextpnr "0.10" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
@@ -653,7 +667,50 @@ let
       hash = "sha256-RVjZ5HM2yQ3eAICFuzwvNeQDXzWzzSiCCslIWMJi6U8=";
     });
 
+    # ── Accelerator DSE (Timeloop / Accelergy) ─────────────────────────────────
+    # Pinned to the revs the accelergy-timeloop-infrastructure Docker image
+    # records (not auto-updated): the stack exists to reproduce that image's
+    # energy numbers hermetically.
+    barvinok = callPackage ./barvinok { };
+    timeloop = callPackage ./timeloop { };
+    accelergy = callPackage ./accelergy {
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        deepdiff
+        jinja2
+        pyfiglet
+        pyyaml
+        ruamel-yaml
+        ;
+    };
+    timeloopfe = callPackage ./timeloopfe {
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        ruamel-yaml
+        psutil
+        joblib
+        ;
+    };
+    accelergy-library-plug-in = callPackage ./accelergy-library-plug-in {
+      inherit (basePkgs.python3Packages) buildPythonPackage pyyaml;
+    };
+    accelergy-cacti-plug-in = callPackage ./accelergy-cacti-plug-in {
+      inherit (basePkgs.python3Packages) buildPythonPackage pyyaml;
+    };
+
     # ── Microarchitecture modeling ─────────────────────────────────────────────
+    # NoC simulators: booksim2 is the standard reference simulator; noxim is
+    # SystemC-based and must build against the same C++ standard as the
+    # systemc2 (2.3.x, C++14) library it links.
+    booksim2 = callPackage ./booksim2 { };
+    noxim = callPackage ./noxim { systemc = systemc2; };
+    # 3D-ICE: attr is "threed-ice" (matching its libthreed-ice library), not
+    # "3d-ice" — a leading digit would make mkNixchipVarsHook emit an invalid
+    # `3D_ICE_HOME` shell variable and break every dev shell hook.
+    threed-ice = callPackage ./3d-ice { };
+    champsim = callPackage ./champsim { };
+    ramulator2 = callPackage ./ramulator2 { };
+    gem5 = callPackage ./gem5 { };
     flexfloat = callPackage ./flexfloat { };
     pyflexfloat = callPackage ./pyflexfloat {
       inherit flexfloat;

@@ -44,8 +44,16 @@ jobs:
                   p ? passthru && p.passthru ? nixchipCI && p.passthru.nixchipCI;
                 isSkipped = n: builtins.match ".*(llvm|LLVM|gcc|GCC|ggc|GGC).*" n != null;
                 isPinned = n:
-                  let version = pkgs.${n}.version or "";
-                  in builtins.match ".*unstable.*" version == null;
+                  let
+                    version = pkgs.${n}.version or "";
+                    # Release-pinned packages that should still be built and
+                    # cached on every main push (e.g. gem5: pinned for
+                    # reproducible cycle counts, but far too expensive for
+                    # downstream users to ever build from source) opt in via
+                    # passthru.nixchipCIDefault.
+                    forced = pkgs.${n}.passthru.nixchipCIDefault or false;
+                  in
+                  builtins.match ".*unstable.*" version == null && !forced;
                 mk = n:
                   let
                     p = pkgs.${n};

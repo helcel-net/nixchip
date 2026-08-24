@@ -51,6 +51,28 @@ of which packages are in `packages =`. See [Environment variables](#environment-
 The overlay exports packages under both `pkgs.nixchip.*` and top-level package
 names such as `pkgs.verilator4`.
 
+### Binary caches
+
+CI pushes every build to four Cachix caches (`nixchip0`), declared in this flake's `nixConfig` — running any nix command
+with `--accept-flake-config` (or `accept-flake-config = true` in `nix.conf`)
+substitutes them automatically.
+
+To actually get cache hits, consume nixchip's packages built against
+**nixchip's own nixpkgs pin**. Overriding it rewrites every derivation hash and
+forces full source rebuilds:
+
+```nix
+# Cache-friendly: share nixchip's pin.
+inputs.nixchip.url = "github:helcel-net/nixchip";
+inputs.nixpkgs.follows = "nixchip/nixpkgs";
+
+# Cache-hostile: every nixchip package rebuilds from source.
+# inputs.nixchip.inputs.nixpkgs.follows = "nixpkgs";
+```
+
+If you must keep your own nixpkgs pin, use a second, un-overridden nixchip
+input for the heavy EDA tools and your own pin for everything else.
+
 For non-hardware tooling, use nixpkgs directly:
 
 ```nix
@@ -144,6 +166,18 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `mcpat1` | 1 | McPAT power/area/timing model (HewlettPackard/mcpat) |
 | `cacti6` | 6.5.0 | CACTI 6 cache/memory model |
 | `cacti7` | 7 pinned | CACTI 7 (HewlettPackard/cacti commit `1ffd8df`) |
+| `barvinok` | 0.41.6 | Parametric-polytope point counting (Timeloop v4 link dependency) |
+| `timeloop` | 4.0 pinned | Timeloop v4 accelerator mapper/model (NVlabs/timeloop) |
+| `accelergy` | 0.4 pinned | Accelergy energy-estimation framework |
+| `timeloopfe` | 0.4 pinned | Timeloop v4 Python front-end |
+| `accelergy-library-plug-in` | pinned | Accelergy `Library` estimator plug-in |
+| `accelergy-cacti-plug-in` | pinned | Accelergy CACTI estimators, bundling nixchip's `cacti` |
+| `booksim2` | pinned | Booksim2 cycle-accurate NoC simulator |
+| `noxim` | pinned | Noxim SystemC NoC simulator (built against `systemc2`) |
+| `threed-ice` | pinned | 3D-ICE thermal simulator for 3D ICs (EPFL ESL) |
+| `champsim` | pinned | ChampSim trace-based CPU cache/memory simulator |
+| `ramulator2` | 2.0a | Ramulator 2 cycle-accurate DRAM simulator (CMU-SAFARI) |
+| `gem5` | 25.1.0.1 | gem5 architectural simulator, RISC-V build (gem5/gem5 tag v25.1.0.1) |
 
 ### Forwarded from nixpkgs (version-tracked)
 
@@ -178,6 +212,9 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `cocotb2` | `basePkgs.python3Packages.cocotb` | Python co-simulation framework |
 | `edalize0` | `basePkgs.python3Packages.edalize` | EDA tool abstraction library |
 | `sby0` | `basePkgs.sby` | SymbiYosys formal verification front-end |
+| `sail-riscv0` | `basePkgs.sail-riscv` | Sail RISC-V golden ISA model |
+| `bluespec2024` | `basePkgs.bluespec` | Bluespec Compiler (bsc) |
+| `migen0` | `basePkgs.python3Packages.migen` | Migen Python HDL |
 | `yices2` | `basePkgs.yices` | Yices 2 SMT solver |
 | `boolector3` | `basePkgs.boolector` | Boolector SMT solver |
 | `bitwuzla0` | `basePkgs.bitwuzla` | Bitwuzla SMT solver |

@@ -56,6 +56,7 @@
             "cocotb2"
             "edalize"
             "edalize0"
+            "migen0"
           ];
           pkgsToExport = lib.filterAttrs (
             name: pkg:

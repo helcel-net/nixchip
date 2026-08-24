@@ -40,6 +40,8 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
+  passthru.nixchipCI = true;
+
   meta = {
     description = "Wrapper scripts for OpenRAM SRAM/ROM compilers";
     homepage = "https://github.com/VLSIDA/openram";
