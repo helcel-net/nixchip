@@ -105,6 +105,13 @@ let
       };
     });
 
+  # nixpkgs marks or-tools broken under the default python3 (3.14: its pinned
+  # pybind 2.13 has no 3.14 support), which blocks openroad from evaluating.
+  # Build or-tools with python 3.13 until nixpkgs moves to pybind 3.
+  openroadBase = basePkgs.openroad.override {
+    or-tools = basePkgs.or-tools.override { python3 = basePkgs.python313; };
+  };
+
   # Naming convention:
   # - Unsuffixed custom package attrs track upstream branch HEAD and use
   #   unstable-YYYY-MM-DD versions.
@@ -426,14 +433,14 @@ let
 
     # ── Physical design ────────────────────────────────────────────────────────
     openroad26 = callPackage ./openroad {
-      openroad = basePkgs.openroad;
+      openroad = openroadBase;
       version = "26Q2";
       rev = "26Q2";
       hash = "sha256-dB9PfPlp6vZ9+Th8LJE65BW9YeuUL0G4JtjzQxg6UpQ=";
       patches = basePkgs.openroad.patches or [ ];
     };
     openroad = callPackage ./openroad {
-      openroad = basePkgs.openroad;
+      openroad = openroadBase;
     };
     openroad-flow-scripts26 = callPackage ./openroad-flow-scripts {
       version = "26Q2";
@@ -800,7 +807,10 @@ let
         ;
     };
     cocotb2 = callPackage ./cocotb {
-      cocotb = basePkgs.python3Packages.cocotb;
+      # cocotb 2.0.x caps at python 3.13 (setup.py max_python3_minor_version),
+      # so the release slot stays on the 3.13 package set now that the default
+      # python3 is 3.14.
+      cocotb = basePkgs.python313Packages.cocotb;
       version = "2.0.1";
       hash = "sha256-LXQNqFlvP+WBaDGWPs5+BXBtW2dhDu+v+7lR/AMG21M=";
     };

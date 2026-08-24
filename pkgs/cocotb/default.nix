@@ -13,7 +13,16 @@
   ...
 }:
 
-cocotb.overrideAttrs (old: {
+(cocotb.overridePythonAttrs (
+  old:
+  lib.optionalAttrs (lib.hasPrefix "unstable-" version) {
+    # nixpkgs disables cocotb on python >= 3.14, which matches the 2.0.x
+    # releases but is stale for the branch build: master raises only on
+    # >= 3.15 (setup.py max_python3_minor_version = 14).
+    disabled = false;
+  }
+)).overrideAttrs
+  (old: {
   inherit version;
   src = fetchFromGitHub {
     owner = "cocotb";
