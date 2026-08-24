@@ -863,6 +863,58 @@ let
         matplotlib
         ;
     };
+    zigzag-dse = callPackage ./zigzag-dse {
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        numpy
+        networkx
+        sympy
+        matplotlib
+        tqdm
+        pyyaml
+        cerberus
+        seaborn
+        typeguard
+        protobuf
+        typing-extensions
+        ml-dtypes
+        dill
+        ;
+    };
+    stream-dse = callPackage ./stream-dse {
+      python = basePkgs.python3;
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        cerberus
+        pydantic
+        pydot
+        immutabledict
+        ordered-set
+        typing-extensions
+        absl-py
+        numpy
+        pandas
+        protobuf
+        ;
+    };
+    chia = callPackage ./chia {
+      inherit (basePkgs.python3Packages)
+        buildPythonPackage
+        setuptools
+        wheel
+        google-genai
+        ray
+        mcp
+        pydantic
+        fastapi
+        pyyaml
+        pytest
+        graphviz
+        boto3
+        google-cloud-compute
+        requests
+        ;
+    };
     cocotb2 = callPackage ./cocotb {
       # cocotb 2.0.x caps at python 3.13 (setup.py max_python3_minor_version),
       # so the release slot stays on the 3.13 package set now that the default

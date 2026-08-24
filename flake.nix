@@ -57,6 +57,9 @@
             "edalize"
             "edalize0"
             "migen0"
+            "zigzag-dse"
+            "stream-dse"
+            "chia"
           ];
           pkgsToExport = lib.filterAttrs (
             name: pkg:

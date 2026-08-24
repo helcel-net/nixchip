@@ -172,6 +172,9 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `timeloopfe` | 0.4 pinned | Timeloop v4 Python front-end |
 | `accelergy-library-plug-in` | pinned | Accelergy `Library` estimator plug-in |
 | `accelergy-cacti-plug-in` | pinned | Accelergy CACTI estimators, bundling nixchip's `cacti` |
+| `zigzag-dse` | 3.8.5 | ZigZag accelerator DSE (KU Leuven MICAS), with PyPI-wheel onnx |
+| `stream-dse` | 1.13.11 | Stream multi-core DSE, with ortools/xdsl wheel satellites |
+| `chia` | 0.1.0 | CHIA agentic hardware-design loops (ucb-bar/chia, pinned commit) |
 | `booksim2` | pinned | Booksim2 cycle-accurate NoC simulator |
 | `noxim` | pinned | Noxim SystemC NoC simulator (built against `systemc2`) |
 | `threed-ice` | pinned | 3D-ICE thermal simulator for 3D ICs (EPFL ESL) |
