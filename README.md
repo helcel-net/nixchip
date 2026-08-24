@@ -53,9 +53,9 @@ names such as `pkgs.verilator4`.
 
 ### Binary caches
 
-CI pushes every build to four Cachix caches (`nixchip0`), declared in this flake's `nixConfig` — running any nix command
-with `--accept-flake-config` (or `accept-flake-config = true` in `nix.conf`)
-substitutes them automatically.
+CI pushes every build to the `nixchip0` Cachix cache, declared in this flake's
+`nixConfig` — running any nix command with `--accept-flake-config` (or
+`accept-flake-config = true` in `nix.conf`) substitutes it automatically.
 
 To actually get cache hits, consume nixchip's packages built against
 **nixchip's own nixpkgs pin**. Overriding it rewrites every derivation hash and

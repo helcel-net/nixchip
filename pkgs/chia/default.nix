@@ -76,6 +76,9 @@ buildPythonPackage {
   pythonImportsCheck = [ "chia" ];
 
   passthru.nixchipCI = true;
+  # Release-pinned, but still built and cached on every main push — the point
+  # of packaging it is that downstream never builds it.
+  passthru.nixchipCIDefault = true;
 
   meta = {
     description = "CHIA agentic hardware-design loops (UC Berkeley)";

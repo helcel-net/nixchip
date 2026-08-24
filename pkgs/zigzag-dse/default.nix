@@ -88,6 +88,9 @@ buildPythonPackage {
 
   passthru = {
     nixchipCI = true;
+    # Release-pinned, but still built and cached on every main push — the
+    # point of packaging it is that downstream never builds it.
+    nixchipCIDefault = true;
     # For consumers (stream-dse) that must share the exact same onnx.
     inherit onnx-wheel;
   };

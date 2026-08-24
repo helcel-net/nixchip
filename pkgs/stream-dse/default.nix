@@ -111,6 +111,9 @@ buildPythonPackage {
   pythonImportsCheck = [ "stream" ];
 
   passthru.nixchipCI = true;
+  # Release-pinned, but still built and cached on every main push — the point
+  # of packaging it is that downstream never builds it.
+  passthru.nixchipCIDefault = true;
 
   meta = {
     description = "Stream multi-core / layer-fused accelerator DSE framework";

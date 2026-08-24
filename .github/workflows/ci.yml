@@ -148,10 +148,9 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
             accept-flake-config = true
-      # Each shard pushes what it builds to its matching cache (nixchip0..3),
-      # spreading storage across the four caches; every job pulls from all
-      # four via the flake's nixConfig substituters. Only pushes to main
-      # populate the caches -- PR builds just consume them.
+      # Every shard pushes what it builds to the nixchip0 cache; jobs pull
+      # from it via the flake's nixConfig substituters. Only pushes to main
+      # populate the cache -- PR builds just consume it.
       - uses: cachix/cachix-action@v16
         if: github.event_name == 'push'
         with:
