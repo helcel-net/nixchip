@@ -179,6 +179,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `noxim` | pinned | Noxim SystemC NoC simulator (built against `systemc2`) |
 | `threed-ice` | pinned | 3D-ICE thermal simulator for 3D ICs (EPFL ESL) |
 | `champsim` | pinned | ChampSim trace-based CPU cache/memory simulator |
+| `pythia` | pinned | Pythia RL prefetcher framework on ChampSim (CMU-SAFARI); full source tree in `share/pythia` for custom prefetchers |
 | `ramulator2` | 2.0a | Ramulator 2 cycle-accurate DRAM simulator (CMU-SAFARI) |
 | `gem5` | 25.1.0.1 | gem5 architectural simulator, RISC-V build (gem5/gem5 tag v25.1.0.1) |
 

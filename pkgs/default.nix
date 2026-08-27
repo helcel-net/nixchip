@@ -709,6 +709,10 @@ let
     # `3D_ICE_HOME` shell variable and break every dev shell hook.
     threed-ice = callPackage ./3d-ice { };
     champsim = callPackage ./champsim { };
+    # Pythia: CMU-SAFARI's ChampSim fork with the RL prefetcher framework; the
+    # full source tree is shipped under share/pythia so downstream projects can
+    # copy it and rebuild with their own prefetchers.
+    pythia = callPackage ./pythia { };
     ramulator2 = callPackage ./ramulator2 { };
     gem5 = callPackage ./gem5 { };
     flexfloat = callPackage ./flexfloat { };
