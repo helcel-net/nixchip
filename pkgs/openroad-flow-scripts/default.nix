@@ -4,9 +4,9 @@
   fetchFromGitHub,
   gnumake,
   nix-update-script,
-  version ? "unstable-2026-07-03",
-  rev ? "490c5690448ab5cfeb4d04e66a52716a676a2d3c",
-  hash ? "sha256-H/Vzp28UK7XdTLTOEZIiiks5cpYn6/ox+BrTUL5h3QA=",
+  version ? "unstable-2026-09-01",
+  rev ? "674078b1728b8b97df3c87a063ccf7300af3843f",
+  hash ? "sha256-bOzVgr1tw+PL++qYkcb15/I8bYSQ3qh8FmkfyTP07zI=",
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "openroad-flow-scripts";
