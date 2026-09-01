@@ -389,11 +389,11 @@ let
       rev = "v1.86";
       hash = "sha256-EEhaYimyzOgQB7dxbbTfsa7APC6SlFkz9ah9BLcKDq4=";
     });
-    surelog = branchOverride basePkgs.surelog "unstable-2026-07-02" (githubSource {
+    surelog = branchOverride basePkgs.surelog "unstable-2026-09-01" (githubSource {
       owner = "chipsalliance";
       repo = "surelog";
-      rev = "4380c37b20f5cb4eef6b9f0ff5aa0ba5847de816";
-      hash = "sha256-CIozphxpZ0omcPx3bpI1MpDG6+TkLe6T/v8NnR1OIxk=";
+      rev = "efab68b218f18dfe563846047a0d3e2b1efb58d2";
+      hash = "sha256-SlxHM+3OudgJ+QpiydKIL+KsSqiRgXyYABORs09nM4Q=";
     });
     uhdm1 = pinnedOverride basePkgs.uhdm "1.86" (githubSource {
       owner = "chipsalliance";
