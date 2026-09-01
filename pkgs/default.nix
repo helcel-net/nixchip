@@ -288,12 +288,12 @@ let
           sv-lang_10 = sv-lang11;
           callPackage = _path: _args: circt1-llvm;
         })
-        "1.157.0"
+        "1.158.0"
         (githubSource {
           owner = "llvm";
           repo = "circt";
-          rev = "firtool-1.157.0";
-          hash = "sha256-WPwmUVaOhRUKMorutlBFbgZjOpGOOxvJTkNIjY8qo6E=";
+          rev = "firtool-1.158.0";
+          hash = "sha256-9/RSK2jCV4TvP6vAS4x/YR12NF6z4rPa1BNxTAqiahQ=";
           fetchSubmodules = true;
         })
       ).overrideAttrs
