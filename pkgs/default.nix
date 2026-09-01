@@ -395,11 +395,11 @@ let
       rev = "4380c37b20f5cb4eef6b9f0ff5aa0ba5847de816";
       hash = "sha256-CIozphxpZ0omcPx3bpI1MpDG6+TkLe6T/v8NnR1OIxk=";
     });
-    uhdm1 = pinnedOverride basePkgs.uhdm "1.86" (githubSource {
+    uhdm1 = pinnedOverride basePkgs.uhdm "1.87" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
-      rev = "v1.86";
-      hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
+      rev = "v1.87";
+      hash = "sha256-kCCNe1elZoExc8OAtvRxwKODxCdNuVzjFQkEMntNjqI=";
     });
     uhdm = branchOverride basePkgs.uhdm "unstable-2026-08-13" (githubSource {
       owner = "chipsalliance";
