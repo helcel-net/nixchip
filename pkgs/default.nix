@@ -549,11 +549,11 @@ let
     # viewer from the build and makes nixpkgs' postPatch abort on the missing
     # qucs-s-spar-viewer/CMakeLists.txt.
     qucs-s =
-      (branchOverride basePkgs.qucs-s "unstable-2026-08-25" (githubSource {
+      (branchOverride basePkgs.qucs-s "unstable-2026-09-01" (githubSource {
         owner = "ra3xdh";
         repo = "qucs_s";
-        rev = "948e0e67513458ae69326bd0e24c1aae3d9a0e4b";
-        hash = "sha256-lWyAFX24zs7nIYSnCcQhcpeczqS53llNX2ymCOikmHg=";
+        rev = "44e7d2264f412e1cb9353f0e1f7c19b10e3c7235";
+        hash = "sha256-8QT2SSh9JWmlDxYld9KKs0hj+vbW3awGG9D9fGyCfB4=";
         fetchSubmodules = true;
       })).overrideAttrs
         (old: {
