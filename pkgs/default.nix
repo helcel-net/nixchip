@@ -273,12 +273,46 @@ let
     });
     sv2v = callPackage ./sv2v { };
 
-    circt1 = pinnedOverride basePkgs.circt "1.151.0" (githubSource {
-      owner = "llvm";
-      repo = "circt";
-      rev = "firtool-1.151.0";
-      hash = "sha256-2OF/VjTRXef3Pm25l7BrM/d5NBI1h0ocgoyIWHTu8K0=";
-    });
+    # firtool releases move faster than nixpkgs' circt: its MLIR comes from an
+    # internal circt-llvm derivation that .override cannot reach and that lags
+    # behind upstream. Rebuild nixpkgs' own circt-llvm.nix from circt1's source
+    # instead (the callPackage argument is used exactly once in circt's
+    # package.nix, to instantiate circt-llvm), so the MLIR snapshot always
+    # matches the pinned firtool tag. fetchSubmodules pulls the llvm/ submodule
+    # circt-llvm builds from; firtool >= 1.152 also needs slang 11.
+    circt1 =
+      (pinnedOverride
+        (basePkgs.circt.override {
+          sv-lang_10 = sv-lang11;
+          callPackage = _path: _args: circt1-llvm;
+        })
+        "1.157.0"
+        (githubSource {
+          owner = "llvm";
+          repo = "circt";
+          rev = "firtool-1.157.0";
+          hash = "sha256-WPwmUVaOhRUKMorutlBFbgZjOpGOOxvJTkNIjY8qo6E=";
+          fetchSubmodules = true;
+        })
+      ).overrideAttrs
+        (old: {
+          # Two lit-test classes fail against nixpkgs-provided tools rather than
+          # firtool's exact pins: the slang 11.0 release emits loc(unknown)
+          # where upstream's slang pin yields real source locations, and the
+          # self-contained tblgen checks' custom format needs a newer lit than
+          # nixpkgs' LLVM_EXTERNAL_LIT (18.1.8, no maxIndividualTestTime).
+          env = old.env // {
+            LIT_FILTER_OUT =
+              old.env.LIT_FILTER_OUT
+              + "|CIRCT :: Conversion/ImportVerilog/(basic|builtins|interface-instance-expansion|proximate-source-locations)\\.sv"
+              + "|CIRCT :: Tools/circt-tblgen/self-contained/.*";
+          };
+        });
+    # MLIR/LLVM snapshot for circt1, built from its llvm/ submodule. It follows
+    # circt1's version and src, so a circt1 bump rebuilds it in lockstep.
+    circt1-llvm = basePkgs.callPackage "${basePkgs.path}/pkgs/by-name/ci/circt/circt-llvm.nix" {
+      circt = circt1;
+    };
     firrtl1 = callPackage ./firrtl {
       firrtl = basePkgs.firrtl;
       version = "1.5.3";
@@ -326,18 +360,11 @@ let
       rev = "refs/tags/v0.0-4023-gc1271a00";
       hash = "sha256-N+yjRcVxFI56kP3zq+qFHNXZLTtVnQaVnseZS13YN0s=";
     });
-    # Held one MODULE.bazel generation back deliberately. From 083a3689 onwards
-    # verible requires bazel modules (rules_cc 0.2.16, rules_shell 0.8.0, ...)
-    # that exist only in bazel-8-era registry snapshots, and nixpkgs'
-    # buildBazelPackage can only drive bazel 7. This is the last rev whose
-    # dependencies are all satisfied by the registry nixpkgs pins -- still four
-    # months ahead of nixpkgs' own verible. Revisit when nixpkgs gains bazel 8.
-    verible = branchOverride basePkgs.verible "unstable-2025-12-21" (githubSource {
-      owner = "chipsalliance";
-      repo = "verible";
-      rev = "67f7038305d628fce9f6420772bf0365c0276f1e";
-      hash = "sha256-rEG5G9lcpIlzEI/jYo0jeHdsyjXatBJUTbNNvGvseWo=";
-    });
+    # Branch-tracking verible built from HEAD with bazel 7 and its own pinned
+    # bazel-central-registry snapshot (see pkgs/verible); nixpkgs' verible
+    # (verible0) pins a stale BCR snapshot internally and cannot follow
+    # upstream past 083a3689.
+    verible = callPackage ./verible { };
     vhdl-ls0 = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
       version = "0.87.1";
