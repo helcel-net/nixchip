@@ -575,11 +575,11 @@ let
     };
 
     # ── Formal verification ────────────────────────────────────────────────────
-    sby0 = pinnedOverride basePkgs.sby "0.66" (githubSource {
+    sby0 = pinnedOverride basePkgs.sby "0.68" (githubSource {
       owner = "YosysHQ";
       repo = "sby";
-      rev = "v0.66";
-      hash = "sha256-SrnapPqQ/bAcTbuvc/P+OuFqiPKtUIPqykzEU6d4VE4=";
+      rev = "v0.68";
+      hash = "sha256-WRZp4+gwUgDKCWAdBK/36ArM2KFGyLBZ20S32k7YN+8=";
     });
     sby = branchOverride basePkgs.sby "unstable-2026-08-11" (githubSource {
       owner = "YosysHQ";
