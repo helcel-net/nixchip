@@ -40,6 +40,10 @@ let
       url = "https://files.pythonhosted.org/packages/08/b9/28d5efb832190b6edfccc5a703e88e64779c1eda34a42ea96d03307236c0/ortools-9.15.6755-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl";
       hash = "sha256-69WuoAN046rXp43lkFispehxomo8OFzQhg7x1oXQPJo=";
     };
+    "3.14" = {
+      url = "https://files.pythonhosted.org/packages/b2/e0/11144feb4ddadc491dc9d833d3a2080e6556245f912bebe2c0c7e174f2a1/ortools-9.15.6755-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl";
+      hash = "sha256-cYEYPNyv4rDYPKVQW2UEjHlT3Hta1Hk2Hd7WB5ZMwbM=";
+    };
   };
   ortoolsWheel =
     ortoolsWheels.${python.pythonVersion}
