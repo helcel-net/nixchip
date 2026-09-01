@@ -123,7 +123,10 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   meta = with lib; {
     description = "Thermal emulator for vertically stacked 3D integrated circuits with inter-tier liquid cooling";

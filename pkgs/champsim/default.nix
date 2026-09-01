@@ -58,7 +58,10 @@ stdenv.mkDerivation {
 
   enableParallelBuilding = true;
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   installPhase = ''
     runHook preInstall

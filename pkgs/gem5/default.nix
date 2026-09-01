@@ -61,7 +61,14 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+    # gem5 releases are tagged vMAJOR.MINOR...; the trailing "5" in the name is
+    # the upstream name, not a version slot (attr gem5_), so pin the tag shape
+    # explicitly instead of letting pkg_major derive a bogus 5.x series.
+    nixchipUpdateFlags = [ "--version-regex=^v([0-9.]+)$" ];
+  };
   # Release-pinned (no "unstable" in the version), but still built and cached
   # on every main push: gem5 is far too expensive for downstream users to
   # build from source, which is the whole point of providing it.

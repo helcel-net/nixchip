@@ -180,8 +180,8 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `threed-ice` | pinned | 3D-ICE thermal simulator for 3D ICs (EPFL ESL) |
 | `champsim` | pinned | ChampSim trace-based CPU cache/memory simulator |
 | `pythia` | pinned | Pythia RL prefetcher framework on ChampSim (CMU-SAFARI); full source tree in `share/pythia` for custom prefetchers |
-| `ramulator2` | 2.0a | Ramulator 2 cycle-accurate DRAM simulator (CMU-SAFARI) |
-| `gem5` | 25.1.0.1 | gem5 architectural simulator, RISC-V build (gem5/gem5 tag v25.1.0.1) |
+| `ramulator2_` | 2.0a | Ramulator 2 cycle-accurate DRAM simulator (CMU-SAFARI) |
+| `gem5_` | 25.1.0.1 | gem5 architectural simulator, RISC-V build (gem5/gem5 tag v25.1.0.1) |
 
 ### Forwarded from nixpkgs (version-tracked)
 

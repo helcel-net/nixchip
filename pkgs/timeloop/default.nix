@@ -100,7 +100,10 @@ stdenv.mkDerivation {
     done
   '';
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   meta = with lib; {
     description = "Timeloop v4 — accelerator mapping/model tool (the binaries timeloopfe drives)";

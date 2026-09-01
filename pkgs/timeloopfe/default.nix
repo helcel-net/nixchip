@@ -44,7 +44,10 @@ buildPythonPackage {
     "timeloopfe.v4"
   ];
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   meta = {
     description = "Python front-end for Timeloop v4 specifications";

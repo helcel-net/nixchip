@@ -71,7 +71,10 @@ buildPythonPackage {
   # No import check: Accelergy loads this by scanning; the meaningful check is
   # `estimator: CactiSRAM` in a generated ERT, which needs a full run.
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   meta = {
     description = "Accelergy CACTI-backed energy estimation plug-in";

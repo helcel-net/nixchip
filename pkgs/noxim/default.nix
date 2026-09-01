@@ -55,7 +55,10 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   meta = {
     description = "Cycle-accurate Network-on-Chip simulator based on SystemC";

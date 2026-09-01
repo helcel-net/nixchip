@@ -35,7 +35,10 @@ buildPythonPackage {
   # by scanning, not by import. The real check is whether `estimator: Library`
   # appears in a generated ERT, which needs a full run.
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   meta = {
     description = "Accelergy library-based energy estimation plug-in";

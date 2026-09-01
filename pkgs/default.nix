@@ -121,7 +121,9 @@ let
   # - Unsuffixed custom package attrs track upstream branch HEAD and use
   #   unstable-YYYY-MM-DD versions.
   # - Numbered attrs are fixed release slots for side-by-side tool versions.
-  # - Upstream names ending in digits use a trailing underscore (e.g. z3_, cvc5_).
+  # - Upstream names ending in digits use a trailing underscore (e.g. z3_,
+  #   cvc5_, gem5_, ramulator2_); pinning such a package to a major version
+  #   appends the major after the underscore (dramsim3_1, hypothetical gem5_25).
   nixchipPackages = rec {
 
     # ── Simulators ─────────────────────────────────────────────────────────────
@@ -296,6 +298,11 @@ let
         })
       ).overrideAttrs
         (old: {
+          passthru = old.passthru // {
+            # Follow the latest firtool release whatever the major; the auto
+            # regex would otherwise lock the "1" in circt1 as a 1.x series.
+            nixchipUpdateFlags = [ "--version-regex=^firtool-([0-9.]+)$" ];
+          };
           # Two lit-test classes fail against nixpkgs-provided tools rather than
           # firtool's exact pins: the slang 11.0 release emits loc(unknown)
           # where upstream's slang pin yields real source locations, and the
@@ -740,8 +747,11 @@ let
     # full source tree is shipped under share/pythia so downstream projects can
     # copy it and rebuild with their own prefetchers.
     pythia = callPackage ./pythia { };
-    ramulator2 = callPackage ./ramulator2 { };
-    gem5 = callPackage ./gem5 { };
+    # Trailing digits in these upstream names are part of the name, not a
+    # version slot; per convention they take a trailing underscore (a future
+    # major pin would be e.g. gem5_25 / ramulator2_3).
+    ramulator2_ = callPackage ./ramulator2 { };
+    gem5_ = callPackage ./gem5 { };
     flexfloat = callPackage ./flexfloat { };
     pyflexfloat = callPackage ./pyflexfloat {
       inherit flexfloat;

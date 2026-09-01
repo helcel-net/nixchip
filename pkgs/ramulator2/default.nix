@@ -6,7 +6,9 @@
   patchelf,
   # Pinned to v2.0a (the direct parent of the 2026-06-27 "Ramulator 2.1"
   # restructure). Newer commits drop the standalone `ramulator2` executable
-  # and the YAML example configs in favour of a Python-bindings library.
+  # and the YAML example configs in favour of a Python-bindings library, so
+  # this package is NOT enrolled in the update bot (HEAD is a different
+  # product); package Ramulator 2.1 separately if the bindings are wanted.
   version ? "unstable-2026-03-25",
   rev ? "be93be78055d922aa1d4d33e15bcc8f2b0c61a9d",
   hash ? "sha256-ypz6Acpb/9nC/PD6d7n9vM0etcT1hteVbwaoR9wJoOA=",
@@ -83,7 +85,9 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+  };
 
   meta = {
     description = "Modern, modular, and extensible cycle-accurate DRAM simulator";

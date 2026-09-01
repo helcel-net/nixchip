@@ -46,7 +46,10 @@ buildPythonPackage {
     "accelergy.utils.yaml"
   ];
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   meta = {
     description = "Architecture-level energy estimation framework";

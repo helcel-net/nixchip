@@ -76,7 +76,10 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
-  passthru.nixchipCI = true;
+  passthru = {
+    nixchipCI = true;
+    nixchipUpdate = true;
+  };
 
   meta = {
     description = "Pythia RL-based prefetching framework on ChampSim (CMU-SAFARI, MICRO'21)";
