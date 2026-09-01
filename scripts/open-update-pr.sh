@@ -19,8 +19,12 @@ git add -A
 git commit -m "$title"
 git push --force-with-lease origin "$branch"
 
-if gh pr view "$branch" --json number >/dev/null 2>&1; then
-  gh pr edit "$branch" --title "$title" --body "$body"
+# `gh pr view <branch>` falls back to the most recently created PR for the
+# branch in ANY state, so after a merge/close it would edit that dead PR
+# instead of opening a new one. Only an OPEN pr counts as reusable.
+open_pr="$(gh pr list --head "$branch" --state open --json number --jq '.[0].number' 2>/dev/null || true)"
+if [ -n "$open_pr" ]; then
+  gh pr edit "$open_pr" --title "$title" --body "$body"
 else
   gh pr create --base "$base" --head "$branch" --title "$title" --body "$body"
 fi
