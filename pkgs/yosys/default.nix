@@ -15,9 +15,9 @@
   tcl,
   zlib,
   nix-update-script,
-  version ? "unstable-2026-07-02",
-  rev ? "b285b72e360260be4abc8990f9c46b25b8b66b40",
-  hash ? "sha256-GKS4tQH4c8NUOUgTfKbU9pESgatirDx349mvWAwt4G8=",
+  version ? "unstable-2026-09-01",
+  rev ? "56cf2cf419b0ce66d07bc2ad2fb8c65be2dea164",
+  hash ? "sha256-REs8ti+FZvBh617cOfIFd1EK0TNJBrha6dIeX8R5hMg=",
   useCmake ? false,
   ...
 }:
