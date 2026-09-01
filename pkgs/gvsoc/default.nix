@@ -10,9 +10,9 @@
   elfutils,
   makeWrapper,
   nix-update-script,
-  version ? "unstable-2026-07-02",
-  rev ? "c7474c7fc9d79de58a7fbe6f976232d83defe738",
-  hash ? "sha256-ZNFsWlJKWkTQ1cAjvp78VNjtW6tInCuYBbAgZrj8GIA=",
+  version ? "unstable-2026-09-01",
+  rev ? "3b4c489c8cccbf4e749c9e94e24d43b2c3351584",
+  hash ? "sha256-Ar4MoEUYZUle3Uo2EKF+98QfGCWXpKM4JGjbfQp/6X8=",
 }:
 
 let
