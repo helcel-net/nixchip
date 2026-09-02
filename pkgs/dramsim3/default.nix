@@ -52,7 +52,7 @@ stdenv.mkDerivation {
 
   passthru = {
     updateScript = nix-update-script {
-      attrPath = "dramsim3_";
+      attrPath = "dramsim3";
       extraArgs = [ "--version=branch" ];
     };
     nixchipUpdate = true;

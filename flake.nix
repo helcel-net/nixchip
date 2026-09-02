@@ -51,12 +51,12 @@
         let
           pythonPackages = [
             "amaranth"
-            "amaranth0"
+            "amaranth_0"
             "cocotb"
-            "cocotb2"
+            "cocotb_2"
             "edalize"
-            "edalize0"
-            "migen0"
+            "edalize_0"
+            "migen_0"
             "zigzag-dse"
             "stream-dse"
             "chia"
@@ -164,21 +164,21 @@
               with hw;
               [
                 # Verilator majors
-                verilator3
-                verilator4
-                verilator5
+                verilator_3
+                verilator_4
+                verilator_5
                 # SystemC series
-                systemc2
-                systemc3
+                systemc_2
+                systemc_3
                 # sv-lang / slang generations
-                sv-lang9
-                sv-lang10
-                sv-lang11
+                sv-lang_9
+                sv-lang_10
+                sv-lang_11
                 # Synthesis
-                yosys0
+                yosys_0
                 # CACTI memory model generations
-                cacti6
-                cacti7
+                cacti_6
+                cacti_7
               ]
               ++ nonHardwareTools;
             shellHook = varsHook;
