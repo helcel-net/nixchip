@@ -105,6 +105,21 @@ let
       };
     });
 
+  # nextpnr's gowin chipdb generation needs apycula >= 0.33 (GW5A/GW5AT
+  # devices); nixpkgs still ships 0.32. Drop when nixpkgs catches up.
+  nextpnrBase = basePkgs.nextpnr.override {
+    python3Packages = basePkgs.python3Packages // {
+      apycula = basePkgs.python3Packages.apycula.overridePythonAttrs (old: rec {
+        version = "0.33";
+        src = basePkgs.python3Packages.fetchPypi {
+          pname = "apycula";
+          inherit version;
+          hash = "sha256-njVvWr8sH2UABEDxvTSDXBuTgaZNIHfphwiHB14IbhY=";
+        };
+      });
+    };
+  };
+
   # nixpkgs marks or-tools broken under the default python3 (3.14: its pinned
   # pybind 2.13 has no 3.14 support), which blocks openroad from evaluating.
   # Build or-tools with python 3.13 until nixpkgs moves to pybind 3.
@@ -423,7 +438,7 @@ let
     });
     # 3rdparty/googletest and tests/gui are submodules; without fetchSubmodules
     # their directories are empty and CMake aborts on the missing subdirectories.
-    nextpnr = branchOverride basePkgs.nextpnr "unstable-2026-09-01" (taggedGithubSource {
+    nextpnr = branchOverride nextpnrBase "unstable-2026-09-01" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
       rev = "8dbcee5c3c4415770b6fd06d5ccb2db89545b8ec";
