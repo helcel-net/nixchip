@@ -4,9 +4,9 @@
   lib,
   tomlplusplus,
   nix-update-script,
-  version ? "unstable-2026-07-01",
-  rev ? "b60d729d66b9cdeec158b800f898461a138d505e",
-  hash ? "sha256-Hmg0MU4kl58kIWIOlwIpwvDdYPoO8SVpyA7/OEMzLwE=",
+  version ? "unstable-2026-09-01",
+  rev ? "cf74bfcdfa7246b51b2399d53cec6f6ad25bb8b7",
+  hash ? "sha256-b+Dxe7AsONrSb1QzBhaezSEjGF8DdGilUpTgnL0q2vk=",
   ...
 }:
 
@@ -21,6 +21,15 @@ let
     tag = "12.2.0";
     hash = "sha256-Tc7PmNxUv7ajw6GaHPGEEtrD/fl6is7RB8TPestJa1o=";
   };
+
+  # Same story for mimalloc: slang wants >= 3.4 (FIND_PACKAGE_ARGS 3.4) and
+  # nixpkgs' is older, so FetchContent would clone. Vendor the pinned tag.
+  mimalloc = fetchFromGitHub {
+    owner = "microsoft";
+    repo = "mimalloc";
+    tag = "v3.5.0";
+    hash = "sha256-1cHcEjcnzyJaEohtMoC3h7EdXSLE1lHCnq8kURXIx/E=";
+  };
 in
 sv_lang.overrideAttrs (old: {
   inherit version;
@@ -32,12 +41,6 @@ sv_lang.overrideAttrs (old: {
     # the hash of a pinned rev drifts as refs move. Fetch over git instead.
     forceFetchGit = true;
   };
-  postPatch = (old.postPatch or "") + ''
-    substituteInPlace external/CMakeLists.txt \
-      --replace-fail "GIT_REPOSITORY https://github.com/fmtlib/fmt.git" "SOURCE_DIR ${fmt}" \
-      --replace-fail "GIT_TAG 12.2.0" "" \
-      --replace-fail "GIT_SHALLOW ON" ""
-  '';
   # nixpkgs sv-lang 9.1 didn't use tomlplusplus; newer slang fetches it via
   # FetchContent with FIND_PACKAGE_ARGS 3.4, which requires it in buildInputs.
   buildInputs = (old.buildInputs or [ ]) ++ [ tomlplusplus ];
@@ -47,6 +50,15 @@ sv_lang.overrideAttrs (old: {
   doCheck = false;
   cmakeFlags = (lib.remove "-DSLANG_INCLUDE_TESTS=ON" (old.cmakeFlags or [ ])) ++ [
     "-DSLANG_INCLUDE_TESTS=OFF"
+    # Newer slang defaults to a vendored boost_unordered plus a FetchContent'd
+    # boost::regex; use nixpkgs' boost (already in buildInputs) instead so
+    # nothing needs the network.
+    "-DSLANG_USE_SYSTEM_BOOST=ON"
+    # Point FetchContent at the vendored trees instead of patching upstream's
+    # fetch URLs (the URL prefix variable keeps getting renamed); cmake's
+    # FETCHCONTENT_SOURCE_DIR_<NAME> overrides work regardless.
+    "-DFETCHCONTENT_SOURCE_DIR_FMT=${fmt}"
+    "-DFETCHCONTENT_SOURCE_DIR_MIMALLOC=${mimalloc}"
   ];
   passthru = (old.passthru or { }) // {
     updateScript = nix-update-script {
