@@ -709,8 +709,8 @@ let
       (branchOverride basePkgs.z3 "unstable-2026-09-02" (githubSource {
         owner = "Z3Prover";
         repo = "z3";
-        rev = "e6a66c1281d33ea99b6dd55e199e2757f4b67f5e";
-        hash = "sha256-eBGSoDWxSx0rM3ZGNn4Il4YOrHbzIAEJ4l2QWUfJLg0=";
+        rev = "2381caddc558c94c114564b8269e679e2a8fabc4";
+        hash = "sha256-J2c05azIH/uZuOJjikdAF4k+QkPDcE6RdRz3Ob9h2Rk=";
       })).overrideAttrs
         (old: {
           # z3's own build embeds its CMake project version (e.g. "4.17.0") in
