@@ -2,9 +2,9 @@
   fetchFromGitHub,
   spike,
   nix-update-script,
-  version ? "unstable-2026-08-11",
-  rev ? "16c0b60119f65a648643cf5d41e4e38e871f0bad",
-  hash ? "sha256-pmZ/+kCQeV12UFY3zkeowQ1f2C7ivmNWsMjgxe9DSB0=",
+  version ? "unstable-2026-09-01",
+  rev ? "549da3faa97abde20b677708f0b227190e1f9aac",
+  hash ? "sha256-4juu5BUjVlsoIngJ9v8mcNeqa32z/4ZuF/DluCxq8aw=",
   ...
 }:
 

@@ -257,11 +257,11 @@ let
     };
     chisel = callPackage ./chisel { };
 
-    abc0 = pinnedOverride basePkgs.abc-verifier "0.66" (githubSource {
+    abc0 = pinnedOverride basePkgs.abc-verifier "0.68" (githubSource {
       owner = "yosyshq";
       repo = "abc";
-      rev = "v0.66";
-      hash = "sha256-KkhVz68txghYwaljC55laaVsZXsr6sKzkcySWaEoueA=";
+      rev = "v0.68";
+      hash = "sha256-3jX46vmAIgyUd1vFvW1Jn9knombXZ+/hOgQD93RSgv0=";
     });
     abc = callPackage ./abc {
       abc-verifier = basePkgs.abc-verifier;
@@ -288,12 +288,12 @@ let
           sv-lang_10 = sv-lang11;
           callPackage = _path: _args: circt1-llvm;
         })
-        "1.157.0"
+        "1.158.0"
         (githubSource {
           owner = "llvm";
           repo = "circt";
-          rev = "firtool-1.157.0";
-          hash = "sha256-WPwmUVaOhRUKMorutlBFbgZjOpGOOxvJTkNIjY8qo6E=";
+          rev = "firtool-1.158.0";
+          hash = "sha256-9/RSK2jCV4TvP6vAS4x/YR12NF6z4rPa1BNxTAqiahQ=";
           fetchSubmodules = true;
         })
       ).overrideAttrs
@@ -344,13 +344,13 @@ let
       hash = "sha256-WO0TWmUaKqUh+Cr75Hrxa2x4V9xZhzHY5PzlIRNUzZA=";
     });
     surfer =
-      cargoVendorOverride { cargoHash = "sha256-vw7bm/ihpsYMM4Lh8nMxPumN/QSO+XWHiE04IiLMdLY="; }
+      cargoVendorOverride { cargoHash = "sha256-K7lHBX7yDRtoJk/SmrwErlaRSAlvC2jy7ECStdRH6b8="; }
         (
-          branchOverride basePkgs.surfer "unstable-2026-08-11" (gitlabSource {
+          branchOverride basePkgs.surfer "unstable-2026-09-01" (gitlabSource {
             owner = "surfer-project";
             repo = "surfer";
-            rev = "22b28c6a1bf9cbf009235dba5fe170f7167519fd";
-            hash = "sha256-c8JBCLqBmsPGm0W4M5nRTd0KXI7mbgu8YKnFaeHX4fg=";
+            rev = "6577d75fab1aa0d72bdb0fa6223aa01de514d1f2";
+            hash = "sha256-ROkG4l0NgGImYvwg0AyPBncc64CmDssT8Zow65FddHA=";
           })
         );
     openocd0 = pinnedOverride basePkgs.openocd "0.12.0" (
@@ -395,17 +395,17 @@ let
       rev = "efab68b218f18dfe563846047a0d3e2b1efb58d2";
       hash = "sha256-SlxHM+3OudgJ+QpiydKIL+KsSqiRgXyYABORs09nM4Q=";
     });
-    uhdm1 = pinnedOverride basePkgs.uhdm "1.86" (githubSource {
+    uhdm1 = pinnedOverride basePkgs.uhdm "1.87" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
-      rev = "v1.86";
-      hash = "sha256-f7QJJEP/jL69DdMJOL5WQdDZU+kBnnLi2eX37AoaXls=";
+      rev = "v1.87";
+      hash = "sha256-kCCNe1elZoExc8OAtvRxwKODxCdNuVzjFQkEMntNjqI=";
     });
-    uhdm = branchOverride basePkgs.uhdm "unstable-2026-08-13" (githubSource {
+    uhdm = branchOverride basePkgs.uhdm "unstable-2026-09-01" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
-      rev = "b05fe17a928d3343116476d649299846e497ba66";
-      hash = "sha256-Xkb9eTxKXJw/V1Ligy9DUZH36rJEQndKKHK5GNrJFcg=";
+      rev = "e9525aaea902d82cbc892c046ef9cc371a723dfe";
+      hash = "sha256-zw7ji5n7RF9aqbdkTAmGtPgAlojCUVhJxpzqRSDapkU=";
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
@@ -445,11 +445,11 @@ let
       rev = "v1.1.1";
       hash = "sha256-VQM3swGAvuLnqKjjUEXJlQp1nGH9M1ydEKQUV/5xiwM=";
     });
-    openfpgaloader = branchOverride basePkgs.openfpgaloader "unstable-2026-07-03" (githubSource {
+    openfpgaloader = branchOverride basePkgs.openfpgaloader "unstable-2026-09-01" (githubSource {
       owner = "trabucayre";
       repo = "openFPGALoader";
-      rev = "d52abf7059d4471957775c3ed067437715174dd5";
-      hash = "sha256-ALbrtCeavZmqbGJEVS6aA9FQwKU2PSqhrgN3F3Hl2vM=";
+      rev = "c3a1232f8730dbde42453ab96d0275b29a384271";
+      hash = "sha256-YytcqsNbOf62w8zj4PPJWS85MlHg4HYr9FVFahHojYo=";
     });
     vtr7 = callPackage ./vtr7 {
       version = "7";
@@ -549,11 +549,11 @@ let
     # viewer from the build and makes nixpkgs' postPatch abort on the missing
     # qucs-s-spar-viewer/CMakeLists.txt.
     qucs-s =
-      (branchOverride basePkgs.qucs-s "unstable-2026-08-25" (githubSource {
+      (branchOverride basePkgs.qucs-s "unstable-2026-09-01" (githubSource {
         owner = "ra3xdh";
         repo = "qucs_s";
-        rev = "948e0e67513458ae69326bd0e24c1aae3d9a0e4b";
-        hash = "sha256-lWyAFX24zs7nIYSnCcQhcpeczqS53llNX2ymCOikmHg=";
+        rev = "44e7d2264f412e1cb9353f0e1f7c19b10e3c7235";
+        hash = "sha256-8QT2SSh9JWmlDxYld9KKs0hj+vbW3awGG9D9fGyCfB4=";
         fetchSubmodules = true;
       })).overrideAttrs
         (old: {
@@ -575,11 +575,11 @@ let
     };
 
     # ── Formal verification ────────────────────────────────────────────────────
-    sby0 = pinnedOverride basePkgs.sby "0.66" (githubSource {
+    sby0 = pinnedOverride basePkgs.sby "0.68" (githubSource {
       owner = "YosysHQ";
       repo = "sby";
-      rev = "v0.66";
-      hash = "sha256-SrnapPqQ/bAcTbuvc/P+OuFqiPKtUIPqykzEU6d4VE4=";
+      rev = "v0.68";
+      hash = "sha256-WRZp4+gwUgDKCWAdBK/36ArM2KFGyLBZ20S32k7YN+8=";
     });
     sby = branchOverride basePkgs.sby "unstable-2026-08-11" (githubSource {
       owner = "YosysHQ";
@@ -642,11 +642,11 @@ let
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
     z3_ =
-      (branchOverride basePkgs.z3 "unstable-2026-08-13" (githubSource {
+      (branchOverride basePkgs.z3 "unstable-2026-09-01" (githubSource {
         owner = "Z3Prover";
         repo = "z3";
-        rev = "4979d5ce03d7d1b8fdd0ef77428e48fe5865ec01";
-        hash = "sha256-P5SdUEXEDgZlQ/mFCl5mKJcP7cI77/2KKkkO+VFS9/U=";
+        rev = "532bff7af54bbe1359bc456c8060fe5fb545093b";
+        hash = "sha256-CAHlc7qGGTHr62T3D9Q0ILAuLcN9PlYZ8zLg268cqQ4=";
       })).overrideAttrs
         (old: {
           # z3's own build embeds its CMake project version (e.g. "4.17.0") in
@@ -679,11 +679,11 @@ let
       rev = "cvc5-1.3.4";
       hash = "sha256-PZcOArSTyJzyd2DKT8K0aFC4RlVXgTCnkoU0f08KPfY=";
     });
-    cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-07-03" (githubSource {
+    cvc5_ = branchOverride basePkgs.cvc5 "unstable-2026-09-01" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
-      rev = "5d75505697d28845bb0bdd5ede2d567627395f8b";
-      hash = "sha256-D/+j+obesyQAI8T2xkCoimoxx0z3hfpRp39XnuRjG4s=";
+      rev = "32469d4cb61a8acdea2584d5b43eb5fe2e4af5ce";
+      hash = "sha256-sCk2aw3YJNMOqomQ5B1SsnMthIGEggm7CZUrJURVmwk=";
     });
 
     aiger1 = callPackage ./aiger {
