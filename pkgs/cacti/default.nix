@@ -29,11 +29,19 @@ stdenv.mkDerivation {
       --replace-quiet "CXX = g++ -m64" "CXX = ${stdenv.cc.targetPrefix}c++" \
       --replace-quiet "CC  = gcc -m64" "CC  = ${stdenv.cc.targetPrefix}cc"
 
-    substituteInPlace parameter.cc \
-      --replace-fail "\"tech_params/" "\"$out/share/cacti/tech_params/"
-
-    substituteInPlace nuca.cc \
-      --replace-fail "\"contention.dat\"" "\"$out/share/cacti/contention.dat\""
+    # 6.5 predates the tech_params/ split and opens contention.dat from
+    # parameter.cc; 7.x reads tech_params/*.dat in parameter.cc and
+    # contention.dat in nuca.cc. Patch whichever layout is present.
+    if grep -q '"tech_params/' parameter.cc; then
+      substituteInPlace parameter.cc \
+        --replace-fail "\"tech_params/" "\"$out/share/cacti/tech_params/"
+    fi
+    for f in parameter.cc nuca.cc; do
+      if grep -q '"contention.dat"' "$f"; then
+        substituteInPlace "$f" \
+          --replace-fail "\"contention.dat\"" "\"$out/share/cacti/contention.dat\""
+      fi
+    done
   '';
 
   enableParallelBuilding = true;
@@ -57,7 +65,9 @@ stdenv.mkDerivation {
     install -Dm644 cache.cfg "$out/share/cacti/cache.cfg"
     install -Dm644 dram.cfg "$out/share/cacti/dram.cfg"
     install -Dm644 contention.dat "$out/share/cacti/contention.dat"
-    cp -r tech_params "$out/share/cacti/tech_params"
+    if [ -d tech_params ]; then
+      cp -r tech_params "$out/share/cacti/tech_params"
+    fi
     install -Dm644 README "$out/share/doc/cacti/README"
     runHook postInstall
   '';
