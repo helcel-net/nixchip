@@ -13,10 +13,10 @@
   zlib,
   readline,
   nix-update-script,
-  version ? "unstable-2026-08-11",
-  rev ? "fc50691626bcc2b46761884a87198eb96bd70f49",
+  version ? "unstable-2026-09-01",
+  rev ? "f7d53a4b4d090a77a7b8463f57089aeaf41a47f6",
   fetchSubmodules ? true,
-  hash ? "sha256-ZQjwdxneNejBjG2K03jBaHYY/PTSlFfIhyCWX7d2brA=",
+  hash ? "sha256-Rx3RAYcpbH4RZw4qU1EexYI7iaJSByFQHz6OOQ1lwiQ=",
 }:
 
 stdenv.mkDerivation {
@@ -72,6 +72,9 @@ stdenv.mkDerivation {
     # disable front-ends; use system yosys / blif input directly
     (lib.cmakeBool "WITH_PARMYS" false)
     (lib.cmakeBool "WITH_ODIN" false)
+    # mosaic (new default-on yosys frontend) would force the bundled yosys
+    # build, whose cmake needs git submodule fetches the sandbox cannot do
+    (lib.cmakeBool "WITH_MOSAIC" false)
     # disable optional features to reduce the dependency footprint
     (lib.cmakeBool "VPR_ANALYTIC_PLACE" false)
     (lib.cmakeBool "VTR_ENABLE_CAPNPROTO" false)
