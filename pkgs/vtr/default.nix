@@ -72,6 +72,9 @@ stdenv.mkDerivation {
     # disable front-ends; use system yosys / blif input directly
     (lib.cmakeBool "WITH_PARMYS" false)
     (lib.cmakeBool "WITH_ODIN" false)
+    # mosaic (new default-on yosys frontend) would force the bundled yosys
+    # build, whose cmake needs git submodule fetches the sandbox cannot do
+    (lib.cmakeBool "WITH_MOSAIC" false)
     # disable optional features to reduce the dependency footprint
     (lib.cmakeBool "VPR_ANALYTIC_PLACE" false)
     (lib.cmakeBool "VTR_ENABLE_CAPNPROTO" false)
