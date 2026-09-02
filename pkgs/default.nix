@@ -363,11 +363,11 @@ let
     surfer =
       cargoVendorOverride { cargoHash = "sha256-K7lHBX7yDRtoJk/SmrwErlaRSAlvC2jy7ECStdRH6b8="; }
         (
-          branchOverride basePkgs.surfer "unstable-2026-09-01" (gitlabSource {
+          branchOverride basePkgs.surfer "unstable-2026-09-02" (gitlabSource {
             owner = "surfer-project";
             repo = "surfer";
-            rev = "6577d75fab1aa0d72bdb0fa6223aa01de514d1f2";
-            hash = "sha256-ROkG4l0NgGImYvwg0AyPBncc64CmDssT8Zow65FddHA=";
+            rev = "60f987b9440460fce76960149b99e44195e0bb59";
+            hash = "sha256-VMt8n0R2Udsq4vKMh8fy4bMgDRRgk0FnWVad6Q1o14Q=";
           })
         );
     openocd_0 = pinnedOverride basePkgs.openocd "0.12.0" (
