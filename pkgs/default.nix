@@ -435,11 +435,14 @@ let
     # gain.
     bluespec2024 = basePkgs.bluespec;
     migen0 = basePkgs.python3Packages.migen;
-    nextpnr0 = pinnedOverride basePkgs.nextpnr "0.10" (taggedGithubSource {
+    # 3rdparty/googletest is a submodule; without fetchSubmodules its dir is
+    # empty and CMake aborts (BUILD_TESTS is on in the nixpkgs base).
+    nextpnr0 = pinnedOverride nextpnrBase "0.11.1" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
-      rev = "nextpnr-0.10";
-      hash = "sha256-7Y56I0VjAyuutwHjK2ckxUXOaiiHIiX/ArFivlMaZJg=";
+      rev = "nextpnr-0.11.1";
+      hash = "sha256-QUE19KWr26n5q8C7Byjg+pLdsKf50Fr/FqU9srlvYtU=";
+      fetchSubmodules = true;
     });
     # 3rdparty/googletest and tests/gui are submodules; without fetchSubmodules
     # their directories are empty and CMake aborts on the missing subdirectories.
