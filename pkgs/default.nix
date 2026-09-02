@@ -554,12 +554,24 @@ let
     });
 
     # ── Analog & mixed-signal ─────────────────────────────────────────────────
-    ngspice_45 = pinnedOverride basePkgs.ngspice "45.2" (
-      pkgs.fetchurl {
-        url = "mirror://sourceforge/ngspice/ngspice-45.2.tar.gz";
-        hash = "sha256-uoNF9MN3RxTBDzPX2oUNNhzsfRSzopXQ3J/Zb3QjgS0=";
-      }
-    );
+    ngspice_45 =
+      (pinnedOverride basePkgs.ngspice "45.2" (
+        pkgs.fetchurl {
+          url = "mirror://sourceforge/ngspice/ngspice-45.2.tar.gz";
+          hash = "sha256-uoNF9MN3RxTBDzPX2oUNNhzsfRSzopXQ3J/Zb3QjgS0=";
+        }
+      )).overrideAttrs
+        {
+          # The 45.2 tarball ships configure.ac with a newer mtime than the
+          # generated aclocal.m4/configure/Makefile.in, so automake's maintainer
+          # rebuild rules fire during make and call aclocal-1.16, which nothing
+          # in the build inputs provides. Restamp the generated files instead of
+          # pulling in an autotools chain that would have to match 1.16 exactly.
+          postPatch = ''
+            find . \( -name aclocal.m4 -o -name configure -o -name Makefile.in -o -name config.h.in \) \
+              -exec touch {} +
+          '';
+        };
     xyce_7 = basePkgs.xyce.overrideAttrs (_old: {
       version = "7.10.0";
     });
