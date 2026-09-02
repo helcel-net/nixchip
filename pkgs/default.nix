@@ -706,11 +706,11 @@ let
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
     z3 =
-      (branchOverride basePkgs.z3 "unstable-2026-09-01" (githubSource {
+      (branchOverride basePkgs.z3 "unstable-2026-09-02" (githubSource {
         owner = "Z3Prover";
         repo = "z3";
-        rev = "532bff7af54bbe1359bc456c8060fe5fb545093b";
-        hash = "sha256-CAHlc7qGGTHr62T3D9Q0ILAuLcN9PlYZ8zLg268cqQ4=";
+        rev = "e6a66c1281d33ea99b6dd55e199e2757f4b67f5e";
+        hash = "sha256-eBGSoDWxSx0rM3ZGNn4Il4YOrHbzIAEJ4l2QWUfJLg0=";
       })).overrideAttrs
         (old: {
           # z3's own build embeds its CMake project version (e.g. "4.17.0") in
