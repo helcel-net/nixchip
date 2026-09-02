@@ -26,8 +26,8 @@ readarray -t raw_lines < <(
         p ? passthru && p.passthru ? nixchipUpdate && p.passthru.nixchipUpdate
       ) allNames;
       byFamily = builtins.groupBy (n: pkgs.${n}.pname or n) names;
-      slotRev = n: builtins.match ".*-[0-9]+$"  n != null;
-      hasVer  = n: builtins.match ".*[0-9]$"    n != null;
+      slotRev = n: builtins.match ".*_[0-9]+$"  n != null;
+      hasVer  = n: builtins.match ".*_[0-9]+$"  n != null;
       isUnstable = n: builtins.match ".*unstable.*" (pkgs.${n}.version or "") != null;
       matchingPname = n: pkgs.${n}.pname or n == n;
       preferred = ns:
@@ -92,22 +92,24 @@ if [ "${NIXCHIP_UPDATE_LIST:-0}" = "1" ]; then
   exit 0
 fi
 
-# Extract the version series from a package name:
-#   "dramsim3-1"           → "1"   (trailing -N is the version major)
-#   "ghdl6"                → "6"   (trailing digits in the name)
-#   "openroad-flow-scripts"→ ""    (no trailing digits → branch tracking)
+# Extract the version series from a package name. Major-pinned slots end in
+# _N (the digits after the final underscore are the pinned major):
+#   "dramsim3_1"            → "1"
+#   "ghdl_6"                → "6"
+#   "gem5", "ramulator2"    → ""   (digits are part of the upstream name)
+#   "openroad-flow-scripts" → ""   (branch tracking)
 pkg_major() {
   local pkg="$1"
-  if [[ "$pkg" =~ -([0-9]+)$ ]]; then
+  if [[ "$pkg" =~ _([0-9]+)$ ]]; then
     echo "${BASH_REMATCH[1]}"
   else
-    echo "${pkg##*[^0-9]}"
+    echo ""
   fi
 }
 
 # Emit nix-update version flags for a package.
 #
-# Packages with a trailing version number N get a release-series regex.
+# Packages with a trailing _N major slot get a release-series regex.
 # Accept bare versions, v/r-prefixed tags, tool-prefixed tags such as
 # firtool-1.147.0, rel-3.0.0, z3-4.16.0, cvc5-1.3.4, ngspice-45, and
 # release/v-prefixed tags such as release/v5.14.7.
@@ -161,7 +163,7 @@ run_nix_update() {
 # text substitutions in sequence: first swap the old rev/tag substring for
 # the new one, then swap the quoted old version substring for the new one.
 # When a package's version and rev were textually identical (e.g.
-# cryptominisat5 at "5.11.21"/"5.11.21"), the first substitution already
+# cryptominisat_5 at "5.11.21"/"5.11.21"), the first substitution already
 # matches on the version-declaration line and clobbers it before the second,
 # correctly-scoped substitution gets a chance — so the field ends up holding
 # the untrimmed tag ("release/v5.14.7") instead of the regex-captured
@@ -210,7 +212,7 @@ find_default_nix_override_block() {
   # points into the nixpkgs store and lands on the unscoped `nix-update -F`
   # fallback that can clobber sibling entries.
   # Entries also appear parenthesised so a trailing .overrideAttrs can be chained
-  # (e.g. `z3_ = (branchOverride ...)).overrideAttrs { ... };`). Those were
+  # (e.g. `z3 = (branchOverride ...)).overrideAttrs { ... };`). Those were
   # previously invisible here, which sent them to the meta.position fallback too.
   # nixfmt breaks long entries as `pkg =` / newline / `(branchOverride ...`, so
   # the opener is accepted on the attr line or the one after it. Without the
@@ -691,12 +693,12 @@ for package in "${packages[@]}"; do
     block_start=""
     block_end=""
     if [[ ! -f "$nix_file" ]]; then
-      # Try stripping a trailing underscore (e.g. dramsim3_ → dramsim3).
+      # Try stripping a trailing underscore (e.g. dramsim3 → dramsim3).
       pkg_base="${package%_}"
       if [[ "$pkg_base" != "$package" && -f "${repo_root}/pkgs/${pkg_base}/default.nix" ]]; then
         nix_file="${repo_root}/pkgs/${pkg_base}/default.nix"
       else
-        # Attr-block overrides (e.g. `cvc5_ = branchOverride basePkgs.cvc5 "unstable-..." (...);`)
+        # Attr-block overrides (e.g. `cvc5 = branchOverride basePkgs.cvc5 "unstable-..." (...);`)
         # live inline in pkgs/default.nix. meta.position for these points into the
         # nixpkgs store (inherited from the base derivation), which previously caused
         # a fallback to `nix-update -F`; that tool then edited pkgs/default.nix

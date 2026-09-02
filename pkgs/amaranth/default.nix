@@ -17,13 +17,15 @@ let
   # PDM's SCM hook rejects the nixchip "unstable-YYYY-MM-DD" version string
   # (not PEP 440).  Derive a compliant version: use the first segment if it's a
   # digit (historic N-unstable-... format), otherwise fall back to "0".
+  # Release slots build from a tag, so their version already is PEP 440 -- and
+  # their rev is a "refs/tags/..." string that must not leak into it.
   pep440Version =
     let
       rawTag = builtins.elemAt (lib.splitString "-" version) 0;
       tag = if builtins.match "[0-9].*" rawTag != null then rawTag else "0";
       shortRev = lib.substring 0 7 rev;
     in
-    "${tag}1.dev1+g${shortRev}";
+    if lib.hasPrefix "unstable-" version then "${tag}1.dev1+g${shortRev}" else version;
 in
 amaranth.overrideAttrs (old: {
   inherit version;

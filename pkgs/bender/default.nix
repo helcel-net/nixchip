@@ -53,12 +53,37 @@ rustPlatform.buildRustPackage (finalAttrs: {
   # MIMALLOC_SRC_DIR precisely for sandboxed builds: they become
   # FETCHCONTENT_SOURCE_DIR_* cmake defines (the fmt/mimalloc overrides also
   # reach slang's own nested FetchContent calls), and the include paths are
-  # derived from them. No source patching needed any more.
+  # derived from them.
   env = {
     SLANG_SRC_DIR = "${slang}";
     FMT_SRC_DIR = "${fmt}";
     MIMALLOC_SRC_DIR = "${mimalloc}";
   };
+
+  # The 0.32.0 release predates those env vars: it hardcodes the FetchContent
+  # git URLs and derives the include paths from cmake's _deps tree, so the
+  # pre-fetched sources have to be substituted in by hand there.
+  postPatch = ''
+    if ! grep -q SLANG_SRC_DIR crates/bender-slang/build.rs; then
+      cp -r ${slang} slang-src
+      chmod -R +w slang-src
+      cp -r ${fmt} fmt-src
+      chmod -R +w fmt-src
+      substituteInPlace crates/bender-slang/CMakeLists.txt \
+        --replace-fail "GIT_REPOSITORY https://github.com/MikePopoloski/slang.git" "SOURCE_DIR $PWD/slang-src" \
+        --replace-fail "GIT_TAG        v11.0" "" \
+        --replace-fail "GIT_SHALLOW    TRUE" ""
+      substituteInPlace slang-src/external/CMakeLists.txt \
+        --replace-fail "GIT_REPOSITORY https://github.com/fmtlib/fmt.git" "SOURCE_DIR ${fmt}" \
+        --replace-fail "GIT_TAG 12.1.0" "" \
+        --replace-fail "GIT_SHALLOW ON" "" \
+        --replace-fail "GIT_REPOSITORY https://github.com/microsoft/mimalloc.git" "SOURCE_DIR ${mimalloc}" \
+        --replace-fail "GIT_TAG v3.3.2" ""
+      substituteInPlace crates/bender-slang/build.rs \
+        --replace-fail 'let slang_include_dir = dst.join("build/_deps/slang-src/include");' 'let slang_include_dir = manifest_dir.join("../../slang-src/include");' \
+        --replace-fail 'let fmt_include_dir = dst.join("build/_deps/fmt-src/include");' 'let fmt_include_dir = manifest_dir.join("../../fmt-src/include");'
+    fi
+  '';
 
   nativeBuildInputs = [
     cmake
