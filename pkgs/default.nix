@@ -383,11 +383,13 @@ let
     vhdl-ls = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
     };
-    surelog1 = pinnedOverride basePkgs.surelog "1.86" (githubSource {
+    # Surelog and UHDM release in lockstep (same version numbers); nixpkgs'
+    # surelog would otherwise link its own stale uhdm and break on API drift.
+    surelog1 = pinnedOverride (basePkgs.surelog.override { uhdm = uhdm1; }) "1.87" (githubSource {
       owner = "chipsalliance";
       repo = "surelog";
-      rev = "v1.86";
-      hash = "sha256-EEhaYimyzOgQB7dxbbTfsa7APC6SlFkz9ah9BLcKDq4=";
+      rev = "v1.87";
+      hash = "sha256-GnaLth2lnH6pCYZYbwsVpREgoGU0SVeDVltqnqBrwkw=";
     });
     surelog = branchOverride basePkgs.surelog "unstable-2026-07-02" (githubSource {
       owner = "chipsalliance";
