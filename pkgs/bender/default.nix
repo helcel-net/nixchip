@@ -7,9 +7,9 @@
   gitMinimal,
   nix-update-script,
   cargoLockFile ? ./Cargo.lock,
-  version ? "unstable-2026-07-02",
-  rev ? "6330635431d680dd4deaefa37584fa63be85829c",
-  hash ? "sha256-4rCoeSFHBb7iNx0Z4GvSy6LbtVNkH3hJamGEREF4+2Y=",
+  version ? "unstable-2026-09-01",
+  rev ? "97b599b2d3cb433d204cf71b8583f6ec2825d509",
+  hash ? "sha256-TzjfVOQAQ5osp3CpgPJ5TiWX7cWZZiM7La2n/0rNZuA=",
 }:
 
 let
@@ -49,25 +49,16 @@ rustPlatform.buildRustPackage (finalAttrs: {
     lockFile = cargoLockFile;
   };
 
-  postPatch = ''
-    cp -r ${slang} slang-src
-    chmod -R +w slang-src
-    cp -r ${fmt} fmt-src
-    chmod -R +w fmt-src
-    substituteInPlace crates/bender-slang/CMakeLists.txt \
-      --replace-fail "GIT_REPOSITORY https://github.com/MikePopoloski/slang.git" "SOURCE_DIR $PWD/slang-src" \
-      --replace-fail "GIT_TAG        v11.0" "" \
-      --replace-fail "GIT_SHALLOW    TRUE" ""
-    substituteInPlace slang-src/external/CMakeLists.txt \
-      --replace-fail "GIT_REPOSITORY https://github.com/fmtlib/fmt.git" "SOURCE_DIR ${fmt}" \
-      --replace-fail "GIT_TAG 12.1.0" "" \
-      --replace-fail "GIT_SHALLOW ON" "" \
-      --replace-fail "GIT_REPOSITORY https://github.com/microsoft/mimalloc.git" "SOURCE_DIR ${mimalloc}" \
-      --replace-fail "GIT_TAG v3.3.2" ""
-    substituteInPlace crates/bender-slang/build.rs \
-      --replace-fail 'let slang_include_dir = dst.join("build/_deps/slang-src/include");' 'let slang_include_dir = manifest_dir.join("../../slang-src/include");' \
-      --replace-fail 'let fmt_include_dir = dst.join("build/_deps/fmt-src/include");' 'let fmt_include_dir = manifest_dir.join("../../fmt-src/include");'
-  '';
+  # Upstream's build.rs supports SLANG_SRC_DIR / FMT_SRC_DIR /
+  # MIMALLOC_SRC_DIR precisely for sandboxed builds: they become
+  # FETCHCONTENT_SOURCE_DIR_* cmake defines (the fmt/mimalloc overrides also
+  # reach slang's own nested FetchContent calls), and the include paths are
+  # derived from them. No source patching needed any more.
+  env = {
+    SLANG_SRC_DIR = "${slang}";
+    FMT_SRC_DIR = "${fmt}";
+    MIMALLOC_SRC_DIR = "${mimalloc}";
+  };
 
   nativeBuildInputs = [
     cmake
