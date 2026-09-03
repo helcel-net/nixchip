@@ -363,11 +363,11 @@ let
     surfer =
       cargoVendorOverride { cargoHash = "sha256-K7lHBX7yDRtoJk/SmrwErlaRSAlvC2jy7ECStdRH6b8="; }
         (
-          branchOverride basePkgs.surfer "unstable-2026-09-01" (gitlabSource {
+          branchOverride basePkgs.surfer "unstable-2026-09-02" (gitlabSource {
             owner = "surfer-project";
             repo = "surfer";
-            rev = "6577d75fab1aa0d72bdb0fa6223aa01de514d1f2";
-            hash = "sha256-ROkG4l0NgGImYvwg0AyPBncc64CmDssT8Zow65FddHA=";
+            rev = "60f987b9440460fce76960149b99e44195e0bb59";
+            hash = "sha256-VMt8n0R2Udsq4vKMh8fy4bMgDRRgk0FnWVad6Q1o14Q=";
           })
         );
     openocd_0 = pinnedOverride basePkgs.openocd "0.12.0" (
@@ -410,12 +410,12 @@ let
     });
     # HEAD surelog needs HEAD uhdm (see surelog_1: lockstep releases).
     surelog =
-      branchOverride (basePkgs.surelog.override { inherit uhdm; }) "unstable-2026-09-01"
+      branchOverride (basePkgs.surelog.override { inherit uhdm; }) "unstable-2026-09-02"
         (githubSource {
           owner = "chipsalliance";
           repo = "surelog";
-          rev = "efab68b218f18dfe563846047a0d3e2b1efb58d2";
-          hash = "sha256-SlxHM+3OudgJ+QpiydKIL+KsSqiRgXyYABORs09nM4Q=";
+          rev = "b5c1477575ae50b044385a12bea259d62b9fdae8";
+          hash = "sha256-h6KbbW6+mqcFQqkc9kQEdRavRGXin9SAyTIieDvRLec=";
         });
     uhdm_1 = pinnedOverride basePkgs.uhdm "1.87" (githubSource {
       owner = "chipsalliance";
@@ -423,11 +423,11 @@ let
       rev = "v1.87";
       hash = "sha256-kCCNe1elZoExc8OAtvRxwKODxCdNuVzjFQkEMntNjqI=";
     });
-    uhdm = branchOverride basePkgs.uhdm "unstable-2026-09-01" (githubSource {
+    uhdm = branchOverride basePkgs.uhdm "unstable-2026-09-02" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
-      rev = "e9525aaea902d82cbc892c046ef9cc371a723dfe";
-      hash = "sha256-zw7ji5n7RF9aqbdkTAmGtPgAlojCUVhJxpzqRSDapkU=";
+      rev = "cea6bb8710da2fc6f9812df46420d0064da729bc";
+      hash = "sha256-JFHySGvbCrFfcDjSUtL7e62A8vdtytPkIbIYoSBNdpA=";
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
@@ -625,6 +625,7 @@ let
       hash = "sha256-WRZp4+gwUgDKCWAdBK/36ArM2KFGyLBZ20S32k7YN+8=";
     });
     eqy_0 = callPackage ./eqy {
+      yosys = yosys_0;
       version = "0.66";
       hash = "sha256-a2wc0OCVyl7N01g9MV3rnSay5c0jy8YCDB0d4eCNTr4=";
     };
@@ -706,11 +707,11 @@ let
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
     z3 =
-      (branchOverride basePkgs.z3 "unstable-2026-09-01" (githubSource {
+      (branchOverride basePkgs.z3 "unstable-2026-09-02" (githubSource {
         owner = "Z3Prover";
         repo = "z3";
-        rev = "532bff7af54bbe1359bc456c8060fe5fb545093b";
-        hash = "sha256-CAHlc7qGGTHr62T3D9Q0ILAuLcN9PlYZ8zLg268cqQ4=";
+        rev = "2381caddc558c94c114564b8269e679e2a8fabc4";
+        hash = "sha256-J2c05azIH/uZuOJjikdAF4k+QkPDcE6RdRz3Ob9h2Rk=";
       })).overrideAttrs
         (old: {
           # z3's own build embeds its CMake project version (e.g. "4.17.0") in
@@ -743,11 +744,11 @@ let
       rev = "cvc5-1.3.4";
       hash = "sha256-PZcOArSTyJzyd2DKT8K0aFC4RlVXgTCnkoU0f08KPfY=";
     });
-    cvc5 = branchOverride basePkgs.cvc5 "unstable-2026-09-01" (githubSource {
+    cvc5 = branchOverride basePkgs.cvc5 "unstable-2026-09-02" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
-      rev = "32469d4cb61a8acdea2584d5b43eb5fe2e4af5ce";
-      hash = "sha256-sCk2aw3YJNMOqomQ5B1SsnMthIGEggm7CZUrJURVmwk=";
+      rev = "5454a744c44d47ef876fb20c9472ec06435c17c2";
+      hash = "sha256-a253hsl8xSDk08QaLJQ1T24hh33HvOJEVPieOreNnu0=";
     });
 
     aiger_1 = callPackage ./aiger {

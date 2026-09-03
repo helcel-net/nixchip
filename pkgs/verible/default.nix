@@ -20,9 +20,9 @@
   bison,
   flex,
   python3,
-  version ? "unstable-2026-09-01",
-  rev ? "fdbac312ba11d6a75977443b48f4b90780da9d78",
-  hash ? "sha256-YTy3fC2HC8gr4A2nxR+ILfTDSKHnmg26MuW4jgP7QK0=",
+  version ? "unstable-2026-09-02",
+  rev ? "b975d9d903f7a60510393d438a086294ab086dea",
+  hash ? "sha256-6KHrBN9gveXLA0Ore7BIqB3i60BChFPAa6Ve3UUoM20=",
   # git-describe string embedded in --version output (last tag + commits since);
   # not bot-maintained, so it can lag behind rev -- cosmetic only.
   gitVersion ? "v0.0-4157-gfdbac312",
