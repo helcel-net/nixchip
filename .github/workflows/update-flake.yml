@@ -24,7 +24,7 @@ jobs:
             accept-flake-config = true
       - run: chmod +x scripts/*.sh
       - run: nix flake update
-      - run: nix flake check path:. --no-build
+      - run: nix flake check --no-build --refresh
       - name: Create or update pull request
         env:
           GH_TOKEN: ${{ github.token }}
