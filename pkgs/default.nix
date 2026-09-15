@@ -334,7 +334,7 @@ let
         });
     # MLIR/LLVM snapshot for circt, built from its llvm/ submodule. It follows
     # circt's version and src, so a circt bump rebuilds it in lockstep.
-    circt-llvm = basePkgs.callPackage "${basePkgs.path}/pkgs/by-name/ci/circt/circt-llvm.nix" {
+    circt-llvm = basePkgs.callPackage (basePkgs.path + "/pkgs/by-name/ci/circt/circt-llvm.nix") {
       circt = circt;
     };
     firrtl_1 = callPackage ./firrtl {
