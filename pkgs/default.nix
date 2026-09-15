@@ -448,11 +448,11 @@ let
     });
     # 3rdparty/googletest and tests/gui are submodules; without fetchSubmodules
     # their directories are empty and CMake aborts on the missing subdirectories.
-    nextpnr = branchOverride nextpnrBase "unstable-2026-09-01" (taggedGithubSource {
+    nextpnr = branchOverride nextpnrBase "unstable-2026-09-15" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
-      rev = "8dbcee5c3c4415770b6fd06d5ccb2db89545b8ec";
-      hash = "sha256-bDAFIrYhjRdJMJZFIfBpMR9C4x0Dw58UWYY6AWRfZXY=";
+      rev = "6030081a15221d9de772fb937e45e08ecf280d15";
+      hash = "sha256-HEEgHgm9jjQ+tk5MBjT5s6yMfPn27/4ZhtVL+9YdEoA=";
       fetchSubmodules = true;
     });
     icestorm_0 = pinnedOverride basePkgs.icestorm "unstable-2025-06-03" (githubSource {
