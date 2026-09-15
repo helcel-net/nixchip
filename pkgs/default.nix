@@ -630,10 +630,10 @@ let
       hash = "sha256-a2wc0OCVyl7N01g9MV3rnSay5c0jy8YCDB0d4eCNTr4=";
     };
     eqy = callPackage ./eqy { };
-    mcy_0 = pinnedOverride basePkgs.mcy "0.68" (githubSource {
+    mcy_0 = pinnedOverride basePkgs.mcy "0.69" (githubSource {
       owner = "YosysHQ";
       repo = "mcy";
-      rev = "v0.68";
+      rev = "v0.69";
       hash = "sha256-50IFGHuqL9ayghtobtryo/HTvRmMEmI28YxHnyFRIrY=";
     });
 
