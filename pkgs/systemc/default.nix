@@ -4,10 +4,10 @@
   fetchFromGitHub,
   cmake,
   nix-update-script,
-  version ? "unstable-2026-09-01",
+  version ? "unstable-2026-09-15",
   rev ?
-    if lib.hasPrefix "unstable-" version then "01c0395193d1e483c46482f181b02bed171a0522" else version,
-  hash ? "sha256-cihsask2oz0Gz+gAXviCSQHXhmZxZY8DNksEuA3S+sU=",
+    if lib.hasPrefix "unstable-" version then "cf66346d8b752958a39cee435b3558686f6796dd" else version,
+  hash ? "sha256-HdLyofZonhaDzHu3oarqouGb5oJaUR9WJfYCoKg41j0=",
   # 2.x compiles with C++14; 3.x requires C++17 due to
   # https://github.com/accellera-official/systemc/issues/21
   cxxStandard ? if lib.versionAtLeast version "3" then "17" else "14",
