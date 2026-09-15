@@ -7,9 +7,9 @@
   gitMinimal,
   nix-update-script,
   cargoLockFile ? ./Cargo.lock,
-  version ? "unstable-2026-09-01",
-  rev ? "97b599b2d3cb433d204cf71b8583f6ec2825d509",
-  hash ? "sha256-TzjfVOQAQ5osp3CpgPJ5TiWX7cWZZiM7La2n/0rNZuA=",
+  version ? "unstable-2026-09-15",
+  rev ? "e80020910fc91fd223dd64a240fd3bd5fb607b9d",
+  hash ? "sha256-ocUpxqaTYAxKIGDTCPuEu0Z9X8dq3N8hBX4uG4oUk38=",
 }:
 
 let
