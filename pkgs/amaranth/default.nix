@@ -3,13 +3,13 @@
   amaranth,
   lib,
   nix-update-script,
-  version ? "unstable-2026-09-01",
+  version ? "unstable-2026-09-15",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "e3c9215e195443aefde6c9591409d74802bdd10f"
+      "56f1cab5a19240d54e1bf587a27d831bade6de61"
     else
       "refs/tags/v${version}",
-  hash ? "sha256-uQ+bzdkBOjh8jHNbhVJZ/FLT7a7Wt+Wx4X0lB4d0GZs=",
+  hash ? "sha256-GTLT22MBTv3Mig1IfXQmTZhl+com3nmcZm1ICgl30tc=",
   ...
 }:
 
