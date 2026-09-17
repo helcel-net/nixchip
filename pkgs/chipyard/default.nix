@@ -3,9 +3,9 @@
   stdenvNoCC,
   fetchFromGitHub,
   nix-update-script,
-  version ? "unstable-2026-09-01",
-  rev ? "e602d917dcc495c58cabe906535e411707096c9c",
-  hash ? "sha256-6S3pbu6pveyQJa6h8yfq3mMi1nSk11NvLr3VKO756B4=",
+  version ? "unstable-2026-09-15",
+  rev ? "371ab92dd09917b6ab05d58bf762b173c52f4224",
+  hash ? "sha256-/Qn3YglpTP0gbf51fZH59K2dEiZsmRVyEYNPs59wXco=",
 }:
 
 stdenvNoCC.mkDerivation (finalAttrs: {
