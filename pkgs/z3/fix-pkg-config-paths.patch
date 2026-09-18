@@ -1,0 +1,18 @@
+nixpkgs' fix-pkg-config-paths.patch rebased onto upstream's rewritten
+z3.pc.cmake.in (Z3Prover/z3 after 4.16.0). nixpkgs' cmake hook passes
+CMAKE_INSTALL_LIBDIR / CMAKE_INSTALL_INCLUDEDIR as absolute store paths
+($lib/lib, $dev/include), so prefixing them with ${prefix}/ yields
+nonexistent paths. Use the GNUInstallDirs _FULL_ variables instead.
+
+--- a/z3.pc.cmake.in
++++ b/z3.pc.cmake.in
+@@ -1,7 +1,5 @@
+-prefix=${pcfiledir}/@Z3_PKGCONFIG_PREFIX@
+-exec_prefix=${prefix}
+-libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+-includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
++libdir=@CMAKE_INSTALL_FULL_LIBDIR@
++includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+ 
+ Name: z3
+ Description: The Z3 Theorem Prover

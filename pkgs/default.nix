@@ -714,6 +714,10 @@ let
         hash = "sha256-lloAZioIH+BfY1ts0XZUe5NughW0OKH+TXXxzQICyAM=";
       })).overrideAttrs
         (old: {
+          # Upstream rewrote z3.pc.cmake.in after 4.16.0, so nixpkgs'
+          # fix-pkg-config-paths.patch no longer applies. Carry a rebased copy
+          # until nixpkgs moves past 4.16.0.
+          patches = [ ./z3/fix-pkg-config-paths.patch ];
           # z3's own build embeds its CMake project version (e.g. "4.17.0") in
           # `z3 --version`, unrelated to our "unstable-YYYY-MM-DD" tracking
           # version, so versionCheckHook can never match it for this attr.
