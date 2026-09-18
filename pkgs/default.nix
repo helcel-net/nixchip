@@ -661,16 +661,16 @@ let
       rev = "rel-3.0.1";
       hash = "sha256-oHebG9VBtEnxmBpfP6A/f/UNIx2AXbLPs0NHPoNlZfY=";
     });
-    # 5.14.x pulls CaDiCaL and CaDiBack in with FetchContent at configure time,
+    # cryptominisat pulls CaDiCaL and CaDiBack in with FetchContent at configure time,
     # which no sandbox can do. Both are meelgroup forks declared as unpinned
     # branches, so the revisions come from upstream's own flake.lock -- the one
     # combination cryptominisat is released against.
     cryptominisat_5 =
-      (pinnedOverride basePkgs.cryptominisat "5.14.7" (githubSource {
+      (pinnedOverride basePkgs.cryptominisat "5.15.0" (githubSource {
         owner = "msoos";
         repo = "cryptominisat";
-        rev = "release/v5.14.7";
-        hash = "sha256-nyAoAQ5k+C1M1pK71SAA2eUnCuD0mM8ImSKNxbxRKQs=";
+        rev = "release/v5.15.0";
+        hash = "sha256-BtA/TU5ED5wuNKcWt0te9M8UfRFjuTI3dV1wm9/9yA0=";
       })).overrideAttrs
         (old: {
           # Upstream renamed src/picosat -> src/mpicosat and already uses plain
@@ -686,16 +686,16 @@ let
               (githubSource {
                 owner = "meelgroup";
                 repo = "cadical";
-                rev = "394c3f72858c2fe8cd35321f74f11f0f61c91123";
-                hash = "sha256-vOkBGnRWR1lT0Ik1WmoNjfIILM7Sk6ofSIbkiIdA68U=";
+                rev = "818c9562f114b315a9246ced943b66b60b38e8fb";
+                hash = "sha256-Ff8iH6CqMPdcqOSN6gjVqbJ1qKuHlwqrl/vW/nCtGPU=";
               }).outPath
             )
             (lib.cmakeFeature "FETCHCONTENT_SOURCE_DIR_CADIBACK"
               (githubSource {
                 owner = "meelgroup";
                 repo = "cadiback";
-                rev = "3b6a84062b1304433eb8960a4bff6b9a80de9c54";
-                hash = "sha256-pLGyzOpr5+j44ORtJr9GslySxHK/6n+x5lQM14JG+mE=";
+                rev = "47a6d821085ef8cb033241659824beafeb798cff";
+                hash = "sha256-UIJhXYwTq3orU9hhR4KbMd2Jb7dp7n3ZX141xOBzolU=";
               }).outPath
             )
           ];
