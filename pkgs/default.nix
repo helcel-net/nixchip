@@ -666,11 +666,11 @@ let
     # branches, so the revisions come from upstream's own flake.lock -- the one
     # combination cryptominisat is released against.
     cryptominisat_5 =
-      (pinnedOverride basePkgs.cryptominisat "5.15.0" (githubSource {
+      (pinnedOverride basePkgs.cryptominisat "5.16.0" (githubSource {
         owner = "msoos";
         repo = "cryptominisat";
-        rev = "release/v5.15.0";
-        hash = "sha256-BtA/TU5ED5wuNKcWt0te9M8UfRFjuTI3dV1wm9/9yA0=";
+        rev = "release/v5.16.0";
+        hash = "sha256-TB4041Wbq9LY5TfBWw9pN+C+HUCcg/K1EaBwVgoTrTQ=";
       })).overrideAttrs
         (old: {
           # Upstream renamed src/picosat -> src/mpicosat and already uses plain
