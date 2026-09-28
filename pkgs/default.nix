@@ -274,6 +274,8 @@ let
     };
     chisel = callPackage ./chisel { };
 
+    icsc = callPackage ./icsc { };
+
     abc_0 = pinnedOverride basePkgs.abc-verifier "0.68" (githubSource {
       owner = "yosyshq";
       repo = "abc";

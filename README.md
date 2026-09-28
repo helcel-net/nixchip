@@ -230,7 +230,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 
 Package naming convention: unsuffixed custom package attributes track upstream branch HEAD and use `unstable-YYYY-MM-DD` versions. Numbered attributes are fixed release slots for side-by-side tool versions.
 
-Branch-tracking defaults: `abc`, `aiger`, `amaranth`, `cacti`, `chipyard`, `chisel`, `cocotb`, `edalize`, `eqy`, `firrtl`, `fusesoc`, `ghdl`, `gtkwave`, `hotspot`, `klayout`, `openroad`, `openroad-flow-scripts`, `spike`, `sv-lang`, `slang`, `sv2v`, `systemc`, `verilator`, `vhdl-ls`, `vtr`, `xschem`, `yosys`, and `yosys-slang` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
+Branch-tracking defaults: `abc`, `aiger`, `amaranth`, `cacti`, `chipyard`, `chisel`, `cocotb`, `edalize`, `eqy`, `firrtl`, `fusesoc`, `ghdl`, `gtkwave`, `hotspot`, `icsc`, `klayout`, `openroad`, `openroad-flow-scripts`, `spike`, `sv-lang`, `slang`, `sv2v`, `systemc`, `verilator`, `vhdl-ls`, `vtr`, `xschem`, `yosys`, and `yosys-slang` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
 
 Fixed release slots and forwarded aliases include `sv-lang_9`, `sv-lang_10`, `sv-lang_11`, `verilator_5`, `systemc_2`, `systemc_3`, `yosys_0`, `vtr_9`, `eqy_0`, `sv2v_0`, `chisel_7`, `chipyard_1`, `hotspot_7`, `spike_1`, `vhdl-ls_0`, `xschem_3`, `cocotb_2`, `edalize_0`, `cacti_6`, and `cacti_7`.
 
@@ -297,6 +297,12 @@ Workspace-style packages install immutable sources under `share/` and provide
   disabled for a minimal portable build.
 - **`eqy_0`**: YosysHQ equivalence checker pinned to upstream `v0.66`. Builds
   three `.so` Yosys plugins and patches Python shebang + template variables.
+- **`icsc`**: Intel SystemC Compiler built against nixpkgs' LLVM/Clang
+  18 and protobuf instead of the toolchain upstream's `install.sh` compiles.
+  ICSC ships no executable: designs link `SVC::SCTool` through `svc_target()`
+  from `$ICSC_HOME/CMakeLists.txt`. The `ICSC_HOME` variable the dev shells
+  export is exactly the one upstream's CMake files expect; `source
+  $ICSC_HOME/setenv.sh` also sets `LLVM_VER`.
 
 ## Automation
 
