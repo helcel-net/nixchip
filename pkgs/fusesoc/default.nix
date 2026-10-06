@@ -7,10 +7,10 @@
   # pinned fusesoc2 slot keeps nixpkgs' edalize untouched.
   edalize ? null,
   nix-update-script,
-  version ? "unstable-2026-09-15",
+  version ? "unstable-2026-10-06",
   rev ?
-    if lib.hasPrefix "unstable-" version then "22f03f84c47ad5e36d0b656f8c60070b2e199788" else version,
-  hash ? "sha256-3Vz6wnLGY8/oTU0EPJTzbG+4y92ZAIb3NITCT9CEypU=",
+    if lib.hasPrefix "unstable-" version then "045acd9a0319dd437467ee5b30d3bd930883c10a" else version,
+  hash ? "sha256-dv1xYLmhdzhhaBSnWP22w3K7qVoOW6lR+TteO48ytqs=",
   ...
 }:
 
