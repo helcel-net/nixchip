@@ -13,10 +13,10 @@
   zlib,
   readline,
   nix-update-script,
-  version ? "unstable-2026-09-15",
-  rev ? "e422b08861dfc8500874f04105ba2a7eb2f11ccd",
+  version ? "unstable-2026-10-06",
+  rev ? "1b456d614ce3ab2998b2b246258e7c47c5642086",
   fetchSubmodules ? true,
-  hash ? "sha256-ZMyDqBVWxegEPs0NZaw5f0jFkcmaTDo+fbCACFYBK8Q=",
+  hash ? "sha256-FRsLRscf5fkY0lT7xfdcP3+eYWAMzOWYillZ5jkHT1k=",
 }:
 
 stdenv.mkDerivation {
