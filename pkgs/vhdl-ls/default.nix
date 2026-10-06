@@ -3,14 +3,14 @@
   fetchFromGitHub,
   vhdl_ls,
   nix-update-script,
-  version ? "unstable-2026-09-15",
+  version ? "unstable-2026-10-06",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "7b710854606a8e229698c50484f41f31e7424b19"
+      "dc8c090f7aeb9a95149eadc5e8b48f170382a8d4"
     else
       "v${version}",
-  hash ? "sha256-J2ILw+eUwf1SwTHcnqkYitS1DPElnmFYOewIAEP5FuM=",
-  cargoHash ? "sha256-bJ80KyxWpVI04QMSZIS331jPbWHoLVe1P3pMEWGlKUY=",
+  hash ? "sha256-y9x4DiSx/cUMRERLjRZtsyQg1xuy6bq5dWfgTa419mM=",
+  cargoHash ? "sha256-PQ8XKSH/Rh4LIOaZitHUYQW0NiDNH6qNu0kznYTxnDE=",
   ...
 }:
 
