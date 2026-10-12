@@ -282,6 +282,8 @@ let
     };
     pycircuit = callPackage ./pycircuit { };
 
+    ndf = callPackage ./ndf { };
+
     abc_0 = pinnedOverride basePkgs.abc-verifier "0.68" (githubSource {
       owner = "yosyshq";
       repo = "abc";
