@@ -276,6 +276,12 @@ let
 
     icsc = callPackage ./icsc { };
 
+    pycircuit_6 = callPackage ./pycircuit {
+      version = "6.1.0";
+      hash = "sha256-wlulfyf5BLAmWDIDyTdeVzXqZ3gW46Uu2GI2+/8e1Mo=";
+    };
+    pycircuit = callPackage ./pycircuit { };
+
     abc_0 = pinnedOverride basePkgs.abc-verifier "0.68" (githubSource {
       owner = "yosyshq";
       repo = "abc";
