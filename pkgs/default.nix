@@ -284,6 +284,8 @@ let
 
     ndf = callPackage ./ndf { };
 
+    aslref = callPackage ./aslref { };
+
     abc_0 = pinnedOverride basePkgs.abc-verifier "0.68" (githubSource {
       owner = "yosyshq";
       repo = "abc";

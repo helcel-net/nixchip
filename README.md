@@ -230,7 +230,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 
 Package naming convention: unsuffixed custom package attributes track upstream branch HEAD and use `unstable-YYYY-MM-DD` versions. Numbered attributes are fixed release slots for side-by-side tool versions.
 
-Branch-tracking defaults: `abc`, `aiger`, `amaranth`, `cacti`, `chipyard`, `chisel`, `cocotb`, `edalize`, `eqy`, `firrtl`, `fusesoc`, `ghdl`, `gtkwave`, `hotspot`, `icsc`, `klayout`, `ndf`, `openroad`, `openroad-flow-scripts`, `pycircuit`, `spike`, `sv-lang`, `slang`, `sv2v`, `systemc`, `verilator`, `vhdl-ls`, `vtr`, `xschem`, `yosys`, and `yosys-slang` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
+Branch-tracking defaults: `abc`, `aiger`, `amaranth`, `aslref`, `cacti`, `chipyard`, `chisel`, `cocotb`, `edalize`, `eqy`, `firrtl`, `fusesoc`, `ghdl`, `gtkwave`, `hotspot`, `icsc`, `klayout`, `ndf`, `openroad`, `openroad-flow-scripts`, `pycircuit`, `spike`, `sv-lang`, `slang`, `sv2v`, `systemc`, `verilator`, `vhdl-ls`, `vtr`, `xschem`, `yosys`, and `yosys-slang` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
 
 Fixed release slots and forwarded aliases include `sv-lang_9`, `sv-lang_10`, `sv-lang_11`, `verilator_5`, `systemc_2`, `systemc_3`, `yosys_0`, `vtr_9`, `eqy_0`, `sv2v_0`, `chisel_7`, `chipyard_1`, `hotspot_7`, `spike_1`, `vhdl-ls_0`, `xschem_3`, `cocotb_2`, `edalize_0`, `cacti_6`, `cacti_7`, and `pycircuit_6`.
 
@@ -308,6 +308,10 @@ Workspace-style packages install immutable sources under `share/` and provide
   the `llvmPackages_22` input selects the series). `pycircuit run` finds the
   toolchain from its own install prefix, but calls `cmake`, `ninja` and a
   C++20 compiler (plus `verilator` for `--target verilog`) from `PATH`.
+- **`aslref`**: the ASL reference interpreter alone, built with dune from
+  PTO-ISA's herdtools7 fork (the one pto-spec pins in `.aslref-origin`)
+  instead of through opam. Point pto-spec at it with `make check
+  ASLREF=aslref`, or `ASLREF=aslref` for its test scripts.
 - **`pycircuit_6`**: the v6.x release, which predates `main`'s ACIR rewrite and
   ships the older `pycc` flow (`pycircuit emit`/`build`, plus `pyc-opt`, `acc`,
   `acir-opt` and `agentic-circuit`). The release has no `pycircuit` executable,
