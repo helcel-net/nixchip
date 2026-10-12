@@ -11,7 +11,7 @@
       "4a72eb94fc253062464afee4d0018359017bb846"
     else
       "v${version}",
-  hash ? "sha256-TxZjlM9CkMunSj+eESJY3twilciQUxkwQT+zeIIhCyQ=",
+  hash ? "sha256-/gBFD+M/x53yULWk3tyIisgvKm48lHu6H6Yf9UbG0P0=",
 }:
 
 let
@@ -21,9 +21,13 @@ stdenv.mkDerivation {
   pname = "eqy";
   inherit version;
 
+  # .gittag is export-subst'd with %(describe), so GitHub's tarball for a
+  # fixed rev changes whenever upstream adds a tag. A git checkout leaves it
+  # unexpanded; the version string comes from postPatch either way.
   src = fetchFromGitHub {
     owner = "YosysHQ";
     repo = "eqy";
+    forceFetchGit = true;
     inherit rev hash;
   };
 
