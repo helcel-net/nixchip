@@ -16,9 +16,9 @@
   zlib,
   bzip2,
   nix-update-script,
-  version ? "unstable-2026-08-25",
-  rev ? "132a0863a5ce97c275fd35f1c88cd7cc4f2b4ca9",
-  hash ? "sha256-KFYkeDWAv9N4oo7JvOBWNUUD+lGfc8N7vcWJFdn+Wng=",
+  version ? "unstable-2026-10-13",
+  rev ? "f6d60e01df5bf39d2c9ba46a7b9979cf8ff891cb",
+  hash ? "sha256-RlS9R/W6yBxfe2cIgRYTgAUbE6cJCWhiqu8Vlkm8C4w=",
   libfstRev ? "74301348450701727776c1a0522a3f512738e9ae",
   libfstHash ? "sha256-Fm3sfuNvnN5J3VGgptI9TacyJl175MtkDFqQ3A/iegQ=",
   ...
