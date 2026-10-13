@@ -182,6 +182,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `pythia` | pinned | Pythia RL prefetcher framework on ChampSim (CMU-SAFARI); full source tree in `share/pythia` for custom prefetchers |
 | `ramulator2` | 2.0a | Ramulator 2 cycle-accurate DRAM simulator (CMU-SAFARI) |
 | `gem5` | 25.1.0.1 | gem5 architectural simulator, RISC-V build (gem5/gem5 tag v25.1.0.1) |
+| `xls` | latest release | Google XLS HLS toolchain and DSLX language (upstream's prebuilt x86_64-linux release) |
 
 ### Forwarded from nixpkgs (version-tracked)
 
@@ -308,6 +309,11 @@ Workspace-style packages install immutable sources under `share/` and provide
   the `llvmPackages_22` input selects the series). `pycircuit run` finds the
   toolchain from its own install prefix, but calls `cmake`, `ninja` and a
   C++20 compiler (plus `verilator` for `--target verilog`) from `PATH`.
+- **`xls`**: upstream's prebuilt `linux-x64` release, patched with
+  autoPatchelf rather than built from source (Bazel plus its own LLVM). The
+  DSLX tools are wrapped so `import std` finds the installed stdlib from any
+  working directory; pass `--dslx_stdlib_path` (`--stdlib_path` for `dslx_ls`)
+  to override it. x86_64-linux only.
 - **`aslref`**: the ASL reference interpreter alone, built with dune from
   PTO-ISA's herdtools7 fork (the one pto-spec pins in `.aslref-origin`)
   instead of through opam. Point pto-spec at it with `make check

@@ -286,6 +286,8 @@ let
 
     aslref = callPackage ./aslref { };
 
+    xls = callPackage ./xls { };
+
     abc_0 = pinnedOverride basePkgs.abc-verifier "0.68" (githubSource {
       owner = "yosyshq";
       repo = "abc";
