@@ -7,9 +7,9 @@
   tomlplusplus,
   nix-update-script,
   yosys,
-  version ? "unstable-2026-09-15",
-  rev ? "72398fe265eb7049ace2b767ed97b33ee2f3980a",
-  hash ? "sha256-VdcfQUnvo8gCNfbN7fxs0TRjSP2R2nrX1CpWjpLG9Ro=",
+  version ? "unstable-2026-10-13",
+  rev ? "9dcee13ea3862347e1715dc51f63e9f845cdd222",
+  hash ? "sha256-V4Xq9BkJGCTvsT2BjwgQaRTJvi+eyf/iUrh3f1BWWFI=",
 }:
 
 let
