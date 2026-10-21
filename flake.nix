@@ -41,6 +41,10 @@
         system:
         import nixpkgs {
           inherit system;
+          # claude-code is the only unfree package the flake's own outputs
+          # (ai-tools, the ai shell) ship. CI never builds ai-tools (no
+          # nixchipCI flag), so it is not redistributed through the cache.
+          config.allowUnfreePredicate = pkg: lib.getName pkg == "claude-code";
           overlays = [ self.overlays.default ];
         };
 
@@ -61,9 +65,17 @@
             "stream-dse"
             "chia"
           ];
+          # codex reads CODEX_HOME as its writable config/state dir; pointing it
+          # at a store path would break the agent in every shell.
+          agentPackages = [
+            "codex"
+            "opencode"
+          ];
           pkgsToExport = lib.filterAttrs (
             name: pkg:
-            lib.isDerivation pkg && !lib.hasSuffix "-tools" name && !builtins.elem name pythonPackages
+            lib.isDerivation pkg
+            && !lib.hasSuffix "-tools" name
+            && !builtins.elem name (pythonPackages ++ agentPackages)
           ) hw;
         in
         lib.concatStringsSep "\n" (
@@ -156,6 +168,12 @@
             ]
             ++ nonHardwareTools;
             shellHook = varsHook;
+          };
+
+          # No varsHook: it interpolates every nixchip package, which would make
+          # this shell depend on (and build) the whole hardware toolset.
+          ai = pkgs.mkShellNoCC {
+            packages = [ hw.ai-tools ] ++ nonHardwareTools;
           };
 
           # Side-by-side versioned packages for comparing tool generations.

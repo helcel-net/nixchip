@@ -16,7 +16,14 @@ let
     lib.optional package.success package.value;
 
   optionalUnfreePackage =
-    name: lib.optionals (basePkgs.config.allowUnfree or false) [ (builtins.getAttr name basePkgs) ];
+    name:
+    let
+      package = builtins.getAttr name basePkgs;
+      inherit (basePkgs) config;
+    in
+    lib.optionals (config.allowUnfree or false || (config.allowUnfreePredicate or (_: false)) package) [
+      package
+    ];
 
   yosysWithPlugins =
     let
@@ -1067,6 +1074,15 @@ let
       amaranth = basePkgs.python3Packages.amaranth;
     };
 
+    # ── AI coding agents ──────────────────────────────────────────────────────
+    # Plain nixpkgs forwards (see the FPGA section note). If nixpkgs lags too
+    # far behind, swap the alias for a pinnedOverride re-pin. claude-code is
+    # unfree, so like espresso it is not an attr here and only joins ai-tools
+    # when allowed (allowUnfree or allowUnfreePredicate; the flake's own
+    # package set allows it).
+    codex = basePkgs.codex;
+    opencode = basePkgs.opencode;
+
     # ── Tool bundles ──────────────────────────────────────────────────────────
     simulation-tools = pkgs.symlinkJoin {
       name = "nixchip-simulation-tools";
@@ -1175,6 +1191,15 @@ let
         thermal-tools
         formal-tools
       ];
+    };
+
+    ai-tools = pkgs.symlinkJoin {
+      name = "nixchip-ai-tools";
+      paths = [
+        codex
+        opencode
+      ]
+      ++ optionalUnfreePackage "claude-code";
     };
 
     hardware-tools = pkgs.symlinkJoin {

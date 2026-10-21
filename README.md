@@ -11,6 +11,7 @@ nix develop github:helcel-net/nixchip              # full hardware toolbox
 nix develop github:helcel-net/nixchip#simulation   # simulators + waveform viewers
 nix develop github:helcel-net/nixchip#fpga         # synthesis + place-and-route
 nix develop github:helcel-net/nixchip#asic         # physical design + analog + formal
+nix develop github:helcel-net/nixchip#ai         # claude-code + codex + opencode
 nix develop github:helcel-net/nixchip#versions     # side-by-side verilator_3/4/5, systemc_2/3, etc.
 ```
 
@@ -137,6 +138,8 @@ qucs-s_25         → QUCS_S_25_HOME / ...
 
 Tool-group bundles (`*-tools`) and Python-only packages (`cocotb`, `edalize`)
 are excluded from the export because they are meant to be used differently.
+The AI agents (`codex`, `opencode`) are excluded too: codex reads `CODEX_HOME`
+as its writable config directory.
 
 ### `mkNixchipVarsHook` for downstream flakes
 
@@ -198,6 +201,8 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `ghdl_6` | 6.0.0 | Fixed GHDL 6 release |
 | `nvc_1` | `basePkgs.nvc` | NVC VHDL compiler/simulator |
 | `vhdl-ls_0` | `basePkgs.vhdl-ls` | VHDL language server |
+| `codex` | `basePkgs.codex` | OpenAI Codex CLI coding agent |
+| `opencode` | `basePkgs.opencode` | opencode terminal coding agent |
 | `spike_1` | `basePkgs.spike` | RISC-V ISA simulator |
 | `surfer_0` | `basePkgs.surfer` | Surfer waveform viewer |
 | `verible_0` | `basePkgs.verible` | SystemVerilog linter and formatter |
@@ -259,9 +264,13 @@ Tool groups are `symlinkJoin` bundles for easy shell composition:
 | `thermal-tools` | hotspot, dramsim3 |
 | `asic-tools` | physical-design-tools + analog-tools + memory-tools + thermal-tools + formal-tools |
 | `hardware-tools` | simulation-tools + fpga-tools + asic-tools + chipyard + surelog + uhdm |
+| `ai-tools` | codex, opencode, (claude-code if unfree) |
 
 `physical-design-tools` includes the unfree nixpkgs `espresso` package only
-when nixpkgs is imported with `allowUnfree = true`.
+when nixpkgs is imported with `allowUnfree = true` (or an
+`allowUnfreePredicate` admitting it); `ai-tools` likewise includes the unfree
+`claude-code` only when allowed. The flake's own outputs (`.#ai-tools`,
+`nix develop .#ai`) allow `claude-code` and nothing else.
 
 `systemc_2` is not in `simulation-tools` (which uses `systemc_3`) to avoid
 header/library collisions. Use `systemc_2` directly as a standalone package or
@@ -275,6 +284,7 @@ via the `versions` shell.
 | `simulation` | `simulation-tools` + general dev tools |
 | `fpga` | `fpga-tools` + `simulation-tools` + general dev tools |
 | `asic` | `asic-tools` + `simulation-tools` + general dev tools |
+| `ai` | `ai-tools` + general dev tools |
 | `versions` | verilator_3/4/5, systemc_2/3, sv-lang_9/10/11, yosys_0, yosys-full_0, cacti_6/7 |
 
 General dev tools included in all shells: `bash`, `git`, `gnumake`, `nodejs`,
