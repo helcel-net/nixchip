@@ -1075,13 +1075,14 @@ let
     };
 
     # ── AI coding agents ──────────────────────────────────────────────────────
-    # Plain nixpkgs forwards (see the FPGA section note). If nixpkgs lags too
-    # far behind, swap the alias for a pinnedOverride re-pin. claude-code is
+    # Upstream's prebuilt release binaries, not nixpkgs' (which lag by months):
+    # one hash per platform in each sources.json, bumped by
+    # scripts/update-ai-agents.sh rather than nix-update. claude-code is
     # unfree, so like espresso it is not an attr here and only joins ai-tools
     # when allowed (allowUnfree or allowUnfreePredicate; the flake's own
     # package set allows it).
-    codex = basePkgs.codex;
-    opencode = basePkgs.opencode;
+    codex = callPackage ./codex { };
+    opencode = callPackage ./opencode { };
 
     # ── Tool bundles ──────────────────────────────────────────────────────────
     simulation-tools = pkgs.symlinkJoin {
@@ -1199,7 +1200,9 @@ let
         codex
         opencode
       ]
-      ++ optionalUnfreePackage "claude-code";
+      ++ map (claude-code: callPackage ./claude-code { inherit claude-code; }) (
+        optionalUnfreePackage "claude-code"
+      );
     };
 
     hardware-tools = pkgs.symlinkJoin {

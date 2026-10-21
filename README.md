@@ -153,6 +153,8 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 
 | Attribute | Version | Description |
 |---|---|---|
+| `codex` | latest release | OpenAI Codex CLI coding agent (upstream prebuilt binary) |
+| `opencode` | latest release | opencode terminal coding agent (upstream prebuilt binary) |
 | `verilator_3` | 3.926 | Verilator 3.x — latest upstream 3.x tag |
 | `verilator_4` | 4.228 | Verilator 4.x — latest upstream 4.x tag |
 | `systemc_2` | 2.3.4 | SystemC 2.x (accellera-official/systemc, C++14) |
@@ -201,8 +203,6 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `ghdl_6` | 6.0.0 | Fixed GHDL 6 release |
 | `nvc_1` | `basePkgs.nvc` | NVC VHDL compiler/simulator |
 | `vhdl-ls_0` | `basePkgs.vhdl-ls` | VHDL language server |
-| `codex` | `basePkgs.codex` | OpenAI Codex CLI coding agent |
-| `opencode` | `basePkgs.opencode` | opencode terminal coding agent |
 | `spike_1` | `basePkgs.spike` | RISC-V ISA simulator |
 | `surfer_0` | `basePkgs.surfer` | Surfer waveform viewer |
 | `verible_0` | `basePkgs.verible` | SystemVerilog linter and formatter |
@@ -269,7 +269,9 @@ Tool groups are `symlinkJoin` bundles for easy shell composition:
 `physical-design-tools` includes the unfree nixpkgs `espresso` package only
 when nixpkgs is imported with `allowUnfree = true` (or an
 `allowUnfreePredicate` admitting it); `ai-tools` likewise includes the unfree
-`claude-code` only when allowed. The flake's own outputs (`.#ai-tools`,
+`claude-code` only when allowed. All three agents are upstream's prebuilt
+release binaries (claude-code on the `latest` channel), bumped weekly by
+`scripts/update-ai-agents.sh` since nixpkgs' builds lag by months. The flake's own outputs (`.#ai-tools`,
 `nix develop .#ai`) allow `claude-code` and nothing else.
 
 `systemc_2` is not in `simulation-tools` (which uses `systemc_3`) to avoid
