@@ -784,11 +784,11 @@ let
     aiger = callPackage ./aiger {
       aiger = basePkgs.aiger;
     };
-    btor2tools_0 = pinnedOverride basePkgs.btor2tools "unstable-2025-09-18" (githubSource {
+    btor2tools_0 = pinnedOverride basePkgs.btor2tools "unstable-2026-10-23" (githubSource {
       owner = "boolector";
       repo = "btor2tools";
-      rev = "d33c73ff1d173f1bfac8ba6b1c6d68ba62c55f8e";
-      hash = "sha256-RVjZ5HM2yQ3eAICFuzwvNeQDXzWzzSiCCslIWMJi6U8=";
+      rev = "e6941e37e056084ab6e51c5c1eee6233089a330d";
+      hash = "sha256-GTzZKnMhSb5Fbf+ZxiHfvydXJHSI/nsl+YCXKxJIkRY=";
     });
 
     # ── Accelerator DSE (Timeloop / Accelergy) ─────────────────────────────────
