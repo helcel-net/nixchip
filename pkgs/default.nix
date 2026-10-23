@@ -728,11 +728,11 @@ let
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
     z3 =
-      (branchOverride basePkgs.z3 "unstable-2026-09-15" (githubSource {
+      (branchOverride basePkgs.z3 "unstable-2026-10-23" (githubSource {
         owner = "Z3Prover";
         repo = "z3";
-        rev = "2d2fb04fe3f1ab2111b550645f7c49198a3165f6";
-        hash = "sha256-lloAZioIH+BfY1ts0XZUe5NughW0OKH+TXXxzQICyAM=";
+        rev = "f47226b5a39852fdd6c9cbe237a3a761ff33ee26";
+        hash = "sha256-BQCkFTQc8bBjKt3RorIOo4gAljq4q+boOL12YUsMBhs=";
       })).overrideAttrs
         (old: {
           # Upstream rewrote z3.pc.cmake.in after 4.16.0, so nixpkgs'
