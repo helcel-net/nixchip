@@ -763,11 +763,11 @@ let
           ''
           + (old.postFixup or "");
         });
-    cvc5_1 = pinnedOverride basePkgs.cvc5 "1.3.4" (githubSource {
+    cvc5_1 = pinnedOverride basePkgs.cvc5 "1.4.2" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
-      rev = "cvc5-1.3.4";
-      hash = "sha256-PZcOArSTyJzyd2DKT8K0aFC4RlVXgTCnkoU0f08KPfY=";
+      rev = "cvc5-1.4.2";
+      hash = "sha256-GhqYYTbn0mh/EjoXy9ovKWRtFXYoeuHGp0KuYvfwH7w=";
     });
     cvc5 = branchOverride basePkgs.cvc5 "unstable-2026-09-15" (githubSource {
       owner = "cvc5";
