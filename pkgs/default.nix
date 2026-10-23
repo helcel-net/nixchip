@@ -485,11 +485,11 @@ let
     trellis_0 = basePkgs.trellis.overrideAttrs (_old: {
       version = "unstable-2025-01-30";
     });
-    openfpgaloader_1 = pinnedOverride basePkgs.openfpgaloader "1.1.1" (githubSource {
+    openfpgaloader_1 = pinnedOverride basePkgs.openfpgaloader "1.2.0" (githubSource {
       owner = "trabucayre";
       repo = "openFPGALoader";
-      rev = "v1.1.1";
-      hash = "sha256-VQM3swGAvuLnqKjjUEXJlQp1nGH9M1ydEKQUV/5xiwM=";
+      rev = "v1.2.0";
+      hash = "sha256-xz5acJJLRfWsJmcPL3R2PWwZgnBRUHibkGf1sHVUPn4=";
     });
     openfpgaloader = branchOverride basePkgs.openfpgaloader "unstable-2026-09-15" (githubSource {
       owner = "trabucayre";
