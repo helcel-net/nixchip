@@ -639,11 +639,11 @@ let
       rev = "v0.68";
       hash = "sha256-WRZp4+gwUgDKCWAdBK/36ArM2KFGyLBZ20S32k7YN+8=";
     });
-    sby = branchOverride basePkgs.sby "unstable-2026-08-11" (githubSource {
+    sby = branchOverride basePkgs.sby "unstable-2026-10-23" (githubSource {
       owner = "YosysHQ";
       repo = "sby";
-      rev = "b1a1e98cba941ec8433f8dc27f416cd7bb7f14be";
-      hash = "sha256-WRZp4+gwUgDKCWAdBK/36ArM2KFGyLBZ20S32k7YN+8=";
+      rev = "79fc9eddca5e33a28cc2f2cd19c9825efd9a7255";
+      hash = "sha256-5d9FC/bGTADcFIelkPzY/oTlF28vkF1Fs60fq5Ugxlg=";
     });
     eqy_0 = callPackage ./eqy {
       yosys = yosys_0;
