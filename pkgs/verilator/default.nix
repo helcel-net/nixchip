@@ -16,13 +16,13 @@
   coreutils,
   gdb,
   nix-update-script,
-  version ? "unstable-2026-09-15",
+  version ? "unstable-2026-10-23",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "270c528afdb952b680a1e545fbbbdd135236ddc5"
+      "ef4288b106ab69394438cbd83fff9a951efd196d"
     else
       "v${version}",
-  hash ? "sha256-nrc+6YsULPX6m29EwEyNt0dO0WgQEcnYdwYvasK6g/Q=",
+  hash ? "sha256-iuElLDOJ+JpdT57dbCvwPAmnlbPDVJ5CZcoizyj/SnQ=",
   doCheck ? false,
 }:
 
