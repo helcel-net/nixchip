@@ -51,6 +51,12 @@ write_sources pkgs/codex/sources.json "$version" \
   "aarch64-linux=$(codex aarch64-unknown-linux-musl)" \
   "x86_64-darwin=$(codex x86_64-apple-darwin)" \
   "aarch64-darwin=$(codex aarch64-apple-darwin)"
+# the code-mode host, a release file of its own: hostHashes beside hashes
+host() { sri "$(github_digest "$release" "codex-code-mode-host-$1.tar.gz")"; }
+jq --arg a "$(host x86_64-unknown-linux-musl)" --arg b "$(host aarch64-unknown-linux-musl)" \
+   --arg c "$(host x86_64-apple-darwin)" --arg d "$(host aarch64-apple-darwin)" \
+   '. + {hostHashes: {"x86_64-linux": $a, "aarch64-linux": $b, "x86_64-darwin": $c, "aarch64-darwin": $d}}' \
+   pkgs/codex/sources.json > pkgs/codex/sources.json.new && mv pkgs/codex/sources.json.new pkgs/codex/sources.json
 
 release=$(curl_gh https://api.github.com/repos/anomalyco/opencode/releases/latest)
 version=$(jq -er '.tag_name | ltrimstr("v")' <<< "$release")

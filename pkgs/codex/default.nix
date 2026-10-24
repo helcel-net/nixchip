@@ -28,10 +28,19 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "codex";
   inherit (sources) version;
 
-  src = fetchurl {
-    url = "https://github.com/openai/codex/releases/download/rust-v${finalAttrs.version}/codex-${target}.tar.gz";
-    hash = sources.hashes.${system};
-  };
+  # codex, and the code-mode host it runs its tools in (0.163+: a release file of
+  # its own; Codex looks for it beside itself, and code-mode-only models have no
+  # other tool).
+  srcs = [
+    (fetchurl {
+      url = "https://github.com/openai/codex/releases/download/rust-v${finalAttrs.version}/codex-${target}.tar.gz";
+      hash = sources.hashes.${system};
+    })
+    (fetchurl {
+      url = "https://github.com/openai/codex/releases/download/rust-v${finalAttrs.version}/codex-code-mode-host-${target}.tar.gz";
+      hash = sources.hostHashes.${system};
+    })
+  ];
   sourceRoot = ".";
 
   nativeBuildInputs = [
@@ -45,6 +54,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook preInstall
 
     install -Dm755 codex-${target} $out/bin/codex
+    install -Dm755 codex-code-mode-host-${target} $out/bin/codex-code-mode-host
   ''
   + lib.optionalString (stdenvNoCC.buildPlatform.canExecute stdenvNoCC.hostPlatform) ''
     installShellCompletion --cmd codex \
