@@ -7,13 +7,13 @@
   python3,
   makeWrapper,
   llvmPackages_22,
-  version ? "unstable-2026-10-12",
+  version ? "unstable-2026-10-27",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "1e8b0208501980297b18da877d84938d3b94074d"
+      "c3267dbefa51a5b35cbe02418f7af5681705f1e7"
     else
       "v${version}",
-  hash ? "sha256-p4OANJlbvnYkPsU4KYwE/iIXC74hEQ7M+kruWfFS3S8=",
+  hash ? "sha256-F5zCYce27P1lIfru+MX9s+t1Vo/L5CXdGXdqqw+/qb4=",
 }:
 
 let
