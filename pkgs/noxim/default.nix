@@ -4,9 +4,9 @@
   fetchFromGitHub,
   systemc,
   yaml-cpp,
-  version ? "unstable-2026-06-01",
-  rev ? "1b7d99923040ef5bda15ec519ef0071edf2dfad8",
-  hash ? "sha256-fby3rU/wwYgwAJXxptAaWDySNrENDu/l8XsGHjnRwVs=",
+  version ? "unstable-2026-11-03",
+  rev ? "f23e53bef572b7117333099e12c4fe7601eb9e96",
+  hash ? "sha256-xR0VxCEJGZIRGTcfvbB+eSKyKeg/LRpK2tUie0oqUfA=",
 }:
 
 stdenv.mkDerivation {
