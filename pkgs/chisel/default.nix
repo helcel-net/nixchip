@@ -6,13 +6,13 @@
   sbt,
   scala-cli,
   nix-update-script,
-  version ? "unstable-2026-09-15",
+  version ? "unstable-2026-11-03",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "33fe25e24440c159b91cf916757505eb8092462a"
+      "ef835dd08c4769587b0c096af4d661bf0a685734"
     else
       "v${version}",
-  hash ? "sha256-2UFoVXc4qjkQzidsH/mr5g7C9fj++9KYx5RMBVCpU8o=",
+  hash ? "sha256-QEoYAiQtoipGV4dLxk6mdf76DbHNPwjeshijsew9acE=",
 }:
 
 stdenvNoCC.mkDerivation {
