@@ -444,11 +444,11 @@ let
       rev = "v1.87";
       hash = "sha256-kCCNe1elZoExc8OAtvRxwKODxCdNuVzjFQkEMntNjqI=";
     });
-    uhdm = branchOverride basePkgs.uhdm "unstable-2026-09-15" (githubSource {
+    uhdm = branchOverride basePkgs.uhdm "unstable-2026-11-03" (githubSource {
       owner = "chipsalliance";
       repo = "UHDM";
-      rev = "4f332a4b7c788fe7fbaef1b0e620002a4167e5f9";
-      hash = "sha256-AA231O+P3sSWLlIJIMoBsVA5BBrukEjBltL10ffEneo=";
+      rev = "78c0bde0a6ebef87e99a73b0affbcb62e203de58";
+      hash = "sha256-ZXWdXmj/s0T1x/W2GyUWQl5WnICt4zaM4xqoxbQCCZw=";
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
