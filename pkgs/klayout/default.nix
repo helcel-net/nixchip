@@ -2,13 +2,13 @@
   fetchFromGitHub,
   klayout,
   nix-update-script,
-  version ? "unstable-2026-09-01",
+  version ? "unstable-2026-11-10",
   rev ?
     if builtins.match ".*unstable.*" version != null then
-      "e71272c3b178105bd2a2f25af54673a7af7ed60d"
+      "06b8ff4909ad1696c06c634183d8fd0eaa8a1b83"
     else
       "v${version}",
-  hash ? "sha256-ZNljSRX7zAS8owzc6qxwsU2CBjS7j1IFzKeNh1DOlBU=",
+  hash ? "sha256-XPHV0pfHnRuwnMU5FLwPFyJramP23dLxPbCRc7NcGMs=",
   ...
 }:
 
