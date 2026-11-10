@@ -476,11 +476,11 @@ let
       hash = "sha256-HEEgHgm9jjQ+tk5MBjT5s6yMfPn27/4ZhtVL+9YdEoA=";
       fetchSubmodules = true;
     });
-    icestorm_0 = pinnedOverride basePkgs.icestorm "unstable-2026-10-23" (githubSource {
+    icestorm_0 = pinnedOverride basePkgs.icestorm "unstable-2026-11-10" (githubSource {
       owner = "YosysHQ";
       repo = "icestorm";
-      rev = "ee340bb2cec60e0d01948076537a9bb3d08aea26";
-      hash = "sha256-GOvduMKvWwvEZejfLiZf/hRWLFnoSE7SeEgJSYmBhf4=";
+      rev = "00da9c3e6ceff056248e3451dd6fd3210d6ceec9";
+      hash = "sha256-sXfNf03s1fRQtGVFE5ArZBKjTkBqDLdM9L+SK/ivzSM=";
     });
     trellis_0 = basePkgs.trellis.overrideAttrs (_old: {
       version = "unstable-2025-01-30";
