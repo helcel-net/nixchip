@@ -4,9 +4,9 @@
   lib,
   tomlplusplus,
   nix-update-script,
-  version ? "unstable-2026-09-15",
-  rev ? "2677b681d26fc7815ad21e186bb51f9205f64b44",
-  hash ? "sha256-8bDce1izWtbWLwdqSdOnvNi6YQJIAbLPn/rqADhAWM4=",
+  version ? "12.0-unstable-2026-10-22",
+  rev ? "b2647a3b033fa14c69921b1fe2ae73645c5270aa",
+  hash ? "sha256-mnVEDTaiyVsoem9JpLrN1zudreoJTvJp/DDAnSUc2oA=",
   ...
 }:
 
