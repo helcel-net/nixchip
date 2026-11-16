@@ -197,7 +197,8 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `yosys_0`, `yosys-full_0` | `basePkgs.yosys` | Yosys (full = with GHDL plugin if available) |
 | `sv-lang_9` | `basePkgs.sv-lang_9` | LLVM/slang SystemVerilog compiler 9.x |
 | `sv-lang_10` | `basePkgs.sv-lang_10` | slang 10.x |
-| `sv-lang_11` | `basePkgs.sv-lang` | slang 11.x (latest) |
+| `sv-lang_11` | `basePkgs.sv-lang` | slang 11.x |
+| `sv-lang_12` | `basePkgs.sv-lang` | slang 12.x (latest) |
 | `abc_0` | `basePkgs.abc-verifier` | Fixed ABC logic synthesis and verification release |
 | `sv2v_0` | `basePkgs.haskellPackages.sv2v` | SystemVerilog-to-Verilog converter |
 | `ghdl_6` | 6.0.0 | Fixed GHDL 6 release |
@@ -217,6 +218,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `ngspice_45` | `basePkgs.ngspice` | ngspice circuit simulator |
 | `xyce_7` | `basePkgs.xyce` | Xyce parallel circuit simulator |
 | `qucs-s_25` | `basePkgs.qucs-s` | Qucs-S schematic-driven simulator |
+| `qucs-s_26` | `basePkgs.qucs-s` | Qucs-S 26.x |
 | `xschem_3` | `basePkgs.xschem` | Xschem schematic editor |
 | `fusesoc_2` | `basePkgs.fusesoc` | Fixed FuseSoC 2.x release |
 | `cocotb_2` | `basePkgs.python3Packages.cocotb` | Python co-simulation framework |
@@ -224,6 +226,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `sby_0` | `basePkgs.sby` | SymbiYosys formal verification front-end |
 | `sail-riscv_0` | `basePkgs.sail-riscv` | Sail RISC-V golden ISA model |
 | `bluespec_2024` | `basePkgs.bluespec` | Bluespec Compiler (bsc) |
+| `bluespec_2026` | `basePkgs.bluespec` | Bluespec Compiler (bsc) 2026.x |
 | `migen_0` | `basePkgs.python3Packages.migen` | Migen Python HDL |
 | `yices_2` | `basePkgs.yices` | Yices 2 SMT solver |
 | `boolector_3` | `basePkgs.boolector` | Boolector SMT solver |
@@ -231,14 +234,14 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `cadical_3` | `basePkgs.cadical` | CaDiCaL SAT solver |
 | `cryptominisat_5` | `basePkgs.cryptominisat` | CryptoMiniSat SAT solver |
 | `aiger_1` | `basePkgs.aiger` | Fixed AIGER 1.x AIG format tools release |
-| `btor2tools_0` | `basePkgs.btor2tools` | BTOR2 word-level model checking tools |
+| `btor2tools_1` | `basePkgs.btor2tools` | BTOR2 word-level model checking tools |
 | `mcy_0` | `basePkgs.mcy` | YosysHQ mutation cover for formal tests |
 
 Package naming convention: unsuffixed custom package attributes track upstream branch HEAD and use `unstable-YYYY-MM-DD` versions. Numbered attributes are fixed release slots for side-by-side tool versions.
 
 Branch-tracking defaults: `abc`, `aiger`, `amaranth`, `aslref`, `cacti`, `chipyard`, `chisel`, `cocotb`, `edalize`, `eqy`, `firrtl`, `fusesoc`, `ghdl`, `gtkwave`, `hotspot`, `icsc`, `klayout`, `ndf`, `openroad`, `openroad-flow-scripts`, `pycircuit`, `spike`, `sv-lang`, `slang`, `sv2v`, `systemc`, `verilator`, `vhdl-ls`, `vtr`, `xschem`, `yosys`, and `yosys-slang` follow upstream branch commits; their numbered companions stay fixed to release-series packages.
 
-Fixed release slots and forwarded aliases include `sv-lang_9`, `sv-lang_10`, `sv-lang_11`, `verilator_5`, `systemc_2`, `systemc_3`, `yosys_0`, `vtr_9`, `eqy_0`, `sv2v_0`, `chisel_7`, `chipyard_1`, `hotspot_7`, `spike_1`, `vhdl-ls_0`, `xschem_3`, `cocotb_2`, `edalize_0`, `cacti_6`, `cacti_7`, and `pycircuit_6`.
+Fixed release slots and forwarded aliases include `sv-lang_9`, `sv-lang_10`, `sv-lang_11`, `sv-lang_12`, `verilator_5`, `systemc_2`, `systemc_3`, `yosys_0`, `vtr_9`, `eqy_0`, `sv2v_0`, `chisel_7`, `chipyard_1`, `hotspot_7`, `spike_1`, `vhdl-ls_0`, `xschem_3`, `cocotb_2`, `edalize_0`, `cacti_6`, `cacti_7`, and `pycircuit_6`.
 
 ### Python packages
 

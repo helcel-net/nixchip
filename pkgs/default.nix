@@ -127,6 +127,72 @@ let
     };
   };
 
+  # prjtrellis-db is a submodule of prjtrellis, so a fetchSubmodules src
+  # replaces nixpkgs' separate database_src; that lets the update script, which
+  # only edits `src`, track trellis. Its build version comes from git describe
+  # in nixpkgs, so feed the attr version instead.
+  trellisFromSubmodules = finalAttrs: _old: {
+    srcs = null;
+    sourceRoot = null;
+    cmakeFlags = [
+      "-DCURRENT_GIT_VERSION=${finalAttrs.version}"
+      "-DCMAKE_INSTALL_DATADIR=${placeholder "out"}/share"
+    ];
+    # Boost >= 1.89 ships boost_system header-only, so releases up to 1.4
+    # fail asking for its library; upstream dropped it after 1.4.
+    postPatch = ''
+      substituteInPlace libtrellis/CMakeLists.txt \
+        --replace-quiet "program_options system)" "program_options)"
+    '';
+    preConfigure = ''
+      cd libtrellis
+    '';
+  };
+
+  # bsc vendors yices as a submodule; nixpkgs fetches a per-release
+  # yices-src tarball instead, which a src-only update cannot follow.
+  bluespecFromSubmodules = _old: {
+    postUnpack = ''
+      chmod -R +rwX $sourceRoot/src/vendor/yices/v2.6/yices2
+    '';
+  };
+
+  # Upstream moved qucs-s-spar-viewer into a git submodule (fetchSubmodules is
+  # needed on the src). qucsator_rf looks for bison with NO_DEFAULT_PATH
+  # against a hardcoded FHS path list, so having it in nativeBuildInputs is not
+  # enough -- BISON_DIR is the only way to point it at the store. Its gperf
+  # hash generation shells out to dos2unix, which nixpkgs does not carry.
+  qucsSFixes = old: {
+    cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DBISON_DIR=${pkgs.bison}/bin" ];
+    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.dos2unix ];
+  };
+
+  z3Fixes = old: {
+    # Upstream rewrote z3.pc.cmake.in after 4.16.0, so nixpkgs'
+    # fix-pkg-config-paths.patch no longer applies. Carry a rebased copy
+    # until nixpkgs moves past 4.16.0.
+    patches = [ ./z3/fix-pkg-config-paths.patch ];
+    # z3's own build embeds its CMake project version (e.g. "4.17.0") in
+    # `z3 --version`, unrelated to our "unstable-YYYY-MM-DD" tracking
+    # version, so versionCheckHook can never match it for this attr.
+    doInstallCheck = false;
+    # Newer z3 leaves a libz3.so symlink beside the python bindings pointing
+    # at the absolute build directory. It still resolves inside the sandbox,
+    # so it is not a broken link at fixup time -- noBrokenSymlinks rejects it
+    # for pointing into /build, which is where it will dangle afterwards.
+    # Match on the target rather than on brokenness, and repoint into $lib.
+    postFixup = ''
+      for o in $outputs; do
+        for l in $(find "''${!o}" -type l 2>/dev/null); do
+          case "$(readlink "$l")" in
+            /build/*) ln -sf "$lib/lib/$(basename "$(readlink "$l")")" "$l" ;;
+          esac
+        done
+      done
+    ''
+    + (old.postFixup or "");
+  };
+
   # nixpkgs marks or-tools broken under the default python3 (3.14: its pinned
   # pybind 2.13 has no 3.14 support), which blocks openroad from evaluating.
   # Build or-tools with python 3.13 until nixpkgs moves to pybind 3.
@@ -203,9 +269,12 @@ let
       hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWF0RFS3dSUm4=";
     };
     iverilog = callPackage ./iverilog { iverilog = basePkgs.iverilog; };
-    # Plain nixpkgs forward (see the FPGA section note): prebuilt on
-    # cache.nixos.org, so no re-pin and no CI cost.
-    sail-riscv_0 = basePkgs.sail-riscv;
+    sail-riscv_0 = pinnedOverride basePkgs.sail-riscv "0.12" (githubSource {
+      owner = "riscv";
+      repo = "sail-riscv";
+      rev = "0.12";
+      hash = "sha256-pi/XP6+NX/wNpBESmnEg2d5cppMpMwFripDPk9vTx9I=";
+    });
     spike_1 = callPackage ./spike {
       spike = basePkgs.spike;
       version = "unstable-2024-09-21";
@@ -268,6 +337,12 @@ let
       rev = "v11.0";
       hash = "sha256-popHzwX0qwv2POAl7/qX3e//OwJRXGtSl9xogpSn2LI=";
     });
+    sv-lang_12 = callPackage ./sv-lang {
+      sv_lang = basePkgs.sv-lang;
+      version = "12.1";
+      rev = "v12.1";
+      hash = "sha256-QVMlxrGPy+cxpQW5/v+JmC+IJ05cHHpaKCzvIdaxTHE=";
+    };
     sv-lang = callPackage ./sv-lang {
       sv_lang = basePkgs.sv-lang;
     };
@@ -452,12 +527,52 @@ let
     });
 
     # ── FPGA back-end ──────────────────────────────────────────────────────────
-    # Plain nixpkgs forwards, deliberately NOT re-pinned: they are prebuilt on
-    # cache.nixos.org, so an unmodified alias costs nothing to provide, while a
-    # pinnedOverride would force our CI to rebuild and re-cache them for no
-    # gain.
-    bluespec_2024 = basePkgs.bluespec;
-    migen_0 = basePkgs.python3Packages.migen;
+    bluespec_2024 = pinnedOverride (basePkgs.bluespec.overrideAttrs bluespecFromSubmodules) "2024.07" (githubSource {
+      owner = "B-Lang-org";
+      repo = "bsc";
+      rev = "2024.07";
+      hash = "sha256-lRRal/mErZ+sjtbymfFfQHwoh2PL8gHf+ejTEkmcnms=";
+      fetchSubmodules = true;
+    });
+    bluespec_2026 = pinnedOverride (
+      basePkgs.bluespec.overrideAttrs (
+        old:
+        bluespecFromSubmodules old
+        // {
+          # bsc 2026 builds libstp.so.1 straight from its stub, so nixpkgs'
+          # libstp_stub_makefile.patch would install a file that no longer exists.
+          patches = [ ];
+          # bsc 2026 also links strict-concurrency, missing from nixpkgs' ghc env.
+          nativeBuildInputs = map (
+            dep:
+            if lib.hasInfix "-with-packages" (dep.name or "") then
+              basePkgs.ghc.withPackages (g: [
+                g.old-time
+                g.regex-compat
+                g.syb
+                g.split
+                g.strict-concurrency
+              ])
+            else
+              dep
+          ) old.nativeBuildInputs;
+        }
+      )
+    ) "2026.07.1" (githubSource {
+      owner = "B-Lang-org";
+      repo = "bsc";
+      rev = "2026.07.1";
+      hash = "sha256-P5AdiFKPpvOpS3lKhX7OMBNDzemE//IwFl86MKXomP8=";
+      fetchSubmodules = true;
+    });
+    # Upstream's last release (0.9.2) predates nixpkgs' snapshot, so this slot
+    # tracks the branch rather than a release series.
+    migen_0 = branchOverride basePkgs.python3Packages.migen "unstable-2025-10-03" (githubSource {
+      owner = "m-labs";
+      repo = "migen";
+      rev = "147f003fb7076ac4c7cf76a9a5ce152dc10e0ca6";
+      hash = "sha256-gRAvl5cUvrjq4t7htXsDBt4F8MEbHXFZoS0jbhrEs1I=";
+    });
     # 3rdparty/googletest is a submodule; without fetchSubmodules its dir is
     # empty and CMake aborts (BUILD_TESTS is on in the nixpkgs base).
     nextpnr_0 = pinnedOverride nextpnrBase "0.11.1" (taggedGithubSource {
@@ -482,8 +597,20 @@ let
       rev = "00da9c3e6ceff056248e3451dd6fd3210d6ceec9";
       hash = "sha256-sXfNf03s1fRQtGVFE5ArZBKjTkBqDLdM9L+SK/ivzSM=";
     });
-    trellis_0 = basePkgs.trellis.overrideAttrs (_old: {
-      version = "unstable-2025-01-30";
+    # Branch-tracking, like icestorm_0; tagged releases live in trellis_1.
+    trellis_0 = branchOverride (basePkgs.trellis.overrideAttrs trellisFromSubmodules) "unstable-2026-11-16" (githubSource {
+      owner = "YosysHQ";
+      repo = "prjtrellis";
+      rev = "2d12005ab9703ff60603d7ae91dca254939e671f";
+      hash = "sha256-bWTyT9qUu0Vs7e+qoPfCSSm2//6rHG4wgKKsjbULRps=";
+      fetchSubmodules = true;
+    });
+    trellis_1 = pinnedOverride (basePkgs.trellis.overrideAttrs trellisFromSubmodules) "1.4" (githubSource {
+      owner = "YosysHQ";
+      repo = "prjtrellis";
+      rev = "1.4";
+      hash = "sha256-rFK4rs98tDTZROsLz6WKg7wHn7PDcrUHNsxWmV3TajA=";
+      fetchSubmodules = true;
     });
     openfpgaloader_1 = pinnedOverride basePkgs.openfpgaloader "1.2.0" (githubSource {
       owner = "trabucayre";
@@ -602,27 +729,20 @@ let
       rev = "refs/tags/25.2.0";
       hash = "sha256-U5XLjWKOXNjgYtlccNsPT1nUnEGi3NhkJ36jan2OSAw=";
     });
-    # Upstream moved qucs-s-spar-viewer into a git submodule. Without
-    # fetchSubmodules its directory is empty, which both drops the s-parameter
-    # viewer from the build and makes nixpkgs' postPatch abort on the missing
-    # qucs-s-spar-viewer/CMakeLists.txt.
-    qucs-s =
-      (branchOverride basePkgs.qucs-s "unstable-2026-11-10" (githubSource {
-        owner = "ra3xdh";
-        repo = "qucs_s";
-        rev = "b4a0e8cc3ce2d3ad033e93f27505c2484bc34f96";
-        hash = "sha256-h//jPIjq6G0JMZGP6x8BZd5wDv7XVq1ihjdjIad+scQ=";
-        fetchSubmodules = true;
-      })).overrideAttrs
-        (old: {
-          # qucsator_rf looks for bison with NO_DEFAULT_PATH against a hardcoded
-          # FHS path list, so having it in nativeBuildInputs is not enough --
-          # BISON_DIR is the only way to point it at the store.
-          cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DBISON_DIR=${pkgs.bison}/bin" ];
-          # qucsator_rf's gperf hash generation shells out to dos2unix, which
-          # nixpkgs does not carry for this package.
-          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.dos2unix ];
-        });
+    qucs-s_26 = pinnedOverride (basePkgs.qucs-s.overrideAttrs qucsSFixes) "26.1.1" (githubSource {
+      owner = "ra3xdh";
+      repo = "qucs_s";
+      rev = "refs/tags/26.1.1";
+      hash = "sha256-f+8EdTZLQcbP+WEXUlVg/vIj+jp1FQ7E0QT0gsXfgTw=";
+      fetchSubmodules = true;
+    });
+    qucs-s = branchOverride (basePkgs.qucs-s.overrideAttrs qucsSFixes) "unstable-2026-11-10" (githubSource {
+      owner = "ra3xdh";
+      repo = "qucs_s";
+      rev = "b4a0e8cc3ce2d3ad033e93f27505c2484bc34f96";
+      hash = "sha256-h//jPIjq6G0JMZGP6x8BZd5wDv7XVq1ihjdjIad+scQ=";
+      fetchSubmodules = true;
+    });
     xschem_3 = callPackage ./xschem {
       xschem = basePkgs.xschem;
       version = "3.4.7";
@@ -727,42 +847,18 @@ let
       rev = "z3-4.16.0";
       hash = "sha256-DnhX3kxggnFmyYwXEPBsBA1rh4oor1oIJR5TMJk/jvc=";
     });
-    z3 =
-      (branchOverride basePkgs.z3 "unstable-2026-11-10" (githubSource {
-        owner = "Z3Prover";
-        repo = "z3";
-        rev = "8927ff98ea8eae56021f8e8ea874a9465ea6a257";
-        hash = "sha256-f8a0xCQgbTYp58j7mXAM24bzSi6KlxFRiKfkoT3WRgg=";
-      })).overrideAttrs
-        (old: {
-          # Upstream rewrote z3.pc.cmake.in after 4.16.0, so nixpkgs'
-          # fix-pkg-config-paths.patch no longer applies. Carry a rebased copy
-          # until nixpkgs moves past 4.16.0.
-          patches = [ ./z3/fix-pkg-config-paths.patch ];
-          # z3's own build embeds its CMake project version (e.g. "4.17.0") in
-          # `z3 --version`, unrelated to our "unstable-YYYY-MM-DD" tracking
-          # version, so versionCheckHook can never match it for this attr.
-          doInstallCheck = false;
-          # Newer z3 installs a libz3.so.* symlink beside the python bindings
-          # pointing at the absolute build directory, which dangles in the
-          # store. nixpkgs' postInstall only redirects the z3/lib subdirectory.
-          # Repoint it before noBrokenSymlinks runs in postFixupHooks.
-          # Newer z3 leaves a libz3.so symlink beside the python bindings pointing
-          # at the absolute build directory. It still resolves inside the sandbox,
-          # so it is not a broken link at fixup time -- noBrokenSymlinks rejects it
-          # for pointing into /build, which is where it will dangle afterwards.
-          # Match on the target rather than on brokenness, and repoint into $lib.
-          postFixup = ''
-            for o in $outputs; do
-              for l in $(find "''${!o}" -type l 2>/dev/null); do
-                case "$(readlink "$l")" in
-                  /build/*) ln -sf "$lib/lib/$(basename "$(readlink "$l")")" "$l" ;;
-                esac
-              done
-            done
-          ''
-          + (old.postFixup or "");
-        });
+    z3_5 = pinnedOverride (basePkgs.z3.overrideAttrs z3Fixes) "5.4.1" (githubSource {
+      owner = "Z3Prover";
+      repo = "z3";
+      rev = "z3-5.4.1";
+      hash = "sha256-wac7ZB8HOFxcw5fdOfWu8wiMHFQ/z+dLMJE4Q32xbsI=";
+    });
+    z3 = branchOverride (basePkgs.z3.overrideAttrs z3Fixes) "unstable-2026-11-10" (githubSource {
+      owner = "Z3Prover";
+      repo = "z3";
+      rev = "8927ff98ea8eae56021f8e8ea874a9465ea6a257";
+      hash = "sha256-f8a0xCQgbTYp58j7mXAM24bzSi6KlxFRiKfkoT3WRgg=";
+    });
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.4.2" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
@@ -784,10 +880,10 @@ let
     aiger = callPackage ./aiger {
       aiger = basePkgs.aiger;
     };
-    btor2tools_0 = pinnedOverride basePkgs.btor2tools "unstable-2026-11-10" (githubSource {
+    btor2tools_1 = pinnedOverride basePkgs.btor2tools "1.0.4" (githubSource {
       owner = "boolector";
       repo = "btor2tools";
-      rev = "e6941e37e056084ab6e51c5c1eee6233089a330d";
+      rev = "1.0.4";
       hash = "sha256-GTzZKnMhSb5Fbf+ZxiHfvydXJHSI/nsl+YCXKxJIkRY=";
     });
 
@@ -1118,7 +1214,7 @@ let
         z3
         abc
         aiger
-        btor2tools_0
+        btor2tools_1
         mcy_0
       ];
     };

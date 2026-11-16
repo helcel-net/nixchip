@@ -54,6 +54,9 @@ stdenv.mkDerivation (finalAttrs: {
     runHook postInstall
   '';
 
+  passthru.nixchipUpdate = true;
+  passthru.nixchipCI = true;
+
   meta = {
     description = "Verilog-to-Routing: open-source FPGA CAD flow for architecture research (legacy v7)";
     homepage = "https://verilogtorouting.org";
