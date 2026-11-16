@@ -5,13 +5,13 @@
   python3,
   yosys,
   nix-update-script,
-  version ? "unstable-2026-09-03",
+  version ? "unstable-2026-11-10",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "4a72eb94fc253062464afee4d0018359017bb846"
+      "33015166c47398dff1ac72a699f4212891bb0618"
     else
       "v${version}",
-  hash ? "sha256-/gBFD+M/x53yULWk3tyIisgvKm48lHu6H6Yf9UbG0P0=",
+  hash ? "sha256-SkzwuhK6NN2Ixqt1r46wHiUVnOWbGUfq/gmV/RRCckI=",
 }:
 
 let
