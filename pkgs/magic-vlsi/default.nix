@@ -3,10 +3,10 @@
   fetchFromGitHub,
   magic-vlsi,
   nix-update-script,
-  version ? "unstable-2026-09-02",
+  version ? "unstable-2026-11-10",
   rev ?
-    if lib.hasPrefix "unstable-" version then "4481c509dae88e96c3af51f45bc3545ec6af7f60" else version,
-  hash ? "sha256-m6q5OGal1NPqfGHYHUNIlYnWdsVKLkaYVbxcplvqJi8=",
+    if lib.hasPrefix "unstable-" version then "0cdada32138a376f3b0339ef4753b1f2f47d7f09" else version,
+  hash ? "sha256-YFXBVMqzvyy1ljjCc18zSRnS03Yseh+xcbPOgHwv52o=",
   ...
 }:
 
