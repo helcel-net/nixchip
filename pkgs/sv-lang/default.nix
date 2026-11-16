@@ -44,6 +44,9 @@ sv_lang.overrideAttrs (old: {
   # nixpkgs sv-lang 9.1 didn't use tomlplusplus; newer slang fetches it via
   # FetchContent with FIND_PACKAGE_ARGS 3.4, which requires it in buildInputs.
   buildInputs = (old.buildInputs or [ ]) ++ [ tomlplusplus ];
+  # nixpkgs' fmt-12.2.patch backports to slang 11 what upstream already
+  # carries from 12 on, so it no longer applies.
+  patches = [ ];
   # nixpkgs catch2_3 is 3.14; newer slang requires ≥ 3.15 via FIND_PACKAGE_ARGS,
   # so FetchContent falls back to a network clone which fails in the Nix sandbox.
   # Disable tests entirely to avoid the catch2 dependency.
