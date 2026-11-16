@@ -2,9 +2,9 @@
   fetchFromGitHub,
   abc-verifier,
   nix-update-script,
-  version ? "unstable-2026-09-15",
-  rev ? "35c3375757115622d5e1d83e3a998e37a4432241",
-  hash ? "sha256-8qJ00MrcjF1PY607bLHzyudm1Z0bAKkb1/HEFM99YZc=",
+  version ? "unstable-2026-11-10",
+  rev ? "25d4ee221b2a9ab5124f3a222bcdf6f922d3d8a3",
+  hash ? "sha256-ylrhZtRRCeK2tOJUq76SQLZgfbVMybLiDCeOo1P9Qu8=",
   ...
 }:
 
