@@ -4,8 +4,8 @@
   fetchurl,
   autoPatchelfHook,
   makeWrapper,
-  version ? "0.0.0-10815-g70a9d174b",
-  hash ? "sha256-GhSRrVCAUkZ7rzg7HQHaLZ8c5xyht8SaWnaCqlxwK5s=",
+  version ? "0.0.0-11008-g737b61677",
+  hash ? "sha256-m0tghIUW5Helgu9pnvBuFYlyVKSvY32oeHyTRvYXUNQ=",
 }:
 
 # Upstream's prebuilt release: building XLS from source means Bazel plus its
