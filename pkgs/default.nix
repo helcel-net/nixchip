@@ -295,11 +295,11 @@ let
 
     xls = callPackage ./xls { };
 
-    abc_0 = pinnedOverride basePkgs.abc-verifier "0.68" (githubSource {
+    abc_0 = pinnedOverride basePkgs.abc-verifier "0.70" (githubSource {
       owner = "yosyshq";
       repo = "abc";
-      rev = "v0.68";
-      hash = "sha256-3jX46vmAIgyUd1vFvW1Jn9knombXZ+/hOgQD93RSgv0=";
+      rev = "v0.70";
+      hash = "sha256-1w9ozqGqFKPno8vzYBqt0AN8RM5QjqFmluOubEXS1zM=";
     });
     abc = callPackage ./abc {
       abc-verifier = basePkgs.abc-verifier;
