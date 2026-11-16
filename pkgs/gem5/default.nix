@@ -9,9 +9,9 @@
   zlib,
   protobuf,
   gperftools,
-  version ? "25.1.0.1",
-  rev ? "v25.1.0.1",
-  hash ? "sha256-miL4VC3M/w2bi46AG8YXgsz8duzPuJRzjN44BDaebF0=",
+  version ? "26.0.0.0",
+  rev ? "v26.0.0.0",
+  hash ? "sha256-NzasribrJ1uAibL//FbImOR0ljM11qhvXNr0Ii1rLt4=",
 }:
 
 stdenv.mkDerivation {
