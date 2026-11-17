@@ -193,6 +193,30 @@ let
     + (old.postFixup or "");
   };
 
+  # nextpnr HEAD outgrows nixpkgs' chip databases: ecp5 import calls
+  # pytrellis APIs newer than nixpkgs' trellis snapshot (use our branch
+  # trellis_0), and gatemate checks the prjpeppercorn database version that
+  # nixpkgs hard-wires. Bump the peppercorn tag when nextpnr reports a
+  # "chip database mismatch".
+  nextpnrHeadBase =
+    (nextpnrBase.override { trellis = nixchipPackages.trellis_0; }).overrideAttrs
+      (old: {
+        cmakeFlags = map (
+          flag:
+          if lib.hasPrefix "-DHIMBAECHEL_PEPPERCORN_PATH" flag then
+            "-DHIMBAECHEL_PEPPERCORN_PATH=${
+              pkgs.fetchFromGitHub {
+                owner = "YosysHQ";
+                repo = "prjpeppercorn";
+                tag = "v1.14";
+                hash = "sha256-cQgSgiBvrjkqJcC5g0ZlcGwTkzeOn3vR9N/aUHda6Jk=";
+              }
+            }"
+          else
+            flag
+        ) old.cmakeFlags;
+      });
+
   # nixpkgs marks or-tools broken under the default python3 (3.14: its pinned
   # pybind 2.13 has no 3.14 support), which blocks openroad from evaluating.
   # Build or-tools with python 3.13 until nixpkgs moves to pybind 3.
@@ -584,11 +608,11 @@ let
     });
     # 3rdparty/googletest and tests/gui are submodules; without fetchSubmodules
     # their directories are empty and CMake aborts on the missing subdirectories.
-    nextpnr = branchOverride nextpnrBase "unstable-2026-09-15" (taggedGithubSource {
+    nextpnr = branchOverride nextpnrHeadBase "unstable-2026-11-10" (taggedGithubSource {
       owner = "YosysHQ";
       repo = "nextpnr";
-      rev = "6030081a15221d9de772fb937e45e08ecf280d15";
-      hash = "sha256-HEEgHgm9jjQ+tk5MBjT5s6yMfPn27/4ZhtVL+9YdEoA=";
+      rev = "445e2a65b46693bb751e9d901d14180ba90db0c8";
+      hash = "sha256-AmHujX79S9TD9aPA3NmeRYL9CNmPUA5e5MN2RzOn+9k=";
       fetchSubmodules = true;
     });
     icestorm_0 = pinnedOverride basePkgs.icestorm "unstable-2026-11-10" (githubSource {
