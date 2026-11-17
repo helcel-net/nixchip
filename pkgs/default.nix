@@ -567,11 +567,11 @@ let
     });
     # Upstream's last release (0.9.2) predates nixpkgs' snapshot, so this slot
     # tracks the branch rather than a release series.
-    migen_0 = branchOverride basePkgs.python3Packages.migen "unstable-2025-10-03" (githubSource {
+    migen_0 = branchOverride basePkgs.python3Packages.migen "unstable-2026-11-17" (githubSource {
       owner = "m-labs";
       repo = "migen";
-      rev = "147f003fb7076ac4c7cf76a9a5ce152dc10e0ca6";
-      hash = "sha256-gRAvl5cUvrjq4t7htXsDBt4F8MEbHXFZoS0jbhrEs1I=";
+      rev = "e19524c963a8342952840983047557707fbe0b6a";
+      hash = "sha256-oDC8yWzJbCNMYeDiBTR6V9MUYvdDp1MArIfLmTwycRY=";
     });
     # 3rdparty/googletest is a submodule; without fetchSubmodules its dir is
     # empty and CMake aborts (BUILD_TESTS is on in the nixpkgs base).
