@@ -223,11 +223,25 @@ let
   # With python 3.13, or-tools' own ctest still fails a python-contrib
   # dependency check that openroad never touches (it links the C++ libraries
   # only), so checks are skipped rather than fixed.
-  openroadBase = basePkgs.openroad.override {
-    or-tools = (basePkgs.or-tools.override { python3 = basePkgs.python313; }).overrideAttrs (_: {
-      doCheck = false;
-    });
-  };
+  #
+  # OpenROAD vendors slang, whose `fmt::format` calls need <fmt/format.h>
+  # since fmt 12.2 (nixpkgs' fmt-12.2.patch for sv-lang does the same swap,
+  # but its hunks only fit slang 11, not the older vendored copies).
+  openroadBase =
+    (basePkgs.openroad.override {
+      or-tools = (basePkgs.or-tools.override { python3 = basePkgs.python313; }).overrideAttrs (_: {
+        doCheck = false;
+      });
+    }).overrideAttrs
+      (old: {
+        postPatch = (old.postPatch or "") + ''
+          slang=third-party/slang-elab/third_party/slang
+          if [ -d "$slang" ]; then
+            find "$slang" -type f \( -name '*.h' -o -name '*.cpp' \) -exec sed -i \
+              -e 's|<fmt/core.h>|<fmt/format.h>|' -e 's|"fmt/core.h"|<fmt/format.h>|' {} +
+          fi
+        '';
+      });
 
   # Naming convention:
   # - Attrs ending in _N are fixed major-version slots for side-by-side tool
@@ -677,16 +691,13 @@ let
     };
 
     # ── Physical design ────────────────────────────────────────────────────────
-    openroad_26 = callPackage ./openroad {
+    openroad_26 = callPackage ./openroad/cmake.nix {
       openroad = openroadBase;
-      version = "26Q2";
-      rev = "26Q2";
-      hash = "sha256-dB9PfPlp6vZ9+Th8LJE65BW9YeuUL0G4JtjzQxg6UpQ=";
-      patches = basePkgs.openroad.patches or [ ];
+      version = "26Q4";
+      rev = "26Q4";
+      hash = "sha256-6DTXTlgRysxhphUx3TyZvC5p8rZ/XkHxJriLHLD8V20=";
     };
-    openroad = callPackage ./openroad {
-      openroad = openroadBase;
-    };
+    openroad = callPackage ./openroad { };
     openroad-flow-scripts_26 = callPackage ./openroad-flow-scripts {
       version = "26Q2";
       rev = "26Q2";

@@ -1,41 +1,211 @@
+# OpenROAD built from branch HEAD with Bazel. Upstream dropped the CMake
+# build after 26Q4 (pkgs/openroad/cmake.nix keeps it for release slots).
+#
+# Bazel builds hermetically: a statically linked LLVM toolchain and static Qt
+# come from the dependency graph, and the result links only against glibc.
+# nixpkgs' buildBazelPackage only drives bazel 7, so this owns the two steps:
+# a fixed-output `bazel vendor` of every external repository, then an offline
+# build against it.
+#
+# Nix's sandbox has no /lib64 loader, so the dynamically linked interpreters
+# Bazel downloads cannot run there. rules_python's standalone CPythons run
+# during the dependency fetch itself, so MODULE.bazel is pointed at copies
+# patched against nixpkgs' glibc (file:// URLs, which also resolve offline);
+# node only runs at build time and is patched in the vendored tree instead.
+#
+# The update bot only rewrites version/rev/hash. When the module graph
+# changes, re-fix depsHash (build once with lib.fakeHash to learn it).
 {
+  lib,
+  stdenv,
   fetchFromGitHub,
-  openroad,
-  nix-update-script,
+  fetchurl,
+  bazel_9,
+  autoPatchelfHook,
+  cacert,
+  git,
+  python3,
   version ? "unstable-2026-11-10",
   rev ? "111792153443185f65bd2ff71666556064ba1291",
   hash ? "sha256-wF+nBxz9o91ZOq7wIJ4o+YHQNCPAoJO12t89P+EoVHU=",
-  patches ? [ ],
+  depsHash ? "sha256-Rwt/X7c/DI/xFfL4+Q1UEFrlefJGnrROZAczyfEIq6o=",
   ...
 }:
 
-openroad.overrideAttrs (old: {
-  inherit version;
+let
+  # rules_python's interpreters (MINOR_MAPPING of the rules_python version in
+  # the module graph); hashes from its python/private/runtimes_manifest.txt.
+  pbsRelease = "20260414";
+  standalonePythons = {
+    "3.12.13" = "sha256-zc+HJNRuSFf4217p9CUtwvXaNPeUApTsazEjid0/QeA=";
+    "3.13.13" = "sha256-5ew7LFaTIV0VPENKwBjnVRGyxPltK84wRopHfLOonV4=";
+  };
+  patchedPython =
+    pyVersion: sha256:
+    stdenv.mkDerivation {
+      name = "cpython-${pyVersion}-standalone-nix.tar.gz";
+      src = fetchurl {
+        url = "https://github.com/astral-sh/python-build-standalone/releases/download/${pbsRelease}/cpython-${pyVersion}+${pbsRelease}-x86_64-unknown-linux-gnu-install_only.tar.gz";
+        hash = sha256;
+      };
+      nativeBuildInputs = [ autoPatchelfHook ];
+      # Optional extension modules (tkinter, ...) link libraries nothing here uses.
+      autoPatchelfIgnoreMissingDeps = [ "*" ];
+      sourceRoot = ".";
+      dontConfigure = true;
+      dontBuild = true;
+      dontFixup = true;
+      installPhase = ''
+        autoPatchelf python
+        tar -czf "$out" python
+      '';
+    };
+  # Appended to MODULE.bazel; the `python` extension proxy is declared there.
+  pythonOverrides = lib.concatStrings (
+    lib.mapAttrsToList (pyVersion: sha256: ''
+      cat >> MODULE.bazel <<EOF
+      python.single_version_platform_override(
+          platform = "x86_64-unknown-linux-gnu",
+          python_version = "${pyVersion}",
+          urls = ["file://${patchedPython pyVersion sha256}"],
+          sha256 = "$(sha256sum ${patchedPython pyVersion sha256} | cut -d" " -f1)",
+          strip_prefix = "python",
+      )
+      EOF
+    '') standalonePythons
+  );
+
   src = fetchFromGitHub {
     owner = "The-OpenROAD-Project";
     repo = "OpenROAD";
     fetchSubmodules = true;
     inherit rev hash;
   };
-  inherit patches;
-  doCheck = false;
-  doInstallCheck = false;
-  postPatch = (old.postPatch or "") + ''
-    if [ -f src/web/src/embed_web_assets.py ]; then
-      chmod +x src/web/src/embed_web_assets.py
-      patchShebangs src/web/src/embed_web_assets.py
-    fi
-    if [ -f src/web/src/embed_report_assets.py ]; then
-      chmod +x src/web/src/embed_report_assets.py
-      patchShebangs src/web/src/embed_report_assets.py
-    fi
+
+  # nixpkgs' bazel wrapper refuses to run against a different .bazelversion
+  # (upstream pins a newer 9.x patch release). Upstream's .bazelrc also points
+  # at its remote cache and at caches under $HOME; none exist in the sandbox.
+  bazelSetup = ''
+    rm -f .bazelversion
+    ${pythonOverrides}
+    export HOME="$TMPDIR/home"
+    mkdir -p "$HOME"
+    bazelFlags=(
+      --remote_cache=
+      --disk_cache=
+      --repository_cache="$TMPDIR/repository-cache"
+      # Keep fetched repositories as real directories rather than links into
+      # a shared contents cache, so they can be vendored and replayed.
+      --repo_contents_cache=
+      # aspect_tools_telemetry otherwise phones home with module versions.
+      --repo_env=DO_NOT_TRACK=1
+    )
   '';
-  passthru = (old.passthru or { }) // {
-    updateScript = nix-update-script {
-      attrPath = "openroad";
-      extraArgs = [ "--version=branch" ];
-    };
+
+  deps = stdenv.mkDerivation {
+    name = "openroad-${version}-bazel-deps";
+    inherit src;
+
+    nativeBuildInputs = [
+      bazel_9
+      cacert
+      git
+      python3
+    ];
+
+    dontConfigure = true;
+    buildPhase = ''
+      runHook preBuild
+      ${bazelSetup}
+      # `bazel vendor //:openroad` analyses no targets here, and vendoring the
+      # whole module graph fetches (and fails on) repositories for other
+      # platforms and Python versions. Analysis fetches exactly what
+      # //:openroad needs; vendor those repositories by name.
+      bazel --output_user_root="$TMPDIR/bazel" build "''${bazelFlags[@]}" \
+        --nobuild //:openroad
+      external="$(bazel --output_user_root="$TMPDIR/bazel" info "''${bazelFlags[@]}" output_base)/external"
+      repos=()
+      for dir in "$external"/*/; do
+        name=$(basename "$dir")
+        case "$name" in
+          # Host-probing repositories are regenerated by every build; the
+          # patched interpreters reference the store, which a fixed-output
+          # path may not, and are re-created from their file:// URLs.
+          _main | bazel_tools | *local_config* | *host_platform* \
+            | rules_python++python+python_3_*) ;;
+          *) repos+=("--repo=@@$name") ;;
+        esac
+      done
+      echo "vendoring ''${#repos[@]} repositories"
+      bazel --output_user_root="$TMPDIR/bazel" vendor "''${bazelFlags[@]}" \
+        --vendor_dir="$out" "''${repos[@]}"
+      bazel --output_user_root="$TMPDIR/bazel" shutdown
+      if leaks=$(grep -rlF "$NIX_STORE/" "$out"); then
+        echo "vendored repositories reference the store:" >&2
+        echo "$leaks" | head -20 >&2
+        exit 1
+      fi
+      runHook postBuild
+    '';
+    dontInstall = true;
+    dontFixup = true;
+
+    outputHashMode = "recursive";
+    outputHashAlgo = "sha256";
+    outputHash = depsHash;
+  };
+in
+stdenv.mkDerivation {
+  pname = "openroad";
+  inherit version src;
+
+  nativeBuildInputs = [
+    bazel_9
+    autoPatchelfHook
+    git
+    python3
+  ];
+
+  dontConfigure = true;
+
+  buildPhase = ''
+    runHook preBuild
+    ${bazelSetup}
+    # Prebuilt tools in the vendored graph are static, except node, which
+    # needs a loader; patch a writable copy before bazel executes it.
+    cp -r ${deps} "$TMPDIR/vendor"
+    chmod -R u+w "$TMPDIR/vendor"
+    autoPatchelf "$TMPDIR/vendor"
+
+    export OPENROAD_VERSION=${lib.escapeShellArg version}
+    bazel --output_user_root="$TMPDIR/bazel" build "''${bazelFlags[@]}" \
+      --vendor_dir="$TMPDIR/vendor" \
+      --spawn_strategy=local \
+      --jobs="$NIX_BUILD_CORES" \
+      --stamp \
+      //:openroad
+    install -Dm755 "$(readlink -f bazel-bin/openroad)" "$TMPDIR/openroad"
+    bazel --output_user_root="$TMPDIR/bazel" shutdown
+    runHook postBuild
+  '';
+
+  installPhase = ''
+    runHook preInstall
+    install -Dm755 "$TMPDIR/openroad" "$out/bin/openroad"
+    runHook postInstall
+  '';
+
+  passthru = {
+    inherit deps;
     nixchipUpdate = true;
     nixchipCI = true;
   };
-})
+
+  meta = {
+    description = "Integrated chip physical design tool, from RTL to GDSII";
+    homepage = "https://theopenroadproject.org";
+    license = lib.licenses.bsd3;
+    mainProgram = "openroad";
+    platforms = [ "x86_64-linux" ];
+  };
+}
