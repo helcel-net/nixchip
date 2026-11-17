@@ -47,6 +47,9 @@ if useCmake then
     buildInputs = [
       gtest
       libffi
+      # Host python so fixup rewrites the `#!/usr/bin/env python3` shebangs of
+      # yosys-smtbmc and yosys-witness (which imports click); sby runs them.
+      (python3.withPackages (ps: [ ps.click ]))
       readline
       tcl
       zlib
