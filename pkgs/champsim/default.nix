@@ -9,9 +9,9 @@
   bzip2,
   xz,
   zlib,
-  version ? "unstable-2026-09-15",
-  rev ? "410cee62d9c429c043ea611325ce00e6c303be2a",
-  hash ? "sha256-wcLQwGffhOOErB1YcdwSpH/9gWp1kSWhTKIvV9Zrq0Q=",
+  version ? "unstable-2026-11-17",
+  rev ? "5f0be14a12f81baec35583dd4721afa654e93981",
+  hash ? "sha256-vjUFkAmDR8vvHyRmMEMH4LpvYDnAM8SBxks7NsL9xKM=",
 }:
 
 stdenv.mkDerivation {
