@@ -26,8 +26,8 @@
   # git-describe string embedded in --version output (last tag + commits since);
   # not bot-maintained, so it can lag behind rev -- cosmetic only.
   gitVersion ? "v0.0-4157-gfdbac312",
-  registryRev ? "222e49312e3fcc884991af688e0eec6f67a1e919",
-  registryHash ? "sha256-s2EceFCz3/XblRPEcSxzMpXyQWtaOlcy143RbWqwjYw=",
+  registryRev ? "6e097e58caf8fdceb8efae0ae21d1ab871a25a82",
+  registryHash ? "sha256-LwdDEs7uQdKG1L64Pv6u/YNycKPDPGt9PvT+uh+Zlv0=",
   depsHash ? "sha256-RXji3oV9ccUfje8+i73w7dox9e4wZH3KADJ+YecFgL4=",
 }:
 
