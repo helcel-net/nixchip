@@ -777,6 +777,16 @@ for package in "${packages[@]}"; do
       IFS=$'\t' read -r inline_block_start inline_block_end <<< "$inline_block_info"
       before_default_nix="$(mktemp)"
       cp "$default_nix" "$before_default_nix"
+      # callPackage slots (`verilator_5 = callPackage ./verilator { version =
+      # ...; }`) pin version/rev/hash here, but nix-update edits the file that
+      # defines the package's version attr -- the package's own file, which
+      # does not contain the pinned strings, so it "updated" nothing. Point it
+      # at pkgs/default.nix; the attr-scope restore below keeps the edit to
+      # this attr's block.
+      if sed -n "${inline_block_start},${inline_block_end}p" "$default_nix" \
+        | grep -qE '^[[:space:]]*version = "'; then
+        extra_flags+=" --override-filename $default_nix"
+      fi
     fi
 
     # shellcheck disable=SC2086
