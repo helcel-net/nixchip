@@ -40,6 +40,20 @@ let
         # env; this is a build-time-only shim, so skip it.
         doCheck = false;
       });
+  # Build requirement of newer cocotb that nixpkgs does not package yet.
+  dynamic-metadata =
+    pythonPkgs.dynamic-metadata or (pythonPkgs.buildPythonPackage rec {
+      pname = "dynamic-metadata";
+      version = "0.6.0";
+      format = "wheel";
+      src = pythonPkgs.fetchPypi {
+        pname = "dynamic_metadata";
+        inherit version format;
+        dist = "py3";
+        python = "py3";
+        hash = "sha256-JP6wDXlNQJmHqQD3AnKw5H/KRIZ/ZkNt4cbJ5fgI5ig=";
+      };
+    });
 in
 (cocotb.overridePythonAttrs (
   old:
@@ -57,6 +71,7 @@ in
       pythonPkgs.setuptools
       setuptools-git-versioning
       pythonPkgs.find-libpython
+      dynamic-metadata
     ];
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
       cmake
@@ -78,6 +93,10 @@ in
     };
     pytestFlagsArray = (old.pytestFlagsArray or [ ]) ++ [
       "--ignore=tests/pytest/test_ipython_support.py"
+      # Shell out to git, which the sandboxed source tree is not.
+      "--ignore=tests/pytest/test_version.py"
+      # Needs a GHDL build with a GPI interface.
+      "--deselect=tests/pytest/test_vhdl_libraries_multiple.py::test_toplevel_library"
     ];
     passthru = (old.passthru or { }) // {
       updateScript = nix-update-script {

@@ -48,6 +48,14 @@ stdenv.mkDerivation {
       --replace-fail "find_package(MLIR 22.1.8 EXACT CONFIG REQUIRED)" \
         "find_package(MLIR CONFIG REQUIRED)
     ${setTablegen}"
+    # Newer trees configure compiler/ as its own project with the same pin.
+    if [ -f compiler/CMakeLists.txt ]; then
+      substituteInPlace compiler/CMakeLists.txt \
+        --replace-quiet "find_package(LLVM 22.1.8 EXACT" "find_package(LLVM" \
+        --replace-quiet "find_package(MLIR 22.1.8 EXACT CONFIG REQUIRED)" \
+          "find_package(MLIR CONFIG REQUIRED)
+    ${setTablegen}"
+    fi
   ''
   + lib.optionalString pyccLayout ''
     substituteInPlace compiler/mlir/CMakeLists.txt \
@@ -77,6 +85,9 @@ stdenv.mkDerivation {
     (lib.cmakeBool "PYC_PACKAGE_BUNDLE_RUNTIME_DEPS" false)
     # pycircuitConfig.cmake.in appends these to the package prefix, which
     # breaks with the absolute paths the cmake setup hook passes.
+    # MLIRConfig.cmake only falls back to the bare "mlir-tblgen" target name
+    # when this is unset, and nixpkgs ships the binary in a separate output.
+    (lib.cmakeFeature "MLIR_TABLEGEN_EXE" "${tblgen}/bin/mlir-tblgen")
     (lib.cmakeFeature "CMAKE_INSTALL_BINDIR" "bin")
     (lib.cmakeFeature "CMAKE_INSTALL_INCLUDEDIR" "include")
   ]

@@ -865,7 +865,27 @@ let
       rev = "cvc5-1.4.2";
       hash = "sha256-GhqYYTbn0mh/EjoXy9ovKWRtFXYoeuHGp0KuYvfwH7w=";
     });
-    cvc5 = branchOverride basePkgs.cvc5 "unstable-2026-11-10" (githubSource {
+    # cvc5 now refuses a system SymFPU without the patches it carries in
+    # cmake/deps-utils; SymFPU is header-only, so apply them from cvc5's own src.
+    cvc5 = branchOverride (basePkgs.cvc5.overrideAttrs (
+      finalAttrs: old: {
+        buildInputs = map (
+          dep:
+          if (dep.pname or "") == "symfpu" then
+            dep.overrideAttrs (o: {
+              patches =
+                (o.patches or [ ])
+                ++ map (n: "${finalAttrs.src}/cmake/deps-utils/symfpu-${n}.patch") [
+                  "0001-fix-conversions-for-experimental-formats"
+                  "0002-fix-unpacked-exponent-width-for-small-formats"
+                  "0003-define-cvc5-patch-level"
+                ];
+            })
+          else
+            dep
+        ) old.buildInputs;
+      }
+    )) "unstable-2026-11-10" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
       rev = "00147fb17d7ed9046f3b09deee0b4951c0243b3f";

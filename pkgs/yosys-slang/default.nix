@@ -34,12 +34,6 @@ stdenv.mkDerivation (finalAttrs: {
     fetchSubmodules = true;
   };
 
-  postPatch = ''
-    substituteInPlace third_party/slang/external/CMakeLists.txt \
-      --replace-fail 'GIT_REPOSITORY ''${GITHUB_PREFIX}MikePopoloski/regex.git' "SOURCE_DIR ${boostRegex}" \
-      --replace-fail "GIT_TAG boost-1.91.0" ""
-  '';
-
   nativeBuildInputs = [
     cmake
     python3
@@ -51,6 +45,9 @@ stdenv.mkDerivation (finalAttrs: {
 
   cmakeFlags = [
     "-DYOSYS_CONFIG=${yosys}/bin/yosys-config"
+    # Point slang's FetchContent at the vendored boost::regex rather than
+    # patching its fetch URL, whose prefix variable keeps getting renamed.
+    "-DFETCHCONTENT_SOURCE_DIR_BOOST_REGEX=${boostRegex}"
   ];
 
   installPhase = ''
