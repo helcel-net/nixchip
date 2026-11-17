@@ -5,9 +5,9 @@
   cmake,
   llvmPackages_18,
   protobuf,
-  version ? "unstable-2026-11-10",
-  rev ? "7dd8efa4c8121f24c8f71ad987c62f2c8061d516",
-  hash ? "sha256-M6qI6XlASyfkSzLzU/glCTp8YecemLNVaIW6eYrIaYw=",
+  version ? "unstable-2026-11-17",
+  rev ? "549f7dd9d90fc1ab585aab42ac3d376b88c2d43a",
+  hash ? "sha256-Xrbr8IeUCQtjEALvOvECJmHyyc1dHqJKUL7iTWVD/QQ=",
 }:
 
 let
