@@ -861,11 +861,11 @@ let
       rev = "refs/tags/0.9.1";
       hash = "sha256-3uStLdDFhXVgqzremUPRbxPUcl0IqVg5MRLltgm8rCA=";
     });
-    cadical_3 = pinnedOverride basePkgs.cadical "3.0.1" (githubSource {
+    cadical_3 = pinnedOverride basePkgs.cadical "3.1.0" (githubSource {
       owner = "arminbiere";
       repo = "cadical";
-      rev = "rel-3.0.1";
-      hash = "sha256-oHebG9VBtEnxmBpfP6A/f/UNIx2AXbLPs0NHPoNlZfY=";
+      rev = "rel-3.1.0";
+      hash = "sha256-yXS0sLkTDOlaOAovoot3omE8ylHk8mYD3y5CptXbCQc=";
     });
     # cryptominisat pulls CaDiCaL and CaDiBack in with FetchContent at configure time,
     # which no sandbox can do. Both are meelgroup forks declared as unpinned
