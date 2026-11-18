@@ -56,6 +56,7 @@ buildPythonPackage {
 
   doCheck = false;
 
+  passthru.nixchipCI = true;
   passthru.nixchipUpdate = true;
   passthru.nixchipUpdateFlags = [ "--version=stable" ];
 

@@ -37,6 +37,7 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
+  passthru.nixchipCI = true;
   passthru.nixchipUpdate = true;
 
   meta = {

@@ -45,6 +45,7 @@ buildPythonPackage {
       --replace-warn "['cmake', '..']" "['echo', '1']"
   '';
 
+  passthru.nixchipCI = true;
   passthru.nixchipUpdate = true;
   passthru.nixchipUpdateFlags = [ "--version=stable" ];
 
