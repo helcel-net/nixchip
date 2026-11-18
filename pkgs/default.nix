@@ -555,11 +555,11 @@ let
     verible = callPackage ./verible { };
     vhdl-ls_0 = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
-      version = "0.87.1";
-      hash = "sha256-+7kjRjRtsb038xw0x+yojhWVChvkBz6kTlqSc3rTwXE=";
+      version = "0.88.0";
+      hash = "sha256-ebDt3QGXEcyEreCeIw7oejDyXJtNZhxst8CSgsafjpg=";
       # This slot builds a different rev than the branch attr, so it needs its
       # own vendored-crates hash rather than the shared default below it.
-      cargoHash = "sha256-NAi/YY6bu/yHHPWfgv5fimS3Ac4PL12T/U1Jknj/Zc8=";
+      cargoHash = "sha256-zqwta8GUjAzU4GrP0eAHPGEIlRiCftAS6qG+wLoX7bQ=";
     };
     vhdl-ls = callPackage ./vhdl-ls {
       vhdl_ls = basePkgs.vhdl-ls;
