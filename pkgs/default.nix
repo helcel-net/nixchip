@@ -286,8 +286,8 @@ let
       hash = "sha256-CzjrkgvMRmL82omffz+bTI9JR900sdRmhZIhcyflSGo=";
     };
     systemc_3 = callPackage ./systemc {
-      version = "3.0.2";
-      hash = "sha256-v/PcQu0m/7zyx2TtpZrLFbHtknahgVCkzcRi3lgrRGw=";
+      version = "3.0.3";
+      hash = "sha256-Q0ae/EzixbiRiqdx/yoHF+R2RLay5iN+Tta5RLas3zs=";
     };
     systemc = callPackage ./systemc {
       cxxStandard = "17";
