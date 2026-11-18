@@ -1240,8 +1240,8 @@ let
       # so the release slot stays on the 3.13 package set now that the default
       # python3 is 3.14.
       cocotb = basePkgs.python313Packages.cocotb;
-      version = "2.0.1";
-      hash = "sha256-LXQNqFlvP+WBaDGWPs5+BXBtW2dhDu+v+7lR/AMG21M=";
+      version = "2.1.0";
+      hash = "sha256-anDFALoSLGl7hGBJuJzgMDBVmFJe/ZK/bWCwMK5lUvQ=";
     };
     cocotb = callPackage ./cocotb {
       cocotb = basePkgs.python3Packages.cocotb;
