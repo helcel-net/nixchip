@@ -1087,9 +1087,9 @@ let
 
     # ── SoC frameworks ────────────────────────────────────────────────────────
     chipyard_1 = callPackage ./chipyard {
-      version = "1.14.0";
-      rev = "1.14.0";
-      hash = "sha256-vi0KRoioTPDdgZFITIOkAtMyWxuyAyMzwyqShGtVGZA=";
+      version = "1.15.0";
+      rev = "1.15.0";
+      hash = "sha256-F/Q7x54oCGfmp+msuQKSZ7ssOPWRj0FCc0mLiSIXLmY=";
     };
     chipyard = callPackage ./chipyard { };
 
