@@ -490,8 +490,8 @@ let
     };
     firrtl_1 = callPackage ./firrtl {
       firrtl = basePkgs.firrtl;
-      version = "1.5.3";
-      hash = "sha256-7lv3I3TODEWiCWtKwk8Cl9EG8nVwZpz8T0yDjuL2AJg=";
+      version = "1.6.0";
+      hash = "sha256-V4sVNZ0AuzNlUvJ+E8zb3KyMRR3dXWwPIYml0I5e8yw=";
     };
     firrtl = callPackage ./firrtl {
       firrtl = basePkgs.firrtl;
