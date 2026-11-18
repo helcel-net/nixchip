@@ -574,12 +574,12 @@ let
     });
     # HEAD surelog needs HEAD uhdm (see surelog_1: lockstep releases).
     surelog =
-      branchOverride (basePkgs.surelog.override { inherit uhdm; }) "unstable-2026-11-10"
+      branchOverride (basePkgs.surelog.override { inherit uhdm; }) "unstable-2026-11-17"
         (githubSource {
           owner = "chipsalliance";
           repo = "surelog";
-          rev = "84bc612985be1e205c0795b4e56c625680dc23f9";
-          hash = "sha256-nz6mUaxyszLV24PCHKbGh9O5+wXWfgNO/TXI/h54lGs=";
+          rev = "c7ac0a6abecd30da44d221c0c78879791322fc7d";
+          hash = "sha256-pkMCSgcR8njHojR6BPPozkdNHhAeBJ4qH9itb+Mtyj4=";
         });
     uhdm_1 = pinnedOverride basePkgs.uhdm "1.87" (githubSource {
       owner = "chipsalliance";
