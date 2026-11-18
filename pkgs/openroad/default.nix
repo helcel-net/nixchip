@@ -25,16 +25,35 @@
   bash,
   cacert,
   coreutils,
+  dbus,
+  fontconfig,
+  libice,
+  libsm,
+  libx11,
+  libxcb,
+  libxcb-cursor,
+  libxcb-image,
+  libxcb-keysyms,
+  libxcb-render-util,
+  libxcb-util,
+  libxcb-wm,
+  libxkbcommon,
   git,
   python3,
   version ? "unstable-2026-11-10",
   rev ? "111792153443185f65bd2ff71666556064ba1291",
   hash ? "sha256-wF+nBxz9o91ZOq7wIJ4o+YHQNCPAoJO12t89P+EoVHU=",
-  depsHash ? "sha256-gTmy68Se9pAiJYSk+PTG1+sNXEVJrKZ4/vYmnDbNP5s=",
+  depsHash ? "sha256-iF+nZbX22iBegAz8HdogECnq4jVLITlNwKzcU+V3YQA=",
   ...
 }:
 
 let
+  # The Qt GUI build. Qt itself is built from source and linked in; the X11 /
+  # xcb / fontconfig / dbus / xkbcommon libraries it uses are linked against
+  # stubs and resolved at runtime (autoPatchelf points them at nixpkgs).
+  # Without -gui it runs headless like the plain //:openroad target.
+  target = "//:openroad-qt";
+
   # rules_python's interpreters (MINOR_MAPPING of the rules_python version in
   # the module graph); hashes from its python/private/runtimes_manifest.txt.
   pbsRelease = "20260414";
@@ -154,7 +173,7 @@ let
       # //:openroad needs; vendor those repositories by name.
       analyse() {
         bazel --output_user_root="$TMPDIR/bazel" build "''${bazelFlags[@]}" \
-          --nobuild //:openroad
+          --nobuild ${target}
         external="$(bazel --output_user_root="$TMPDIR/bazel" info "''${bazelFlags[@]}" output_base)/external"
         repos=()
         repoDirs=()
@@ -239,6 +258,23 @@ stdenv.mkDerivation {
     python3
   ];
 
+  # Runtime libraries of the GUI, for autoPatchelf.
+  buildInputs = [
+    (lib.getLib dbus)
+    fontconfig
+    libice
+    libsm
+    libx11
+    libxcb
+    libxcb-cursor
+    libxcb-image
+    libxcb-keysyms
+    libxcb-render-util
+    libxcb-util
+    libxcb-wm
+    libxkbcommon
+  ];
+
   dontConfigure = true;
 
   buildPhase = ''
@@ -266,8 +302,8 @@ stdenv.mkDerivation {
       --spawn_strategy=processwrapper-sandbox \
       --jobs="$NIX_BUILD_CORES" \
       --stamp \
-      //:openroad
-    install -Dm755 "$(readlink -f bazel-bin/openroad)" "$TMPDIR/openroad"
+      ${target}
+    install -Dm755 "$(readlink -f bazel-bin/openroad-qt)" "$TMPDIR/openroad"
     bazel --output_user_root="$TMPDIR/bazel" shutdown
     runHook postBuild
   '';
