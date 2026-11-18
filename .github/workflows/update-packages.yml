@@ -2,7 +2,10 @@ name: Update package pins
 
 on:
   schedule:
+    # Weekly: branch-tracking attrs and families without one.
     - cron: "37 4 * * 2"
+    # Monthly: also every historical release slot (include-historical).
+    - cron: "53 4 3 * *"
   workflow_dispatch:
     inputs:
       include-historical:
@@ -13,6 +16,11 @@ on:
         options:
           - "false"
           - "true"
+      packages:
+        description: "Only these packages (space- or comma-separated attrs); empty for all"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: write
@@ -27,7 +35,8 @@ jobs:
       has-packages: ${{ steps.packages.outputs.has-packages }}
     env:
       NIX_SYSTEM: x86_64-linux
-      NIXCHIP_UPDATE_HISTORICAL: ${{ inputs.include-historical == 'true' && '1' || '0' }}
+      NIXCHIP_UPDATE_HISTORICAL: ${{ (inputs.include-historical == 'true' || github.event.schedule == '53 4 3 * *') && '1' || '0' }}
+      NIXCHIP_UPDATE_PACKAGES: ${{ inputs.packages }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -59,7 +68,7 @@ jobs:
         package: ${{ fromJson(needs.generate-matrix.outputs.packages) }}
     env:
       NIX_SYSTEM: x86_64-linux
-      NIXCHIP_UPDATE_HISTORICAL: ${{ inputs.include-historical == 'true' && '1' || '0' }}
+      NIXCHIP_UPDATE_HISTORICAL: ${{ (inputs.include-historical == 'true' || github.event.schedule == '53 4 3 * *') && '1' || '0' }}
       NIXCHIP_UPDATE_PACKAGES: ${{ matrix.package }}
     steps:
       - uses: actions/checkout@v7

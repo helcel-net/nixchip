@@ -46,7 +46,12 @@ buildBazelPackage {
   # Read by bazel/build-version.sh (the workspace status command) when .git is
   # absent, to embed a build string into the tools' --version output.
   env = {
-    GIT_DATE = lib.removePrefix "unstable-" version;
+    # Release slots (version = the tag form) carry no date.
+    GIT_DATE =
+      if lib.hasInfix "unstable-" version then
+        lib.last (lib.splitString "unstable-" version)
+      else
+        "unknown";
     GIT_VERSION = gitVersion;
   };
 
@@ -110,6 +115,14 @@ buildBazelPackage {
   };
 
   passthru = {
+    inherit registry;
+    # Refreshed by scripts/update-packages.sh after every rev bump: the
+    # registry snapshot moves to BCR HEAD, then both fixed-output hashes.
+    nixchipTrackedRevs = [ "registryRev=git:https://github.com/bazelbuild/bazel-central-registry" ];
+    nixchipDerivedHashes = [
+      "registryHash:registry"
+      "depsHash:deps"
+    ];
     nixchipCI = true;
     nixchipUpdate = true;
   };

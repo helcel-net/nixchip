@@ -323,6 +323,8 @@ stdenv.mkDerivation {
 
   passthru = {
     inherit deps;
+    # Refreshed by scripts/update-packages.sh after every rev bump.
+    nixchipDerivedHashes = [ "depsHash:deps" ];
     nixchipUpdate = true;
     nixchipCI = true;
   };

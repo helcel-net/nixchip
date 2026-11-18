@@ -31,8 +31,9 @@ jobs:
       - id: matrix
         name: Collect buildable packages
         # Default CI builds branch-tracking package attrs only and skips heavyweight
-        # LLVM/GCC toolchains. Pull requests additionally build exact attrs whose
-        # package version or source pin changed, including pinned release slots.
+        # LLVM/GCC toolchains. Pull requests and pushes to main additionally build
+        # exact attrs whose package version or source pin changed (against the PR
+        # base, or the previous main commit), including pinned release slots.
         run: |
           package_meta() {
             nix eval --json "$1#packages.x86_64-linux" --apply '
@@ -79,9 +80,11 @@ jobs:
           current_meta=$(package_meta path:.)
           default_packages=$(echo "$current_meta" | jq -c '[.[] | select(.default) | .name]')
 
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            base_meta=$(package_meta "github:${{ github.repository }}/${{ github.event.pull_request.base.sha }}")
-            metadata_changed=$(jq -n -c \
+          # Attrs whose version or source pin differs from the given flake ref.
+          changed_since() {
+            local base_meta
+            base_meta=$(package_meta "$1")
+            jq -n -c \
               --argjson base "$base_meta" \
               --argjson current "$current_meta" '
                 ($base | map({key: .name, value: { version: .version, source: .source }}) | from_entries) as $basePackages |
@@ -90,7 +93,12 @@ jobs:
                     .version != ($basePackages[.name].version // null)
                     or .source != ($basePackages[.name].source // null)
                   ) | .name)
-              ')
+              '
+          }
+
+          before="${{ github.event.before }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            metadata_changed=$(changed_since "github:${{ github.repository }}/${{ github.event.pull_request.base.sha }}")
             changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.sha }})
             changed_dirs=$(echo "$changed_files" \
               | awk -F/ '/^pkgs\// { print $2 }' \
@@ -114,6 +122,15 @@ jobs:
                 --argjson changed "$metadata_changed" \
                 '($touched + $changed) | unique')
             fi
+          elif [ "${{ github.event_name }}" = "push" ] && [ -n "$before" ] \
+            && [ "$before" != "0000000000000000000000000000000000000000" ]; then
+            # Pinned release slots are not in the default set; build the ones this
+            # push changed (hand bumps, merged update PRs) so main caches them.
+            metadata_changed=$(changed_since "github:${{ github.repository }}/$before")
+            packages=$(jq -n -c \
+              --argjson defaults "$default_packages" \
+              --argjson changed "$metadata_changed" \
+              '($defaults + $changed) | unique')
           else
             packages="$default_packages"
           fi
@@ -149,10 +166,13 @@ jobs:
             experimental-features = nix-command flakes
             accept-flake-config = true
       # Every shard pushes what it builds to the nixchip0 cache; jobs pull
-      # from it via the flake's nixConfig substituters. Only pushes to main
-      # populate the cache -- PR builds just consume it.
+      # from it via the flake's nixConfig substituters. Daemon mode (the
+      # default) pushes each store path as soon as it is built, so successful
+      # builds -- including dependencies of a package that later fails -- are
+      # cached even when other packages fail. Pushes to main and manual runs
+      # populate the cache; PR builds just consume it.
       - uses: cachix/cachix-action@v16
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
         with:
           name: nixchip0
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}

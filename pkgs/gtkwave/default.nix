@@ -79,6 +79,11 @@ stdenv.mkDerivation {
       attrPath = "gtkwave";
       extraArgs = [ "--version=branch" ];
     };
+    libfst = libfstSrc;
+    # Refreshed by scripts/update-packages.sh after every rev bump: libfst
+    # follows the revision gtkwave's own meson wrap pins.
+    nixchipTrackedRevs = [ "libfstRev=wrap:subprojects/libfst.wrap" ];
+    nixchipDerivedHashes = [ "libfstHash:libfst" ];
     nixchipUpdate = true;
     nixchipCI = true;
   };

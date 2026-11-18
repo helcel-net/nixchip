@@ -12,11 +12,14 @@ import subprocess
 import sys
 
 # Release tags: an optional one-word prefix (z3-, cvc5-, release/, vtr_), an
-# optional v, then a dotted version (5.4.1, 13_0, 26Q2). Stricter than the
+# optional v or r (nvc tags r1.9.0), a dotted version (5.4.1, 13_0, 26Q2), and
+# an optional git-describe suffix (verible tags v0.0-4302-gc6b29d62). Stricter than the
 # per-slot regex in update-packages.sh, which is anchored to a known major;
 # here snapshot and date tags (v3.0-SNAPSHOT_2017-09-14, smtcomp-2021) would
 # otherwise read as new majors.
-TAG_RE = re.compile(r"^(?:[A-Za-z][A-Za-z0-9]*[-_/])?v?([0-9]+)((?:[._Q][0-9]+)+[a-z]?)$")
+TAG_RE = re.compile(
+    r"^(?:[A-Za-z][A-Za-z0-9]*[-_/])?[vr]?([0-9]+)((?:[._Q][0-9]+)+[a-z]?)(?:-[0-9]+-g[0-9a-f]+)?$"
+)
 
 # Tags that parse as a newer major but are not one: family -> ignored majors.
 IGNORED = {
@@ -35,7 +38,11 @@ def slot_families(system: str) -> list[dict]:
           attr = n;
           family = builtins.head (builtins.match "(.*)_[0-9]+$" n);
           major = builtins.head (builtins.match ".*_([0-9]+)$" n);
-          repo = pkgs.${n}.src.gitRepoUrl or "";
+          # fetchgit sources (xyce) expose their URL as src.url.
+          repo = pkgs.${n}.src.gitRepoUrl or (
+            let u = pkgs.${n}.src.url or ""; in
+            if builtins.match "(https://|git://).*" u != null && builtins.match ".*(sourceforge|hackage|pythonhosted).*" u == null then u else ""
+          );
         };
       in builtins.map info slots
     """

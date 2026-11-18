@@ -127,13 +127,17 @@ get_version_flags() {
 }
 
 nix_update_changed=false
+# See scripts/nix-update.nix: nix-update whose flake store path actually exists.
+nix_update="$(nix build --no-link --print-out-paths --impure \
+  --file "$repo_root/scripts/nix-update.nix")/bin/nix-update"
+
 run_nix_update() {
   local package="$1"
   shift
   local output
 
   nix_update_changed=false
-  if output="$(nix run nixpkgs#nix-update -- -F "$package" "$@" 2>&1)"; then
+  if output="$("$nix_update" -F "$package" "$@" 2>&1)"; then
     printf '%s\n' "$output"
     # nix-update exits 0 both when it actually rewrote the file and when it
     # found nothing new ("Not updating version, already X"). Only the former
@@ -406,6 +410,90 @@ refresh_cargo_hash() {
   echo "refreshed cargoHash for $package"
 }
 
+# Pins that follow from a package's own rev, which neither the branch bypass
+# nor nix-update can refresh. A package declares them in passthru, in order:
+#   nixchipTrackedRevs    = [ "<arg>=git:<url>" "<arg>=wrap:<path in src>" ];
+#     git:  the remote's HEAD (e.g. verible's bazel-central-registry snapshot)
+#     wrap: the `revision =` of a meson wrap file in the new source (gtkwave's
+#           libfst, which must match the wrap upstream pins)
+#   nixchipDerivedHashes = [ "<arg>:<attr>" ];
+#     <attr> is a fixed-output derivation on the package (e.g. "deps" for a
+#     bazel dependency fetch); its hash is learned with the wrong-hash trick.
+# <arg> is a function argument (`arg ? "..."`) in the package file, or an
+# attribute (`arg = "..."`) in the package's pkgs/default.nix block.
+refresh_derived_pins() {
+  local package="$1" nix_file="$2" block_start="$3" block_end="$4"
+  local range="" spec arg kind ref value attr build_output new_hash src
+  [[ -n "$block_start" && -n "$block_end" ]] && range="${block_start},${block_end}"
+  local fake_hash="sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+
+  set_pin() {
+    local pattern="(\\b$1[[:space:]]*[?=][[:space:]]*)\"[^\"]*\""
+    if [[ -n "$range" ]]; then
+      sed -Ei "${range}s|${pattern}|\\1\"$2\"|" "$nix_file"
+    else
+      sed -Ei "0,/\\b$1[[:space:]]*[?=]/s|${pattern}|\\1\"$2\"|" "$nix_file"
+    fi
+  }
+  passthru_list() {
+    nix eval --raw ".#packages.${system}.${package}" \
+      --apply "p: builtins.concatStringsSep \"\\n\" (p.passthru.$1 or [ ])"
+  }
+
+  while IFS= read -r spec || [[ -n "$spec" ]]; do
+    [[ -n "$spec" ]] || continue
+    arg="${spec%%=*}"
+    kind="${spec#*=}"
+    ref="${kind#*:}"
+    kind="${kind%%:*}"
+    case "$kind" in
+      git) value="$(git ls-remote "$ref" HEAD | awk 'NR == 1 { print $1 }')" ;;
+      wrap)
+        src="$(nix build --no-link --print-out-paths ".#packages.${system}.${package}.src")"
+        value="$(awk -F' *= *' '$1 == "revision" { print $2; exit }' "$src/$ref")"
+        ;;
+      *) value="" ;;
+    esac
+    if [[ -z "$value" ]]; then
+      echo "error: cannot resolve tracked pin $spec for $package" >&2
+      return 1
+    fi
+    set_pin "$arg" "$value"
+    echo "tracked $arg = $value for $package"
+  done < <(passthru_list nixchipTrackedRevs)
+
+  while IFS= read -r spec || [[ -n "$spec" ]]; do
+    [[ -n "$spec" ]] || continue
+    arg="${spec%%:*}"
+    attr="${spec#*:}"
+    build_output="$(nix build --impure --no-link --expr '
+      let
+        flake = builtins.getFlake "'"${repo_root}"'";
+        p = flake.packages."'"${system}"'"."'"${package}"'";
+      in p.'"${attr}"'.overrideAttrs { outputHash = "'"${fake_hash}"'"; }
+    ' 2>&1)" || true
+    new_hash="$(grep -oP 'got:\s+\K\S+' <<< "$build_output" | tail -1)"
+    if [[ -z "$new_hash" ]]; then
+      echo "error: cannot compute $arg for $package" >&2
+      echo "$build_output" | tail -20 >&2
+      return 1
+    fi
+    set_pin "$arg" "$new_hash"
+    echo "refreshed $arg for $package"
+  done < <(passthru_list nixchipDerivedHashes)
+}
+
+# After nix-update: the pins live in the package's own file when it has one,
+# else in its pkgs/default.nix block (callPackage slots).
+refresh_derived_pins_for() {
+  local package="$1" block_start="$2" block_end="$3"
+  if [[ -f "$repo_root/pkgs/$package/default.nix" ]]; then
+    refresh_derived_pins "$package" "$repo_root/pkgs/$package/default.nix" "" ""
+  else
+    refresh_derived_pins "$package" "$default_nix" "$block_start" "$block_end"
+  fi
+}
+
 # nix-update has no SourceForge backend at all (see nix_update/version/__init__.py:
 # it only knows codeberg/crates.io/gitea/github/gitlab/pypi/savannah/sourcehut/
 # rubygems/npm), so it can never auto-detect a new version for a
@@ -552,7 +640,7 @@ validate_package_selection() {
     fi
     if [[ -z "$(pkg_major "$package")" ]]; then
       version="${package_versions[$package]:-}"
-      if [[ ! "$version" =~ ^unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+      if [[ ! "$version" =~ ^([0-9][0-9A-Za-z.+]*-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
         invalid+=("$package ($version)")
       fi
     fi
@@ -585,8 +673,8 @@ verify_branch_head() {
     return 0
   fi
 
-  if [[ ! "$version" =~ ^unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
-    echo "error: $package branch version '$version' should look like unstable-YYYY-MM-DD" >&2
+  if [[ ! "$version" =~ ^([0-9][0-9A-Za-z.+]*-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+    echo "error: $package branch version '$version' should look like [<base>-]unstable-YYYY-MM-DD" >&2
     return 1
   fi
 
@@ -728,6 +816,10 @@ for package in "${packages[@]}"; do
       ver_flags="$(get_version_flags "$package")"
       # shellcheck disable=SC2086
       if run_nix_update "$package" $ver_flags "${build_flag[@]}"; then
+        if [[ "$nix_update_changed" == true ]] && ! refresh_derived_pins_for "$package" "" ""; then
+          failed+=("$package")
+          echo "::endgroup::"; continue
+        fi
         if [[ "$nix_update_changed" == true ]] && ! verify_source_fetch "$package"; then
           failed+=("$package")
           echo "::endgroup::"; continue
@@ -746,11 +838,11 @@ for package in "${packages[@]}"; do
       # The optional prefix in the match strips upstream-derived prefixes
       # (e.g. Nightly-unstable-..., once written by nix-update for repos whose
       # latest release is a rolling "Nightly") down to plain unstable-YYYY-MM-DD.
-      sed -Ei "${block_start},${block_end}s/\"([A-Za-z][A-Za-z0-9]*-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}\"/\"unstable-${today}\"/" "$nix_file"
+      sed -Ei "${block_start},${block_end}s/\"([0-9][0-9A-Za-z.+]*-)?([A-Za-z][A-Za-z0-9]*-)?unstable-[0-9]{4}-[0-9]{2}-[0-9]{2}\"/\"\1unstable-${today}\"/" "$nix_file"
       sed -Ei "${block_start},${block_end}s/\"[a-f0-9]{40}\"/\"${head_rev}\"/" "$nix_file"
       sed -Ei "${block_start},${block_end}s|hash = \"[^\"]*\"|hash = \"${new_hash}\"|" "$nix_file"
     else
-      sed -Ei "0,/version[[:space:]]+([?=]) \"[^\"]*\"/s//version \1 \"unstable-${today}\"/" "$nix_file"
+      sed -Ei "0,/version[[:space:]]+([?=]) \"[^\"]*\"/s/version[[:space:]]+([?=]) \"([0-9][0-9A-Za-z.+]*-)?[^\"]*\"/version \1 \"\2unstable-${today}\"/" "$nix_file"
       sed -Ei "0,/\"[a-f0-9]{40}\"/s//\"${head_rev}\"/" "$nix_file"
       sed -Ei "0,/hash[[:space:]]+([?=]) \"[^\"]*\"/s|hash[[:space:]]+([?=]) \"[^\"]*\"|hash \1 \"${new_hash}\"|" "$nix_file"
     fi
@@ -759,6 +851,9 @@ for package in "${packages[@]}"; do
       failed+=("$package"); echo "::endgroup::"; continue
     fi
     if ! refresh_cargo_hash "$package" "$nix_file" "$block_start" "$block_end"; then
+      failed+=("$package"); echo "::endgroup::"; continue
+    fi
+    if ! refresh_derived_pins "$package" "$nix_file" "$block_start" "$block_end"; then
       failed+=("$package"); echo "::endgroup::"; continue
     fi
     if ! verify_branch_head "$package"; then
@@ -807,6 +902,12 @@ for package in "${packages[@]}"; do
           rm -f "$before_default_nix"
           echo "::endgroup::"; continue
         fi
+      fi
+      if [[ "$nix_update_changed" == true ]] \
+        && ! refresh_derived_pins_for "$package" "$inline_block_start" "$inline_block_end"; then
+        failed+=("$package")
+        rm -f "$before_default_nix"
+        echo "::endgroup::"; continue
       fi
       if [[ "$nix_update_changed" == true ]] && ! verify_source_fetch "$package"; then
         failed+=("$package")
