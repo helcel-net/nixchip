@@ -729,9 +729,9 @@ let
     };
     openroad = callPackage ./openroad { };
     openroad-flow-scripts_26 = callPackage ./openroad-flow-scripts {
-      version = "26Q2";
-      rev = "26Q2";
-      hash = "sha256-TJf/LGhRTCnfGq/7JGAX13ftvvdGX7UKs/qKRK5LLug=";
+      version = "26Q4";
+      rev = "26Q4";
+      hash = "sha256-VFO/O/vPlDk6km98ALzKh5MU3z54P8HFQDHViXWBgOk=";
     };
     openroad-flow-scripts = callPackage ./openroad-flow-scripts { };
     openroad-flow-scripts-wrapper = callPackage ./openroad-flow-scripts-wrapper {
