@@ -352,9 +352,9 @@ let
     };
     bender_0 = callPackage ./bender {
       inherit (basePkgs) rustPlatform gitMinimal;
-      version = "0.32.0";
-      rev = "v0.32.0";
-      hash = "sha256-Pyx68NTlCNTGKXdEGG9YML5E+vJlLHlPQjjbSV2uOsE=";
+      version = "0.32.1";
+      rev = "v0.32.1";
+      hash = "sha256-7f2ybZm74LZEHWieZeoCqqy3AwZuAltnSSA1fjOH41Y=";
       cargoLockFile = ./bender/Cargo-0.lock;
     };
     bender = callPackage ./bender {
