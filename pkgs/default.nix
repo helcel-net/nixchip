@@ -310,7 +310,7 @@ let
     });
     iverilog_12 = callPackage ./iverilog {
       iverilog = basePkgs.iverilog;
-      version = "12.0";
+      version = "12_0";
       hash = "sha256-J9hedSmC6mFVcoDnXBtaTXigxrSCFa2AhhFd77ueo7I=";
     };
     iverilog_13 = callPackage ./iverilog {
