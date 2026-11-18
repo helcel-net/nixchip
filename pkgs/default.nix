@@ -686,11 +686,11 @@ let
       rev = "v1.2.0";
       hash = "sha256-xz5acJJLRfWsJmcPL3R2PWwZgnBRUHibkGf1sHVUPn4=";
     });
-    openfpgaloader = branchOverride basePkgs.openfpgaloader "unstable-2026-11-10" (githubSource {
+    openfpgaloader = branchOverride basePkgs.openfpgaloader "unstable-2026-11-17" (githubSource {
       owner = "trabucayre";
       repo = "openFPGALoader";
-      rev = "d23500335f6ceed3782dffcb646d7d1fd64346ce";
-      hash = "sha256-uXjNAdvQHC75I3pvB5CBLV/2W3s8LKD1fmrU67+7yco=";
+      rev = "f950aa7f407af4c2a8b5feb29e83540d2597c0b5";
+      hash = "sha256-UrNaiuyz/EWMjRE5PJKFZy5HeWG633jkmptAfJFZsb4=";
     });
     vtr_7 = callPackage ./vtr7 {
       version = "7";
