@@ -25,15 +25,21 @@ let
       package
     ];
 
+  # nixpkgs' release yosys with nixpkgs' GHDL plugin, as a matched pair. It is
+  # taken from a nixpkgs instance without this overlay: inside the overlay the
+  # plugin would resolve `yosys` to the HEAD build, whose RTLIL API it predates.
+  pristinePkgs = import pkgs.path {
+    inherit (pkgs.stdenv.hostPlatform) system;
+    inherit (pkgs) config;
+  };
   yosysWithPlugins =
     let
+      inherit (pristinePkgs) yosys;
       base =
-        if basePkgs.yosys ? withPlugins then
-          basePkgs.yosys.withPlugins (
-            with basePkgs.yosys.allPlugins; lib.optionals (basePkgs.yosys.allPlugins ? ghdl) [ ghdl ]
-          )
+        if yosys ? withPlugins then
+          yosys.withPlugins (with yosys.allPlugins; lib.optionals (yosys.allPlugins ? ghdl) [ ghdl ])
         else
-          basePkgs.yosys;
+          yosys;
     in
     base.overrideAttrs (old: {
       meta = (old.meta or { }) // {
@@ -114,7 +120,13 @@ let
 
   # nextpnr's gowin chipdb generation needs apycula >= 0.33 (GW5A/GW5AT
   # devices); nixpkgs still ships 0.32. Drop when nixpkgs catches up.
+  #
+  # The overlay exports this repo's HEAD icestorm/trellis under nixpkgs' names;
+  # nextpnr's chip databases are generated from them and break against HEAD
+  # databases (nextpnr 0.11.1: KeyError 'FILTERIN'), so take nixpkgs' own.
+  # nextpnrHeadBase below swaps in our HEAD trellis deliberately.
   nextpnrBase = basePkgs.nextpnr.override {
+    inherit (pristinePkgs) icestorm trellis;
     python3Packages = basePkgs.python3Packages // {
       apycula = basePkgs.python3Packages.apycula.overridePythonAttrs (old: rec {
         version = "0.33";
@@ -195,11 +207,11 @@ let
 
   # nextpnr HEAD outgrows nixpkgs' chip databases: ecp5 import calls
   # pytrellis APIs newer than nixpkgs' trellis snapshot (use our branch
-  # trellis_0), and gatemate checks the prjpeppercorn database version that
+  # trellis), and gatemate checks the prjpeppercorn database version that
   # nixpkgs hard-wires. Bump the peppercorn tag when nextpnr reports a
   # "chip database mismatch".
   nextpnrHeadBase =
-    (nextpnrBase.override { trellis = nixchipPackages.trellis_0; }).overrideAttrs
+    (nextpnrBase.override { trellis = nixchipPackages.trellis; }).overrideAttrs
       (old: {
         cmakeFlags = map (
           flag:
@@ -313,12 +325,17 @@ let
       rev = "0.12";
       hash = "sha256-pi/XP6+NX/wNpBESmnEg2d5cppMpMwFripDPk9vTx9I=";
     });
-    spike_1 = callPackage ./spike {
-      spike = basePkgs.spike;
-      version = "unstable-2024-09-21";
-      rev = "de5094a1a901d77ff44f89b38e00fefa15d4018e";
-      hash = "sha256-mAgR2VzDgeuIdmPEgrb+MaA89BnWfmNanOVidqn0cgc=";
-    };
+    # v1.1.0 (2021) predates GCC no longer including <cstdint> transitively.
+    spike_1 =
+      (callPackage ./spike {
+        spike = basePkgs.spike;
+        version = "1.1.0";
+        rev = "v1.1.0";
+        hash = "sha256-4D2Fezej0ioOOupw3kgMT5VLs+/jXQjwvek6v0AVMzI=";
+      }).overrideAttrs
+        (_: {
+          env.CXXFLAGS = "-O2 -include cstdint";
+        });
     spike = callPackage ./spike {
       spike = basePkgs.spike;
     };
@@ -347,9 +364,9 @@ let
     # ── Synthesis ──────────────────────────────────────────────────────────────
     yosys_0 = callPackage ./yosys {
       yosys = basePkgs.yosys;
-      version = "0.62";
-      rev = "v0.62";
-      hash = "sha256-FzvdjdAURB5iCkGwsYY6A2wP/Je/IW4AOd4kVOEOeVc=";
+      version = "0.71";
+      rev = "v0.71";
+      hash = "sha256-QURMzxiADHu0FDygmfHYHyS4ueZFyCTnxVjn4a5OSCo=";
     };
     yosys = callPackage ./yosys {
       yosys = basePkgs.yosys;
@@ -512,12 +529,25 @@ let
     );
 
     # ── Linting, formatting & elaboration ─────────────────────────────────────
-    verible_0 = pinnedOverride basePkgs.verible "0.0.4023" (githubSource {
-      owner = "chipsalliance";
-      repo = "verible";
-      rev = "refs/tags/v0.0-4023-gc1271a00";
-      hash = "sha256-N+yjRcVxFI56kP3zq+qFHNXZLTtVnQaVnseZS13YN0s=";
-    });
+    # Release slot built with our bazel package: nixpkgs' verible bakes its
+    # dependency fetch into a let binding overrideAttrs cannot reach. The
+    # version uses upstream's tag form (v0.0-<n>-g<hash>) so the update bot
+    # can follow it; registry and dependency pins are refreshed with it.
+    verible_0 =
+      (callPackage ./verible {
+        version = "0.0-4302-gc6b29d62";
+        rev = "v0.0-4302-gc6b29d62";
+        hash = "sha256-QedWoBRalRKmrz7H+omqHhEMcqHQ796Wlzsyb0pOLXQ=";
+        gitVersion = "v0.0-4302-gc6b29d62";
+        registryRev = "6e097e58caf8fdceb8efae0ae21d1ab871a25a82";
+        registryHash = "sha256-LwdDEs7uQdKG1L64Pv6u/YNycKPDPGt9PvT+uh+Zlv0=";
+        depsHash = "sha256-RXji3oV9ccUfje8+i73w7dox9e4wZH3KADJ+YecFgL4=";
+      }).overrideAttrs
+        (old: {
+          passthru = old.passthru // {
+            nixchipUpdateFlags = [ "--version-regex=^v(0\\.0-[0-9]+-g[0-9a-f]+)$" ];
+          };
+        });
     # Branch-tracking verible built from HEAD with bazel 7 and its own pinned
     # bazel-central-registry snapshot (see pkgs/verible); nixpkgs' verible
     # (verible_0) pins a stale BCR snapshot internally and cannot follow
@@ -605,7 +635,7 @@ let
     });
     # Upstream's last release (0.9.2) predates nixpkgs' snapshot, so this slot
     # tracks the branch rather than a release series.
-    migen_0 = branchOverride basePkgs.python3Packages.migen "unstable-2025-10-03" (githubSource {
+    migen = branchOverride basePkgs.python3Packages.migen "unstable-2025-10-03" (githubSource {
       owner = "m-labs";
       repo = "migen";
       rev = "147f003fb7076ac4c7cf76a9a5ce152dc10e0ca6";
@@ -629,14 +659,14 @@ let
       hash = "sha256-AmHujX79S9TD9aPA3NmeRYL9CNmPUA5e5MN2RzOn+9k=";
       fetchSubmodules = true;
     });
-    icestorm_0 = pinnedOverride basePkgs.icestorm "unstable-2026-11-10" (githubSource {
+    icestorm = branchOverride basePkgs.icestorm "unstable-2026-11-10" (githubSource {
       owner = "YosysHQ";
       repo = "icestorm";
       rev = "00da9c3e6ceff056248e3451dd6fd3210d6ceec9";
       hash = "sha256-sXfNf03s1fRQtGVFE5ArZBKjTkBqDLdM9L+SK/ivzSM=";
     });
-    # Branch-tracking, like icestorm_0; tagged releases live in trellis_1.
-    trellis_0 = branchOverride (basePkgs.trellis.overrideAttrs trellisFromSubmodules) "unstable-2026-11-16" (githubSource {
+    # Branch-tracking; tagged releases live in trellis_1.
+    trellis = branchOverride (basePkgs.trellis.overrideAttrs trellisFromSubmodules) "unstable-2026-11-16" (githubSource {
       owner = "YosysHQ";
       repo = "prjtrellis";
       rev = "2d12005ab9703ff60603d7ae91dca254939e671f";
@@ -943,9 +973,8 @@ let
     });
 
     # ── Accelerator DSE (Timeloop / Accelergy) ─────────────────────────────────
-    # Pinned to the revs the accelergy-timeloop-infrastructure Docker image
-    # records (not auto-updated): the stack exists to reproduce that image's
-    # energy numbers hermetically.
+    # timeloop, timeloopfe, accelergy and its plug-ins have no releases and
+    # track upstream HEAD; barvinok is a pinned release.
     barvinok = callPackage ./barvinok { };
     timeloop = callPackage ./timeloop { };
     accelergy = callPackage ./accelergy {
@@ -1025,11 +1054,19 @@ let
       rev = "v6.5.0";
       hash = "sha256-lYhaDQgQngoJs5GST+dTNPitVSmKhhivFtnzJH2XpdA=";
     };
-    cacti_7 = callPackage ./cacti {
-      version = "unstable-2026-06-20";
-      rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
-      hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
-    };
+    # CACTI 7 has no release tag; upstream master is the 7.x line. Frozen at
+    # that commit (not updated) as a fixed 7.x reference; `cacti` tracks HEAD.
+    cacti_7 =
+      (callPackage ./cacti {
+        version = "7.0-unstable-2026-06-20";
+        rev = "1ffd8dfb10303d306ecd8d215320aea07651e878";
+        hash = "sha256-lrbrwKlaVvwEUDZA/n8I/zYNX3T8ltiBTYL94Ce5UQU=";
+      }).overrideAttrs
+        (old: {
+          passthru = old.passthru // {
+            nixchipUpdate = false;
+          };
+        });
     cacti = callPackage ./cacti { };
 
     dramsim3_1 = callPackage ./dramsim3 {
@@ -1131,6 +1168,7 @@ let
       inherit (basePkgs.python3Packages)
         buildPythonPackage
         setuptools
+        uv-build
         wheel
         mako
         hjson
@@ -1280,8 +1318,8 @@ let
         yosys-full
         yosys-slang
         nextpnr
-        icestorm_0
-        trellis_0
+        icestorm
+        trellis
         openfpgaloader
         sv2v
         vtr

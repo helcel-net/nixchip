@@ -85,6 +85,9 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
+  # Not auto-updated: upstream HEAD (since 2026-11) dropped the ramulator2
+  # executable for a library + nanobind Python package, which this package
+  # does not build; it stays at the last revision with the CLI.
   passthru = {
     nixchipCI = true;
   };

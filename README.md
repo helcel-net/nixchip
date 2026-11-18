@@ -227,7 +227,7 @@ above. The hook is evaluated at evaluation time — no runtime lookups occur.
 | `sail-riscv_0` | `basePkgs.sail-riscv` | Sail RISC-V golden ISA model |
 | `bluespec_2024` | `basePkgs.bluespec` | Bluespec Compiler (bsc) |
 | `bluespec_2026` | `basePkgs.bluespec` | Bluespec Compiler (bsc) 2026.x |
-| `migen_0` | `basePkgs.python3Packages.migen` | Migen Python HDL |
+| `migen` | `basePkgs.python3Packages.migen` | Migen Python HDL |
 | `yices_2` | `basePkgs.yices` | Yices 2 SMT solver |
 | `boolector_3` | `basePkgs.boolector` | Boolector SMT solver |
 | `bitwuzla_0` | `basePkgs.bitwuzla` | Bitwuzla SMT solver |

@@ -37,6 +37,8 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
+  passthru.nixchipUpdate = true;
+
   meta = {
     description = "C library for emulating reduced-precision floating-point formats";
     homepage = "https://github.com/oprecomp/flexfloat";

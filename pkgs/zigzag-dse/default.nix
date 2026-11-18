@@ -11,6 +11,7 @@
   lib,
   buildPythonPackage,
   fetchurl,
+  fetchPypi,
   numpy,
   networkx,
   sympy,
@@ -24,8 +25,8 @@
   typing-extensions,
   ml-dtypes,
   dill,
-  version ? "3.8.5",
-  hash ? "sha256-fgbAt1pyDnolLLiwghUDrUJdH+VYx4kWXSBZr897J+A=",
+  version ? "3.10.0",
+  hash ? "sha256-9hp+lkO0u7v3ivDDARBReGLBjOQ3im5FoJ5OpPgk/DE=",
 }:
 
 let
@@ -64,9 +65,12 @@ buildPythonPackage {
   inherit version;
   format = "wheel";
 
-  src = fetchurl {
-    url = "https://files.pythonhosted.org/packages/71/13/2c0799ca0c2ae83a49cf770ebe95ab4eb93db8de148b7977eb3c8753a38d/zigzag_dse-${version}-py3-none-any.whl";
-    inherit hash;
+  src = fetchPypi {
+    pname = "zigzag_dse";
+    inherit version hash;
+    format = "wheel";
+    dist = "py3";
+    python = "py3";
   };
 
   propagatedBuildInputs = [
@@ -87,6 +91,11 @@ buildPythonPackage {
   pythonImportsCheck = [ "zigzag" ];
 
   passthru = {
+    nixchipUpdate = true;
+    nixchipUpdateFlags = [
+      "--version=stable"
+      "--url=mirror://pypi/z/zigzag_dse"
+    ];
     nixchipCI = true;
     # Release-pinned, but still built and cached on every main push — the
     # point of packaging it is that downstream never builds it.

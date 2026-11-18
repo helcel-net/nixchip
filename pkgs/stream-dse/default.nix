@@ -14,6 +14,7 @@
   lib,
   buildPythonPackage,
   fetchurl,
+  fetchPypi,
   python,
   zigzag-dse,
   cerberus,
@@ -26,8 +27,8 @@
   numpy,
   pandas,
   protobuf,
-  version ? "1.13.11",
-  hash ? "sha256-U76vgNYVrKBG1Oqw1eNOfT+4Smk1eNs2ST0ZkD6LblM=",
+  version ? "2.5.0",
+  hash ? "sha256-QXidl6CT2nWNqJ0dUnEyIyh2zxPMoLfFYdTXZvtB75U=",
 }:
 
 let
@@ -95,9 +96,12 @@ buildPythonPackage {
   inherit version;
   format = "wheel";
 
-  src = fetchurl {
-    url = "https://files.pythonhosted.org/packages/3e/a8/b1da12fbe6ade0546b6894827baa2363fbbe0e4574e4d79f07b08a8a82da/stream_dse-${version}-py3-none-any.whl";
-    inherit hash;
+  src = fetchPypi {
+    pname = "stream_dse";
+    inherit version hash;
+    format = "wheel";
+    dist = "py3";
+    python = "py3";
   };
 
   # This environment's pydantic can be newer than stream-dse's upper pin.
@@ -118,6 +122,12 @@ buildPythonPackage {
   # Release-pinned, but still built and cached on every main push — the point
   # of packaging it is that downstream never builds it.
   passthru.nixchipCIDefault = true;
+
+  passthru.nixchipUpdate = true;
+  passthru.nixchipUpdateFlags = [
+    "--version=stable"
+    "--url=mirror://pypi/s/stream_dse"
+  ];
 
   meta = {
     description = "Stream multi-core / layer-fused accelerator DSE framework";

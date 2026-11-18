@@ -3,6 +3,7 @@
   buildPythonPackage,
   fetchFromGitHub,
   setuptools,
+  uv-build,
   wheel,
   mako,
   hjson,
@@ -15,12 +16,13 @@
   click,
   networkx,
   matplotlib,
-  version ? "0.6.1",
-  hash ? "sha256-EVh6Js+6nxMqyFImEoCyxiO1XJHxCEvjo8BFyRX5/3Q=",
+  version ? "0.9.0",
+  hash ? "sha256-Ohi0qRnV3vNCwXw40hZ7Hcw0o+x8SnEIwUGaUq1Kcq8=",
 }:
 
 buildPythonPackage {
-  pname = "flooNoC";
+  # The distribution is "floogen" since 0.9.0 (previously "flooNoC").
+  pname = "floogen";
   inherit version;
 
   src = fetchFromGitHub {
@@ -34,6 +36,7 @@ buildPythonPackage {
 
   build-system = [
     setuptools
+    uv-build
     wheel
   ];
 
@@ -52,6 +55,9 @@ buildPythonPackage {
   ];
 
   doCheck = false;
+
+  passthru.nixchipUpdate = true;
+  passthru.nixchipUpdateFlags = [ "--version=stable" ];
 
   meta = {
     description = "Python package for the PULP FlooNoC interconnect generator";

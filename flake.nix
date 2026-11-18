@@ -21,11 +21,9 @@
     let
       lib = nixpkgs.lib;
 
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-        "aarch64-darwin"
-      ];
+      # Every package is built and run on x86_64-linux (cross-compilation targets
+      # other ISAs from there); other host systems are not maintained.
+      systems = [ "x86_64-linux" ];
 
       forAllSystems = f: lib.genAttrs systems (system: f system);
 
@@ -59,7 +57,7 @@
             "cocotb_2"
             "edalize"
             "edalize_0"
-            "migen_0"
+            "migen"
             "zigzag-dse"
             "stream-dse"
             "chia"

@@ -8,8 +8,8 @@
   numpy,
   cffi,
   flexfloat,
-  version ? "0.1.2",
-  hash ? "sha256-MYgIRpOpJfCbIJ4HtAVeLrTXZ7wRhH6hHlOhCRkWTbE=",
+  version ? "0.1.3",
+  hash ? "sha256-jd+V3QuzZsnXqHZDquCQypl+Aly8l7A+1TyrpWFAvcM=",
 }:
 
 buildPythonPackage {
@@ -44,6 +44,9 @@ buildPythonPackage {
     substituteInPlace setup.py \
       --replace-warn "['cmake', '..']" "['echo', '1']"
   '';
+
+  passthru.nixchipUpdate = true;
+  passthru.nixchipUpdateFlags = [ "--version=stable" ];
 
   meta = {
     description = "Python bindings for flexfloat";

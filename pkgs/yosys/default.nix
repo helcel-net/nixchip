@@ -89,6 +89,9 @@ if useCmake then
 else
   yosys.overrideAttrs (old: {
     inherit version src;
+    # nixpkgs runs yosys' full serial test suite, which dominates the build
+    # time; release slots are tested upstream.
+    doCheck = false;
     meta = (old.meta or { }) // {
       mainProgram = old.meta.mainProgram or "yosys";
     };

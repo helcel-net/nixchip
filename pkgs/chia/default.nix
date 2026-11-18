@@ -19,9 +19,9 @@
   boto3,
   google-cloud-compute,
   requests,
-  version ? "0.1.0",
-  rev ? "098764c04c1260ee83b324153539bec6febab684",
-  hash ? "sha256-qs73CL8a0SvvER1BUe5dIr86a5l3cuJf6gvaOlM6ECg=",
+  version ? "2.1.0",
+  rev ? "v${version}",
+  hash ? "sha256-lqtUztSKFPELsosNB/FrZn+QcUJS2T1R+7S9ZESRhIo=",
 }:
 
 buildPythonPackage {
@@ -79,6 +79,9 @@ buildPythonPackage {
   # Release-pinned, but still built and cached on every main push — the point
   # of packaging it is that downstream never builds it.
   passthru.nixchipCIDefault = true;
+
+  passthru.nixchipUpdate = true;
+  passthru.nixchipUpdateFlags = [ "--version=stable" ];
 
   meta = {
     description = "CHIA agentic hardware-design loops (UC Berkeley)";
