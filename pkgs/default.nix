@@ -711,8 +711,8 @@ let
     fusesoc_2 = callPackage ./fusesoc {
       fusesoc = basePkgs.fusesoc;
       pydantic = basePkgs.python3Packages.pydantic;
-      version = "2.4.6";
-      hash = "sha256-d4ro802pkpZqm5MYg3Yplu8IhKhVEqR5MfvrCsLcdYU=";
+      version = "2.4.7";
+      hash = "sha256-mzGko99tHCKJCWjuGTDwif3ATwnKK290hMN1RAoIhVA=";
     };
     fusesoc = callPackage ./fusesoc {
       fusesoc = basePkgs.fusesoc;
