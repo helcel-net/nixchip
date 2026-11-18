@@ -276,8 +276,8 @@ let
       hash = "sha256-ToYad8cvBF3Mio5fuT4Ce4zXbWxFxd6smqB1TxvlHao=";
     };
     verilator_5 = callPackage ./verilator {
-      version = "5.048";
-      hash = "sha256-xvqqgbW7L07+NBYzGN2KLhwir58ByShxo4VVPI3pgZk=";
+      version = "5.054";
+      hash = "sha256-YCCcFA7Mq7SjK6yHldT0rpS1FwXc5C8mgzcJD/imbEw=";
     };
     verilator = callPackage ./verilator { };
 
