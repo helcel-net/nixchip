@@ -832,8 +832,8 @@ let
     });
     eqy_0 = callPackage ./eqy {
       yosys = yosys_0;
-      version = "0.66";
-      hash = "sha256-RtUSkPal+jeSdGkof4R3fg1qIxiThc8rPQZzECpHTtM=";
+      version = "0.71";
+      hash = "sha256-SkzwuhK6NN2Ixqt1r46wHiUVnOWbGUfq/gmV/RRCckI=";
     };
     eqy = callPackage ./eqy { };
     mcy_0 = pinnedOverride basePkgs.mcy "0.71" (githubSource {
