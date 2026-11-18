@@ -843,11 +843,11 @@ let
       hash = "sha256-50IFGHuqL9ayghtobtryo/HTvRmMEmI28YxHnyFRIrY=";
     });
 
-    yices_2 = pinnedOverride basePkgs.yices "2.7.0" (githubSource {
+    yices_2 = pinnedOverride basePkgs.yices "2.8.0" (githubSource {
       owner = "SRI-CSL";
       repo = "yices2";
-      rev = "yices-2.7.0";
-      hash = "sha256-siyepgxqKWRyO4+SB95lmhJ98iDubk0R0ErEJdSsM8o=";
+      rev = "yices-2.8.0";
+      hash = "sha256-HEsLe/7tXzidBx/1Dfj6uZbu6jZWO7RMB26oMA19iuI=";
     });
     boolector_3 = pinnedOverride basePkgs.boolector "3.2.4" (githubSource {
       owner = "boolector";
