@@ -1248,8 +1248,8 @@ let
     };
     edalize_0 = callPackage ./edalize {
       edalize = basePkgs.python3Packages.edalize;
-      version = "0.6.1";
-      hash = "sha256-5c3Szq0tXQdlyzFTFCla44qB/O6RK8vezVOaFOv8sw4=";
+      version = "0.6.8";
+      hash = "sha256-FQ2SGshzWrZdGEF46ENM2OIBgDSADTJFki5xyiakohI=";
     };
     edalize = callPackage ./edalize {
       edalize = basePkgs.python3Packages.edalize;
