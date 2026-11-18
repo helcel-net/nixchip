@@ -40,10 +40,10 @@
   libxkbcommon,
   git,
   python3,
-  version ? "unstable-2026-11-10",
-  rev ? "111792153443185f65bd2ff71666556064ba1291",
-  hash ? "sha256-wF+nBxz9o91ZOq7wIJ4o+YHQNCPAoJO12t89P+EoVHU=",
-  depsHash ? "sha256-iF+nZbX22iBegAz8HdogECnq4jVLITlNwKzcU+V3YQA=",
+  version ? "unstable-2026-11-18",
+  rev ? "8c9084f85c0e0ccf9b3daf0f65c66484d82a7695",
+  hash ? "sha256-0sozCtRfEvM9gVtmkYeVzcoOutRoKJK1LV/N9GAD7WM=",
+  depsHash ? "sha256-jvBFGVRmBmWyLuwhajJWojfHYT0MwcqoLbpNaXZJk5c=",
   ...
 }:
 
