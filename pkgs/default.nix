@@ -319,12 +319,65 @@ let
       hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWF0RFS3dSUm4=";
     };
     iverilog = callPackage ./iverilog { iverilog = basePkgs.iverilog; };
-    sail-riscv_0 = pinnedOverride basePkgs.sail-riscv "0.16" (githubSource {
-      owner = "riscv";
-      repo = "sail-riscv";
-      rev = "0.16";
-      hash = "sha256-rDFZDNXweJzEFI6FYdG4CEbk49aZiCW3MVgm57yHqNE=";
-    });
+    # nixpkgs' unvendor-deps.patch targets 0.12's layout. 0.16 FetchContent's
+    # CLI11.hpp, jsoncons and asio at configure time (elfio/softfloat are
+    # in-tree); hand CMake the exact versions it declares (refresh these when
+    # a new release changes them).
+    sail-riscv_0 =
+      pinnedOverride
+        (
+          (basePkgs.sail-riscv.override {
+            # 0.16 requires the Sail compiler >= 0.20.3 (nixpkgs: 0.20.1);
+            # 0.20.3 already contains nixpkgs' menhir patch.
+            ocamlPackages = basePkgs.ocamlPackages // {
+              sail = basePkgs.ocamlPackages.sail.overrideAttrs (_: {
+                version = "0.20.3";
+                src = pkgs.fetchurl {
+                  url = "https://github.com/rems-project/sail/releases/download/0.20.3/sail-0.20.3.tbz";
+                  hash = "sha256-CyI+2D9SGth+qs2IGGOQ+68LlE9jxqBKPr35ah/1pgw=";
+                };
+                patches = [ ];
+              });
+            };
+          }).overrideAttrs
+            (old: {
+              patches = [ ];
+              cmakeFlags = (old.cmakeFlags or [ ]) ++ [
+                "-DFETCHCONTENT_FULLY_DISCONNECTED=ON"
+                "-DFETCHCONTENT_SOURCE_DIR_CLI11_HPP=${
+                  pkgs.runCommand "cli11-hpp-2.6.2" { } ''
+                    install -Dm644 ${
+                      pkgs.fetchurl {
+                        url = "https://github.com/CLIUtils/CLI11/releases/download/v2.6.2/CLI11.hpp";
+                        hash = "sha256-InoW/l+fitqAw8QJSSR1U29ZfnvYOmwm6sw8jBSakpU=";
+                      }
+                    } $out/CLI11.hpp
+                  ''
+                }"
+                "-DFETCHCONTENT_SOURCE_DIR_JSONCONS=${
+                  pkgs.fetchFromGitHub {
+                    owner = "danielaparker";
+                    repo = "jsoncons";
+                    tag = "v1.8.1";
+                    hash = "sha256-+5vglrmmJ6jb33Mlp+VnIMG2yHqzKFHPQUqTBezDNCw=";
+                  }
+                }"
+                "-DFETCHCONTENT_SOURCE_DIR_ASIO=${
+                  pkgs.fetchzip {
+                    url = "https://downloads.sourceforge.net/project/asio/asio/1.36.0%20%28Stable%29/asio-1.36.0.tar.bz2";
+                    hash = "sha256-228S0WD+azxJdn5k4pcMuJal9RKgB4tHKQcVUZOhO8I=";
+                  }
+                }"
+              ];
+            })
+        )
+        "0.16"
+        (githubSource {
+          owner = "riscv";
+          repo = "sail-riscv";
+          rev = "0.16";
+          hash = "sha256-rDFZDNXweJzEFI6FYdG4CEbk49aZiCW3MVgm57yHqNE=";
+        });
     # v1.1.0 (2021) predates GCC no longer including <cstdint> transitively.
     spike_1 =
       (callPackage ./spike {
@@ -635,12 +688,20 @@ let
     });
     # Upstream's last release (0.9.2) predates nixpkgs' snapshot, so this slot
     # tracks the branch rather than a release series.
-    migen = branchOverride basePkgs.python3Packages.migen "unstable-2026-11-18" (githubSource {
-      owner = "m-labs";
-      repo = "migen";
-      rev = "e19524c963a8342952840983047557707fbe0b6a";
-      hash = "sha256-oDC8yWzJbCNMYeDiBTR6V9MUYvdDp1MArIfLmTwycRY=";
-    });
+    # Upstream's read_capable memory ports (2026-01) left the simulation
+    # lowering using dat_r of write-only ports; SyncFIFO simulation crashed.
+    migen =
+      branchOverride
+        (basePkgs.python3Packages.migen.overridePythonAttrs (old: {
+          patches = (old.patches or [ ]) ++ [ ./migen/simplify-write-only-ports.patch ];
+        }))
+        "unstable-2026-11-18"
+        (githubSource {
+          owner = "m-labs";
+          repo = "migen";
+          rev = "e19524c963a8342952840983047557707fbe0b6a";
+          hash = "sha256-oDC8yWzJbCNMYeDiBTR6V9MUYvdDp1MArIfLmTwycRY=";
+        });
     # 3rdparty/googletest is a submodule; without fetchSubmodules its dir is
     # empty and CMake aborts (BUILD_TESTS is on in the nixpkgs base).
     nextpnr_0 = pinnedOverride nextpnrBase "0.11.1" (taggedGithubSource {
