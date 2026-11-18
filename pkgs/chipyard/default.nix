@@ -3,8 +3,8 @@
   stdenvNoCC,
   fetchFromGitHub,
   nix-update-script,
-  version ? "unstable-2026-11-10",
-  rev ? "157dd69e49b9866be2bf8db390ee78bc38cd4438",
+  version ? "unstable-2026-11-17",
+  rev ? "a7946ede9bd625204435715dc40c750e2f8a251f",
   hash ? "sha256-F/Q7x54oCGfmp+msuQKSZ7ssOPWRj0FCc0mLiSIXLmY=",
 }:
 
