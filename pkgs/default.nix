@@ -747,8 +747,8 @@ let
     orfs = openroad-flow-scripts-wrapper;
     klayout_0 = callPackage ./klayout {
       klayout = basePkgs.klayout;
-      version = "0.30.8";
-      hash = "sha256-RjMH6hrc0jyCLgG1D6cztBp5Fb3W5HgTxVTfI2bxgCs=";
+      version = "0.30.13";
+      hash = "sha256-XPHV0pfHnRuwnMU5FLwPFyJramP23dLxPbCRc7NcGMs=";
     };
     klayout = callPackage ./klayout {
       klayout = basePkgs.klayout;
