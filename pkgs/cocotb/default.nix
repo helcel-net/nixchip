@@ -5,13 +5,13 @@
   cmake,
   ninja,
   nix-update-script,
-  version ? "unstable-2026-11-10",
+  version ? "unstable-2026-11-17",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "bef7bb95fbe0c6e18c9ee38e55bb72cd711a3e32"
+      "7f903103c1bb404c8c3b2f8f375fc418897cc19e"
     else
       "refs/tags/v${version}",
-  hash ? "sha256-GvK6xCW5VwiD/z3CXtQnyvA/PsqYylE9XHiP5peoJls=",
+  hash ? "sha256-LLGMZkKnHsHMajRAWgm7v9Crh+SMCQl4MbNTTuXJ1vA=",
   ...
 }:
 
