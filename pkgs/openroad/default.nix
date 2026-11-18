@@ -293,13 +293,16 @@ stdenv.mkDerivation {
 
     # Actions must only see declared inputs (hermetic glibc ships #error
     # template headers it excludes); processwrapper-sandbox isolates with
-    # symlink trees and needs no namespaces, unlike linux-sandbox.
+    # symlink trees and needs no namespaces, unlike linux-sandbox. Those
+    # trees go in /dev/shm (tmpfs in the Nix sandbox): ~13k actions' symlink
+    # farms on disk left the build I/O-bound with the CPUs mostly idle.
     export OPENROAD_VERSION=${lib.escapeShellArg version}
     bazel --output_user_root="$TMPDIR/bazel" build "''${bazelFlags[@]}" \
       --vendor_dir="$TMPDIR/vendor" \
       --lockfile_mode=error \
       --verbose_failures \
       --spawn_strategy=processwrapper-sandbox \
+      --sandbox_base=/dev/shm \
       --jobs="$NIX_BUILD_CORES" \
       --stamp \
       ${target}
