@@ -755,8 +755,8 @@ let
     };
     magic-vlsi_8 = callPackage ./magic-vlsi {
       magic-vlsi = basePkgs.magic-vlsi;
-      version = "8.3.629";
-      hash = "sha256-K/w2El2jkXN8qIa0kWvN8rCKWzjd8DcM3O6hb5UVQnw=";
+      version = "8.3.704";
+      hash = "sha256-jOc6UpGYqj+UJkvaJ6DdYQnaB6CQrkieV1nGk23yD7Q=";
     };
     magic-vlsi = callPackage ./magic-vlsi { magic-vlsi = basePkgs.magic-vlsi; };
     netgen-vlsi_1 = pinnedOverride basePkgs.netgen-vlsi "1.5.321" (githubSource {
