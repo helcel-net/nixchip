@@ -1256,8 +1256,8 @@ let
     };
     amaranth_0 = callPackage ./amaranth {
       amaranth = basePkgs.python3Packages.amaranth;
-      version = "0.5.8";
-      hash = "sha256-hqMgyQJRz1/5C9KB3nAI2RKPZXZUl3zhfZbk9M1hTxs=";
+      version = "0.5.10";
+      hash = "sha256-AJmZBDMTGAq2i6xWpFoLjijJ+nycgJvTdNDrudjd/v0=";
     };
     amaranth = callPackage ./amaranth {
       amaranth = basePkgs.python3Packages.amaranth;
