@@ -319,11 +319,11 @@ let
       hash = "sha256-SfODx7K3UrDHMoKCbMFpxo4t9j9vG1oWF0RFS3dSUm4=";
     };
     iverilog = callPackage ./iverilog { iverilog = basePkgs.iverilog; };
-    sail-riscv_0 = pinnedOverride basePkgs.sail-riscv "0.12" (githubSource {
+    sail-riscv_0 = pinnedOverride basePkgs.sail-riscv "0.16" (githubSource {
       owner = "riscv";
       repo = "sail-riscv";
-      rev = "0.12";
-      hash = "sha256-pi/XP6+NX/wNpBESmnEg2d5cppMpMwFripDPk9vTx9I=";
+      rev = "0.16";
+      hash = "sha256-rDFZDNXweJzEFI6FYdG4CEbk49aZiCW3MVgm57yHqNE=";
     });
     # v1.1.0 (2021) predates GCC no longer including <cstdint> transitively.
     spike_1 =
