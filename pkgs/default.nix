@@ -801,11 +801,11 @@ let
       hash = "sha256-f+8EdTZLQcbP+WEXUlVg/vIj+jp1FQ7E0QT0gsXfgTw=";
       fetchSubmodules = true;
     });
-    qucs-s = branchOverride (basePkgs.qucs-s.overrideAttrs qucsSFixes) "unstable-2026-11-10" (githubSource {
+    qucs-s = branchOverride (basePkgs.qucs-s.overrideAttrs qucsSFixes) "unstable-2026-11-17" (githubSource {
       owner = "ra3xdh";
       repo = "qucs_s";
-      rev = "b4a0e8cc3ce2d3ad033e93f27505c2484bc34f96";
-      hash = "sha256-h//jPIjq6G0JMZGP6x8BZd5wDv7XVq1ihjdjIad+scQ=";
+      rev = "941b4b2a2774d5db581dfb3538c0b4f83165dcfc";
+      hash = "sha256-RV2sYlqUuwKBaeVD0H8s5hAQ2Tpe9MXYuaFHUUfz9uQ=";
       fetchSubmodules = true;
     });
     xschem_3 = callPackage ./xschem {
