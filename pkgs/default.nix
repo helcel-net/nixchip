@@ -459,8 +459,8 @@ let
     yosys-slang = callPackage ./yosys-slang { };
 
     chisel_7 = callPackage ./chisel {
-      version = "7.16.0";
-      hash = "sha256-bWeygdBUbix9W+o0DD7rzs3kYthODAGYRTS1M1JLdrg=";
+      version = "7.17.0";
+      hash = "sha256-Z7UI+ZRY3dLpD/CZ4jTNqzuTt+bzPzm9fzpRGE6gXxM=";
     };
     chisel = callPackage ./chisel { };
 
