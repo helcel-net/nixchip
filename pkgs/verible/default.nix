@@ -20,14 +20,14 @@
   bison,
   flex,
   python3,
-  version ? "unstable-2026-11-17",
-  rev ? "c6b29d6251f66f54dd4d42050bab87f01f961f2a",
-  hash ? "sha256-QedWoBRalRKmrz7H+omqHhEMcqHQ796Wlzsyb0pOLXQ=",
+  version ? "unstable-2026-11-20",
+  rev ? "5a46a151634ca141e92b3f44a5b0d97faef22037",
+  hash ? "sha256-82Evuwzi6OKpS9kV1yaZwEuOHSxux+DVEStq54WLSTk=",
   # git-describe string embedded in --version output (last tag + commits since);
   # not bot-maintained, so it can lag behind rev -- cosmetic only.
   gitVersion ? "v0.0-4157-gfdbac312",
-  registryRev ? "6e097e58caf8fdceb8efae0ae21d1ab871a25a82",
-  registryHash ? "sha256-LwdDEs7uQdKG1L64Pv6u/YNycKPDPGt9PvT+uh+Zlv0=",
+  registryRev ? "e5c75e8be71a1435e5160d91f9d5cc96fd00f7f8",
+  registryHash ? "sha256-sDDpDVCcTSSfYwC/ifLzPGVSpn6XSYSFxDNuu0dvn78=",
   depsHash ? "sha256-RXji3oV9ccUfje8+i73w7dox9e4wZH3KADJ+YecFgL4=",
 }:
 
