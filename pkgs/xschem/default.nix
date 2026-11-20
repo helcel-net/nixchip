@@ -3,10 +3,10 @@
   fetchFromGitHub,
   xschem,
   nix-update-script,
-  version ? "unstable-2026-11-18",
+  version ? "unstable-2026-11-20",
   rev ?
-    if lib.hasPrefix "unstable-" version then "4d81c7b5689ca230c507eb19dd46f3a2a6a5d607" else version,
-  hash ? "sha256-5/BGndF5s9n7nmQ7GD9lccjWxJSahb91VRWOJT5F8Yc=",
+    if lib.hasPrefix "unstable-" version then "f3b51b3b2e1701eba6c96c8820dd56a19b40244a" else version,
+  hash ? "sha256-I7OdPhfSiEhLMeiFtZ8ut5tpAGVvLD0CFDm/UJUpPwY=",
   ...
 }:
 
