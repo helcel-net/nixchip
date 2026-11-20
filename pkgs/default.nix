@@ -619,11 +619,11 @@ let
     };
     # Surelog and UHDM release in lockstep (same version numbers); nixpkgs'
     # surelog would otherwise link its own stale uhdm and break on API drift.
-    surelog_1 = pinnedOverride (basePkgs.surelog.override { uhdm = uhdm_1; }) "1.88" (githubSource {
+    surelog_1 = pinnedOverride (basePkgs.surelog.override { uhdm = uhdm_1; }) "1.89" (githubSource {
       owner = "chipsalliance";
       repo = "surelog";
-      rev = "v1.88";
-      hash = "sha256-/xwsCKkZkeBnAIdfpfyh2RjsDgdTNugykoKdjmpl88o=";
+      rev = "v1.89";
+      hash = "sha256-AUG8RPd75hLC8PiPl964La43CBdoBu9B5+LOgnRydAY=";
     });
     # HEAD surelog needs HEAD uhdm (see surelog_1: lockstep releases).
     surelog =
