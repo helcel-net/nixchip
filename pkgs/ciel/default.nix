@@ -10,9 +10,9 @@
   httpx,
   pcpp,
   zstandard,
-  version ? "unstable-2026-11-10",
-  rev ? "d2eb3cf1c43f0f8522e93c537f8fca50781216d5",
-  hash ? "sha256-IEeNYjmA7geiHCVzjadDzy77STbbWmie47HF63bqMqk=",
+  version ? "unstable-2026-11-24",
+  rev ? "7bd69733de6bff7d541cb4295dddc5856e618d0b",
+  hash ? "sha256-9u0gnZGP8d7yvDSZy6wWPMBzL4RW5ISbjqTCAYPx+o0=",
 }:
 
 buildPythonPackage {
