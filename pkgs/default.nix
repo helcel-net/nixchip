@@ -1011,11 +1011,11 @@ let
             dep
         ) old.buildInputs;
       }
-    )) "unstable-2026-11-18" (githubSource {
+    )) "unstable-2026-11-24" (githubSource {
       owner = "cvc5";
       repo = "cvc5";
-      rev = "0aae5a0f4b784bd997bd6e8f2cb6d1d31fc567df";
-      hash = "sha256-0sQYYzxg/iMq5nm8uoK1SHTM/wb7CHeDttAsT/ZwYNA=";
+      rev = "980a43540118ffe1de0c65c81745f2d48d58d16e";
+      hash = "sha256-BCh6qUZmUasfGzS4aX1NdVlCQKkrfW/Vm+kHWdu74Og=";
     });
 
     aiger_1 = callPackage ./aiger {
