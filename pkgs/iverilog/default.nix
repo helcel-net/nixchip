@@ -3,14 +3,14 @@
   fetchFromGitHub,
   iverilog,
   nix-update-script,
-  version ? "unstable-2026-11-18",
+  version ? "unstable-2026-11-24",
   rev ?
     if lib.hasPrefix "unstable-" version then
-      "0b15315c14177986b98fcad2940c0c3f98fdc8f9"
+      "9b131db4af34619efe977c4617a7b15c4cc5deb6"
     else
       "v${lib.replaceStrings [ "." ] [ "_" ] version}",
 
-  hash ? "sha256-gqEWu9Bf9r8hub2NAPT+A21MHEpWCCZwi06QQqcY9ac=",
+  hash ? "sha256-qLgUFbe+B7Vfpj96OrPvWCgAlKcRefssPLu+OEgEbYo=",
   ...
 }:
 
