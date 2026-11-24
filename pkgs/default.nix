@@ -979,11 +979,11 @@ let
       rev = "z3-5.4.1";
       hash = "sha256-wac7ZB8HOFxcw5fdOfWu8wiMHFQ/z+dLMJE4Q32xbsI=";
     });
-    z3 = branchOverride (basePkgs.z3.overrideAttrs z3Fixes) "unstable-2026-11-18" (githubSource {
+    z3 = branchOverride (basePkgs.z3.overrideAttrs z3Fixes) "unstable-2026-11-24" (githubSource {
       owner = "Z3Prover";
       repo = "z3";
-      rev = "153b2a34384d61b27611595d64c636201484a8d5";
-      hash = "sha256-Twq8TMYKzWDo4n4uQUBbBr4fDqodG2RLuXSDiDxoNLw=";
+      rev = "c46c64088ad41a47766a27bd2464d222557a5169";
+      hash = "sha256-XxbmKtRpqwJemzwLRFSOvt9zNfOhzWBV5UoAamjHiHM=";
     });
     cvc5_1 = pinnedOverride basePkgs.cvc5 "1.4.2" (githubSource {
       owner = "cvc5";
